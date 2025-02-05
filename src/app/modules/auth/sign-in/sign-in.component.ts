@@ -52,20 +52,20 @@ export class AuthSignInComponent implements OnInit
      */
     ngOnInit(): void
     {
-        this._activatedRoute.queryParams.subscribe(params => {
-            if (params['message']) {
-                this.alert = {
-                    type: 'success',
-                    message: params['message']
-                };
-                this.showAlert = true; // Show the alert
-            }
-        });
+            this._activatedRoute.queryParams.subscribe(params => {
+        if (params['message']) {
+            this.alert = {
+                type: 'success',
+                message: params['message']
+            };
+            this.showAlert = true; // Show the alert
+        }
+    });
         // Create the form
         this.signInForm = this._formBuilder.group({
             email     : ['hughes.brian@company.com', [Validators.required, Validators.email]],
             password  : ['admin', Validators.required],
-            rememberMe: [''],
+            rememberMe: [false],
         });
     }
 
@@ -95,6 +95,11 @@ export class AuthSignInComponent implements OnInit
             .subscribe(
                 () =>
                 {
+                    if (this.signInForm.value.rememberMe) {
+                        this._authService.signInUsingToken().subscribe(() => {
+                            console.log('Token stored as refresh token');
+                        });
+                    }
                     // Set the redirect url.
                     // The '/signed-in-redirect' is a dummy url to catch the request and redirect the user
                     // to the correct page after a successful sign in. This way, that url can be set via

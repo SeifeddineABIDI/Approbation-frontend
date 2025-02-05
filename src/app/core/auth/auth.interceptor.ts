@@ -43,22 +43,8 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
                     const tokenAgent = decodedToken.agent || '';
                     const actualAgent = navigator.userAgent;
 
-                   /* console.log('Decoded Token:', decodedToken);
-                    console.log('Token IP:', tokenIp);
-                    console.log('Client IP (from backend):', clientIp);
-                    console.log('Token Agent:', tokenAgent);
-                    console.log('Actual Agent:', actualAgent);*/
 
                     if (tokenIp !== clientIp || tokenAgent !== actualAgent) {
-                        /*console.error('IP/User-Agent mismatch detected.');*/
-
-                        /*console.error('Error: IP mismatch or User-Agent mismatch.', {
-                            tokenIp,
-                            clientIp,
-                            tokenAgent,
-                            actualAgent
-                        });*/
-
                         authService.signOut(); // Sign the user out
 
                         return throwError(() => new Error('Invalid token: IP or User-Agent mismatch.'));

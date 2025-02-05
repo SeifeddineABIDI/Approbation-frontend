@@ -59,7 +59,11 @@ export class AuthService
      * @param password
      */
     resetPassword(token: string, email: string, newPassword: string): Observable<any> {
-        return this._httpClient.post(`${this.apiUrl}/api/v1/auth/reset-password`, { token, email, newPassword });
+        return this._httpClient.post(`${this.apiUrl}/api/v1/auth/reset-password`, {
+            token,
+            email,
+            newPassword
+        });
     }
 
     /**
@@ -102,38 +106,50 @@ export class AuthService
     /**
      * Sign in using the access token
      */
-   signInUsingToken(): Observable<any> {
-    return this._httpClient
-        .post<{ accessToken: string; user: any }>(
-            `${this.apiUrl}/api/v1/auth/refresh-token`, 
-            {}, 
-            { withCredentials: true } // Ensures refresh token is sent
-        )
-        .pipe(
-            switchMap((response) => {
-                if (response.accessToken) {
-                    this.accessToken = response.accessToken;
-                    this._authenticated = true;
-                    this._userService.user = response.user;
+    signInUsingToken(): Observable<any>
+    {
+        // Sign in using the token
+        return this._httpClient.post(`${this.apiUrl}/api/v1/auth/refresh-token`,{}, {
+            withCredentials: true,
+            
+        }).pipe(
+            catchError(() =>
 
-                    return of(true);
-                } else {
-                    return throwError(() => new Error('Failed to refresh token.'));
+                // Return false
+                of(false),
+            ),
+            switchMap((response: any) =>
+            {
+                // Replace the access token with the new one if it's available on
+                // the response object.
+                //
+                // This is an added optional step for better security. Once you sign
+                // in using the token, you should generate a new one on the server
+                // side and attach it to the response object. Then the following
+                // piece of code can replace the token with the refreshed one.
+                if ( response.accessToken )
+                {
+                    this.accessToken = response.accessToken;
                 }
+
+                // Set the authenticated flag to true
+                this._authenticated = true;
+
+                // Store the user on the user service
+                this._userService.user = response.user;
+
+                // Return true
+                return of(true);
             }),
-            catchError((error) => {
-                console.error('Token refresh failed:', error);
-                this.signOut(); // If refresh fails, log the user out
-                return throwError(() => new Error('Session expired. Please log in again.'));
-            })
         );
-}
+    }
 
     /**
      * Sign out
      */
     signOut(): Observable<any>
-    {   localStorage.clear();
+    {   
+        localStorage.clear();
         this._authenticated = false;
         return of(true);
     }
@@ -206,8 +222,19 @@ export class AuthService
             console.error('Failed to decode the JWT token.');
             return of(false);
         }
+        const tokenIp = decodedToken.ip || '';
+        const tokenAgent = decodedToken.agent || '';
 
-  
+        const actualAgent = navigator.userAgent;
+        /*console.log('Decoded Token (Interceptor):', decodedToken);
+        console.log('Token IP (Interceptor):', tokenIp);
+        console.log('Token Agent (Interceptor):', tokenAgent);
+        console.log('Actual Agent (Interceptor):', actualAgent);*/
+        /*if (tokenIp !== '127.0.0.1' && tokenAgent !== actualAgent) {
+            console.warn('IP or User-Agent mismatch!');
+            this.signOut(); // Log out the user
+            return of(false);
+        }*/
         return this.signInUsingToken();
     }
    validateResetToken(token: string) {

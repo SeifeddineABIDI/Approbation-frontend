@@ -19,7 +19,6 @@ import { SearchComponent } from 'app/layout/common/search/search.component';
 import { ShortcutsComponent } from 'app/layout/common/shortcuts/shortcuts.component';
 import { UserComponent } from 'app/layout/common/user/user.component';
 import { Subject, takeUntil } from 'rxjs';
-import {environment} from "../../../../../environments/environment";
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from 'app/core/auth/auth.service';
 
@@ -81,10 +80,9 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
             this.avatarUrl = url;
         });
     
-        // Load avatar if not already set
         if (!this.avatarUrl) {
             this._initializeAvatar();
-        }        // Subscribe to navigation data
+        }       
         this._navigationService.navigation$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((navigation: Navigation) =>
@@ -95,22 +93,18 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         if (userData) {
             this.user = JSON.parse(userData);
         }
-        // Subscribe to the user service
         this._userService.user$
             .pipe((takeUntil(this._unsubscribeAll)))
             .subscribe((user: User) =>
             {
                     this.user = user;
             });
-        // Subscribe to media changes
         this._fuseMediaWatcherService.onMediaChange$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe(({matchingAliases}) =>
             {
-                // Check if the screen is small
                 this.isScreenSmall = !matchingAliases.includes('md');
             });
-       // console.log(this.avatar)
     }
 
     /**

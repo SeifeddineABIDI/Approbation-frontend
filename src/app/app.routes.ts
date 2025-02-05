@@ -33,8 +33,8 @@ export const appRoutes: Route[] = [
             {path: 'forgot-password', loadChildren: () => import('app/modules/auth/forgot-password/forgot-password.routes')},
             {path: 'reset-password', loadChildren: () => import('app/modules/auth/reset-password/reset-password.routes')},
             {path: 'sign-in', loadChildren: () => import('app/modules/auth/sign-in/sign-in.routes')},
-            {path: 'sign-up', loadChildren: () => import('app/modules/auth/sign-up/sign-up.routes')},
-            {path: '404', loadChildren: () => import('app/modules/error/error-404/error-404.routes')}
+            {path: '404', loadChildren: () => import('app/modules/error/error-404/error-404.routes')},
+
             
         ]
     },
@@ -78,9 +78,9 @@ export const appRoutes: Route[] = [
             initialData: initialDataResolver
         },
         children: [
-            {path: 'example', loadChildren: () => import('app/modules/admin/example/example.routes')},
             {path: 'users', loadChildren: () => import('app/modules/admin/user/users.routes')},
             // {path:'users',loadChildren:()=>import('app/modules/admin/inventory/ecommerce.routes')}
+            {path: 'example', loadChildren: () => import('app/modules/admin/example/example.routes')},
             {path: 'settings', loadChildren: () => import('app/modules/settings/settings.routes')},
             {path: '**', loadChildren: () => import('app/modules/error/error-404/error-404.routes')}
 
