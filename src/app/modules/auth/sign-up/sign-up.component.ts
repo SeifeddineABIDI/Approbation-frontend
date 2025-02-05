@@ -16,7 +16,7 @@ import { AuthService } from 'app/core/auth/auth.service';
     selector     : 'auth-sign-up',
     templateUrl  : './sign-up.component.html',
     encapsulation: ViewEncapsulation.None,
-    animations   : fuseAnimations,
+        animations   : fuseAnimations,
     standalone   : true,
     imports      : [RouterLink, NgIf, FuseAlertComponent, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule],
 })
@@ -69,45 +69,45 @@ export class AuthSignUpComponent implements OnInit
     /**
      * Sign up
      */
-    signUp(): void
-    {
-        // Do nothing if the form is invalid
-        if ( this.signUpForm.invalid )
-        {
-            return;
-        }
+    // signUp(): void
+    // {
+    //     // Do nothing if the form is invalid
+    //     if ( this.signUpForm.invalid )
+    //     {
+    //         return;
+    //     }
 
-        // Disable the form
-        this.signUpForm.disable();
+    //     // Disable the form
+    //     this.signUpForm.disable();
 
-        // Hide the alert
-        this.showAlert = false;
+    //     // Hide the alert
+    //     this.showAlert = false;
 
-        // Sign up
-        this._authService.signUp(this.signUpForm.value)
-            .subscribe(
-                (response) =>
-                {
-                    // Navigate to the confirmation required page
-                    this._router.navigateByUrl('/confirmation-required');
-                },
-                (response) =>
-                {
-                    // Re-enable the form
-                    this.signUpForm.enable();
+    //     // Sign up
+    //     this._authService.signUp(this.signUpForm.value)
+    //         .subscribe(
+    //             (response) =>
+    //             {
+    //                 // Navigate to the confirmation required page
+    //                 this._router.navigateByUrl('/confirmation-required');
+    //             },
+    //             (response) =>
+    //             {
+    //                 // Re-enable the form
+    //                 this.signUpForm.enable();
 
-                    // Reset the form
-                    this.signUpNgForm.resetForm();
+    //                 // Reset the form
+    //                 this.signUpNgForm.resetForm();
 
-                    // Set the alert
-                    this.alert = {
-                        type   : 'error',
-                        message: 'Something went wrong, please try again.',
-                    };
+    //                 // Set the alert
+    //                 this.alert = {
+    //                     type   : 'error',
+    //                     message: 'Something went wrong, please try again.',
+    //                 };
 
-                    // Show the alert
-                    this.showAlert = true;
-                },
-            );
-    }
+    //                 // Show the alert
+    //                 this.showAlert = true;
+    //             },
+    //         );
+    // }
 }

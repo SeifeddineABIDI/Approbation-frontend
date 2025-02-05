@@ -1,0 +1,47 @@
+.file-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 0.75rem; /* Adjust padding for proper alignment */
+    border: 1px solid #d1d5db; /* Outline color (light gray) */
+    border-radius: 0.375rem; /* Rounded corners */
+    background-color: white;
+    font-family: 'Roboto', sans-serif; /* Match font of Material inputs */
+    font-size: 1rem; /* Same font size as Material inputs */
+    color: rgba(0, 0, 0, 0.87); /* Default text color */
+  }
+  
+  .file-input-container:hover {
+    border-color: #3b82f6; /* Highlight border color on hover */
+  }
+  
+  .file-input-label {
+    display: flex;
+    align-items: center;
+    color: rgba(135, 134, 134, 0.719); /* Label color */
+    font-family: 'Roboto', sans-serif; /* Ensure consistent font */
+    font-size: 1rem; /* Match font size of Material inputs */
+    margin-right: 0.4rem; /* Space between the icon and the label */
+    flex-grow: 1; /* Allow text to take up remaining space */
+  }
+  
+  .file-input-container mat-icon {
+    margin-left: 0.25rem; /* Space between the label text and icon */
+    margin-right: 0.8rem; /* Space between the icon and the text */
+    vertical-align: middle; /* Ensure vertical alignment with the text */
+  }
+  
+  .file-input-container span {
+    flex-grow: 1;
+  }
+  
+  .file-input-container .mat-error {
+    position: absolute;
+    bottom: -1.25rem; /* Error message position */
+    left: 0;
+    color: red;
+    font-size: 0.75rem;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+  }
+  

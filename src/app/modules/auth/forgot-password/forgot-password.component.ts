@@ -104,8 +104,8 @@ export class AuthForgotPasswordComponent implements OnInit
                 {
                     // Set the alert
                     this.alert = {
-                        type   : 'error',
-                        message: 'Email does not found! Are you sure you are already a member?',
+                        type   : 'success',
+                        message: 'Password reset sent! You\'ll receive an email if you are registered on our system.',
                     };
                 },
             );

@@ -1,8 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { User } from 'app/core/user/user.types';
 import { environment } from 'environments/environment';
-import { map, Observable, ReplaySubject, tap } from 'rxjs';
+import { catchError, map, Observable, ReplaySubject, tap, throwError } from 'rxjs';
 
 @Injectable({providedIn: 'root'})
 export class UserService
@@ -73,5 +73,57 @@ export class UserService
             headers,
             responseType: 'blob',
         });
+    }
+    getAllUsers(accessToken: string): Observable<User[]> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        return this._httpClient.get<User[]>(`${this.apiUrl}/api/v1/admin/all`, {
+            headers,
+        });
+    }
+    getManagers(token: string): Observable<{ fullname: string, matricule: string }[]> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${token}`);
+        return this._httpClient.get<{ fullname: string, matricule: string }[]>(
+            `${this.apiUrl}/api/v1/admin/managers`,
+            { headers }
+        );
+    }
+    getUsersById(userId: number, accessToken: string): Observable<User> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        return this._httpClient.get<User>(`${this.apiUrl}/api/v1/admin/getById/${userId}`, {
+            headers,
+        });
+    }
+    getUsersByMatricule(matricule: string, accessToken: string): Observable<User> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        
+        return this._httpClient.get<User>(`${this.apiUrl}/api/v1/admin/getUserByMat/${matricule}`, { headers }).pipe(
+            catchError((error) => {
+                // Handle error here if needed, e.g., logging or throwing a custom error
+                console.error('Error fetching user by matricule:', error);
+                return throwError(() => new Error('Failed to fetch user data.'));
+            })
+        );
+    }
+    
+    searchUsers(firstName?: string, lastName?: string, email?: string, matricule?: string, accessToken?: string): Observable<User[]> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+
+        let params = new HttpParams();
+        if (firstName) params = params.set('firstName', firstName);
+        if (lastName) params = params.set('lastName', lastName);
+        if (email) params = params.set('email', email);
+        if (matricule) params = params.set('matricule', matricule);
+        return this._httpClient.get<User[]>(`${this.apiUrl}/api/v1/admin/search`, { headers, params });
+    }
+    updateUser(userId: number, formData: FormData, accessToken: string): Observable<any> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);        
+        return this._httpClient.put<any>(`${this.apiUrl}/api/v1/admin/update/${userId}`, formData, { headers });
+    }
+    deleteUser(userId: number, accessToken: string): Observable<any> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);        
+        return this._httpClient.delete<any>(`${this.apiUrl}/api/v1/admin/delete/${userId}`, { headers });
+    }
+    uploadAvatar(userId: number, formData: FormData): Observable<string> {
+        return this._httpClient.post(`${this.apiUrl}/api/v1/management/${userId}/image`, formData, { responseType: 'text' });
     }
 }

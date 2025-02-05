@@ -1,0 +1,41 @@
+.inventory-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr 2fr 3fr 2fr;
+    gap: 4px;
+}
+
+.inventory-grid-header {
+    display: grid;
+    grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr 2fr 3fr 2fr;
+    gap: 4px;
+}
+
+.inventory-grid-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr 2fr 3fr 2fr;
+    gap: 4px;
+}
+
+@media (max-width: 1024px) {
+    .inventory-grid,
+    .inventory-grid-header,
+    .inventory-grid-row {
+        grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr 2fr 2fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .inventory-grid,
+    .inventory-grid-header,
+    .inventory-grid-row {
+        grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .inventory-grid,
+    .inventory-grid-header,
+    .inventory-grid-row {
+        grid-template-columns: 1fr 2fr 3fr 3fr;
+    }
+}

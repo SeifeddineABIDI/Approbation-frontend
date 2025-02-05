@@ -1,0 +1,189 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent">
+        <div class="flex-1 min-w-0">
+            <!-- Breadcrumbs -->
+            <div class="flex flex-wrap items-center font-medium">
+                <div>
+                    <a class="whitespace-nowrap text-primary-500">Users</a>
+                </div>
+                <div class="flex items-center ml-1 whitespace-nowrap">
+                    <mat-icon
+                        class="icon-size-5 text-secondary"
+                        [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
+                    <a class="ml-1 text-primary-500">Add</a>
+                </div>
+            </div>
+            <!-- Title -->
+            <div class="mt-2">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                    Add Users
+                </h2>
+            </div>
+        </div>
+    </div>
+    <!-- Main -->
+    <div class="flex-auto p-6 sm:p-10">
+        <fuse-alert class="mt-8" *ngIf="showAlert" [appearance]="'outline'" [showIcon]="false" [type]="alert.type" [@shake]="alert.type === 'error'">
+      {{ alert.message }}
+    </fuse-alert>
+
+            <form class="flex flex-col mt-4 px-8 pt-10 bg-card shadow rounded overflow-hidden"
+            [formGroup]="signUpForm"
+            #signUpNgForm="ngForm">
+            <p class="text-lg font-medium">Profile</p>
+            <p class="text-secondary mb-6">
+                Set your login preferences, help us personalize your experience and make big account changes here
+            </p>
+            <div class="flex flex-col gt-xs:flex-row">
+                <mat-form-field class="flex-auto gt-xs:pr-3">
+                    <input
+                        id="firstname"
+                        matInput
+                        [formControlName]="'firstname'"
+                        [placeholder]="'First name'">
+                        <mat-error *ngIf="signUpForm.get('firstname').hasError('required')">
+                            First name is required
+                        </mat-error>
+                    <mat-icon
+                        class="icon-size-5"
+                        matPrefix
+                        [svgIcon]="'heroicons_solid:user-circle'"></mat-icon>
+                </mat-form-field>
+                <mat-form-field class="flex-auto gt-xs:pl-3">
+                    <input
+                    id="lastname"
+                        matInput
+                        [formControlName]="'lastname'"
+                        [placeholder]="'Last name'">
+                        <mat-error *ngIf="signUpForm.get('lastname').hasError('required')">
+                           Last name is required
+                        </mat-error>
+                    <mat-icon
+                        class="icon-size-5"
+                        matPrefix
+                        [svgIcon]="'heroicons_solid:user-circle'"></mat-icon>
+                </mat-form-field>
+            </div>
+                <div class="flex">
+                    <mat-form-field class="flex-auto">
+                        <input
+                            id="email"
+                            matInput
+                            [formControlName]="'email'"
+                            [placeholder]="'Email Address'">
+                            <mat-error *ngIf="signUpForm.get('email').hasError('required')">
+                                Email is required
+                            </mat-error>
+                        <mat-icon
+                            class="icon-size-5"
+                            matPrefix
+                            [svgIcon]="'heroicons_solid:envelope'"></mat-icon>
+                    </mat-form-field>
+                </div>
+                <div class="flex">
+                    <mat-form-field class="flex-auto">
+                        <input
+                            id="password"
+                            type="password"
+                            matInput
+                            [formControlName]="'password'"
+                            [placeholder]="'Password'"
+                            #passwordField>
+                            <mat-error *ngIf="signUpForm.get('password').hasError('required')">
+                                Password is required
+                            </mat-error>
+                        <mat-icon
+                            class="icon-size-5"
+                            matPrefix
+                            [svgIcon]="'heroicons_solid:key'"></mat-icon>
+                            <button
+                            mat-icon-button
+                            type="button"
+                            (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
+                            matSuffix>
+                            <mat-icon
+                                class="icon-size-5"
+                                *ngIf="passwordField.type === 'password'"
+                                [svgIcon]="'heroicons_solid:eye'"></mat-icon>
+                            <mat-icon
+                                class="icon-size-5"
+                                *ngIf="passwordField.type === 'text'"
+                                [svgIcon]="'heroicons_solid:eye-slash'"></mat-icon>
+                        </button>   
+    
+                    </mat-form-field>
+                </div>
+                <div class="flex flex-col gt-xs:flex-row">
+                    <mat-form-field class="flex-auto gt-xs:pr-3">
+                        <mat-select id="role" [formControlName]="'role'" [placeholder]="'Role'"  (selectionChange)="onRoleChange($event)">
+                            <mat-option value="ADMIN">ADMIN</mat-option>
+                            <mat-option value="MANAGER">MANAGER</mat-option>
+                            <mat-option value="USER">USER</mat-option>
+                        </mat-select>
+                        <mat-error *ngIf="signUpForm.get('role').hasError('required')">
+                            Role is required
+                        </mat-error>
+                        <mat-icon
+                            class="icon-size-5"
+                            matPrefix
+                            [svgIcon]="'heroicons_solid:user'"></mat-icon>
+                    </mat-form-field>
+                    <div *ngIf="showManagerSelect" class="flex">
+                        <mat-form-field class="flex-auto">
+                            <mat-select 
+                            id="managerMatricule" 
+                            [formControlName]="'managerMatricule'" 
+                            [placeholder]="'Select Manager'">
+                            <mat-option *ngFor="let manager of managers" [value]="manager.matricule">
+                                {{ manager.fullname }}
+                            </mat-option>
+                            <mat-option *ngIf="managers.length === 0" disabled>
+                                No managers available
+                            </mat-option>
+                        </mat-select>
+                            <mat-error *ngIf="signUpForm.get('managerMatricule').hasError('required')">
+                                Manager is required
+                            </mat-error>
+                            <mat-icon
+                            class="icon-size-5"
+                            matPrefix
+                            [svgIcon]="'heroicons_solid:identification'"></mat-icon>
+                        </mat-form-field>
+                    </div>
+                    
+                    <div class="file-input-container">
+                        <label for="avatar" class="file-input-label cursor-pointer">
+                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:camera'"></mat-icon>
+                            <span>{{ imageName || 'Choose an avatar' }}</span>
+                        </label>
+                        <input
+                            id="avatar"
+                            type="file"
+                            (change)="onFileSelected($event)"
+                            accept="image/*"
+                            hidden
+                        />
+                        <!-- <mat-error *ngIf="signUpForm.controls['avatar']?.hasError('required')">Avatar is required</mat-error> -->
+                    </div>
+                    
+                    
+                </div>
+                <div class="flex items-center justify-end border-t -mx-8 mt-8 px-8 py-5 bg-gray-50 dark:bg-gray-700">
+                    <button mat-button (click)="clearForm()">
+                        Cancel
+                    </button>
+                    <button mat-flat-button
+                    [color]="'primary'"
+                    [disabled]="signUpForm.invalid || isSubmitting"
+                    (click)="signUp()"> 
+                <span *ngIf="!isSubmitting">
+                    Create account
+                </span>
+                <mat-progress-spinner *ngIf="isSubmitting" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
+            </button>
+                </div>
+            </form>
+
+    </div>
+
+</div>

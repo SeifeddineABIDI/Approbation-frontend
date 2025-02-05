@@ -1,0 +1,93 @@
+/* Styling for the dialog content */
+mat-dialog-content {
+    font-size: 18px; /* Increased font size for better readability */
+    color: #222; /* Darker color for better contrast */
+    line-height: 1.8; /* Increased line height for better spacing */
+    padding: 25px 15px; /* Slightly more padding for a balanced layout */
+    background-color: #ffffff; /* Brightened the background for better contrast */
+    border-radius: 12px; /* Softer border-radius for a modern look */
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow for depth */
+  }
+  
+  /* Add some spacing and style for dialog actions */
+  mat-dialog-actions {
+    margin-top: 25px; /* Increased margin for better separation */
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px; /* Slightly wider gap between buttons */
+    padding: 15px;
+    background-color: #f4f4f4; /* Subtle gray background for better button visibility */
+    border-top: 1px solid #e0e0e0; /* Lighter border for modern aesthetics */
+  }
+  
+  /* Styling for the dialog buttons */
+  button {
+    padding: 10px 20px; /* Increased padding for easier interaction */
+    border-radius: 6px; /* Slightly rounder edges for a modern look */
+    text-transform: none; /* No uppercase for cleaner typography */
+    font-weight: 700; /* Bolder text for better visibility */
+    font-size: 16px; /* Larger font size for buttons */
+  }
+  
+  /* Styling for secondary buttons */
+  button[mat-button] {
+    background-color: transparent;
+    color: #555; /* Neutral gray for secondary buttons */
+    border: 1px solid #ddd; /* Maintained subtle border */
+    transition: all 0.3s ease; /* Smooth transition for hover effects */
+  }
+  
+  button[mat-button]:hover {
+    background-color: #f8f8f8; /* Brighter hover effect */
+  }
+  
+  /* Styling for primary buttons */
+  button[mat-flat-button] {
+    background-color: #5046e5; /* Vibrant blue for primary action */
+    color: #fff;
+    border: none;
+    box-shadow: 0px 4px 6px rgba(0, 123, 255, 0.3); /* Soft shadow for depth */
+    transition: all 0.3s ease; /* Smooth transition for hover effects */
+    border-radius: 50px;
+  }
+  
+  button[mat-flat-button]:hover {
+    background-color: #5046e5; /* Slightly darker blue for hover */
+  }
+  
+  /* Styling for the dialog icon */
+  .dialog-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px; /* Increased margin for better spacing */
+  }
+  
+  mat-icon {
+    font-size: 56px; /* Slightly larger icon for better visibility */
+    color: #5046e5; /* Same blue as primary button for consistency */
+    text-shadow: 0px 2px 6px rgba(0, 123, 255, 0.4); /* Subtle glow effect */
+  }
+  
+  /* Add responsiveness for smaller screens */
+  @media (max-width: 600px) {
+    mat-dialog-content {
+      font-size: 16px; /* Adjust font size for small screens */
+      padding: 20px 10px; /* Adjust padding for smaller screens */
+    }
+  
+    mat-dialog-actions {
+      flex-direction: column; /* Stack buttons vertically on small screens */
+      gap: 10px; /* Balanced spacing for vertical layout */
+      padding: 10px;
+    }
+  
+    button {
+      font-size: 14px; /* Adjust button font size for small screens */
+      padding: 8px 16px; /* Smaller button padding */
+    }
+  
+    mat-icon {
+      font-size: 48px; /* Adjust icon size for smaller screens */
+    }
+  }
+  

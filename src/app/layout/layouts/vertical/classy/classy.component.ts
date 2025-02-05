@@ -77,8 +77,14 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
     ngOnInit(): void
     {   
         this._initializeUser();
-        this._initializeAvatar();
-        // Subscribe to navigation data
+        this._authService.avatarUrl$.subscribe(url => {
+            this.avatarUrl = url;
+        });
+    
+        // Load avatar if not already set
+        if (!this.avatarUrl) {
+            this._initializeAvatar();
+        }        // Subscribe to navigation data
         this._navigationService.navigation$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((navigation: Navigation) =>

@@ -12,9 +12,25 @@ export const defaultNavigation: FuseNavigationItem[] = [
     {
         id   : 'users',
         title: 'Users',
-        type : 'basic',
+        type : 'collapsable',
         icon : 'heroicons_outline:users',
-        link : '/users'
+        link : '/users',
+        children : [
+            {
+                id   : 'users.list',
+                title: 'List',
+                type : 'basic',
+                icon : 'heroicons_outline:user-group',
+                link : '/users/list'
+            },
+            {
+                id   : 'users.add',
+                title: 'Add',
+                type : 'basic',
+                icon : 'heroicons_outline:user-plus',
+                link : '/users/add'
+            }
+        ]
     }
 ];
 export const compactNavigation: FuseNavigationItem[] = [

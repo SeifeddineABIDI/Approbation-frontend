@@ -13,8 +13,8 @@
         <span
             class="absolute right-0 bottom-0 w-2 h-2 rounded-full"
             [ngClass]="{'mr-px mb-px': !showAvatar || !user.avatar,
-                          'bg-green-500': user?.status === 'online',
-                          'bg-amber-500': user?.status === 'away',
+                          'bg-green-500': user?.onLeave === false,
+                          'bg-amber-500': user?.onLeave === true,
                           'bg-red-500': user?.status === 'busy',
                           'bg-gray-400': user?.status === 'not-visible'}"
         ></span>
@@ -35,7 +35,8 @@
         <mat-icon [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
         <span>Profile</span>
     </button>
-    <button mat-menu-item>
+    <button mat-menu-item (click)="goToSettings()">
+
         <mat-icon [svgIcon]="'heroicons_outline:cog-8-tooth'"></mat-icon>
         <span>Settings</span>
     </button>

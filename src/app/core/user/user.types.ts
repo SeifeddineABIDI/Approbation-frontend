@@ -9,4 +9,7 @@ export interface User
     avatar?: string;
     status?: string;
     manager?: string;
+    onLeave: boolean;
+    soldeConge: number;
+    managerMatricule?: string | null;
 }

@@ -50,8 +50,9 @@ export class UserComponent implements OnInit, OnDestroy
      */
     ngOnInit(): void
     {
-        // Subscribe to user changes
-        this._userService.user$
+
+        const userData = localStorage.getItem('user');
+             this._userService.user$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((user: User) =>
             {
@@ -60,6 +61,9 @@ export class UserComponent implements OnInit, OnDestroy
                 // Mark for check
                 this._changeDetectorRef.markForCheck();
             });
+            if (userData) {
+                this.user = JSON.parse(userData);}
+
     }
 
     /**
@@ -103,4 +107,7 @@ export class UserComponent implements OnInit, OnDestroy
     {
         this._router.navigate(['/sign-out']);
     }
+    goToSettings(): void {
+    this._router.navigate(['/settings']);
+}
 }

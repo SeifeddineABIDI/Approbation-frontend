@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { FuseValidators } from '@fuse/validators';
@@ -31,6 +31,9 @@ export class AuthResetPasswordComponent implements OnInit
     };
     resetPasswordForm: UntypedFormGroup;
     showAlert: boolean = false;
+    isValidToken: boolean = false;
+    token: string;
+    isLoading: boolean = true;
 
     /**
      * Constructor
@@ -38,6 +41,9 @@ export class AuthResetPasswordComponent implements OnInit
     constructor(
         private _authService: AuthService,
         private _formBuilder: UntypedFormBuilder,
+        private _router: Router,
+        private _route: ActivatedRoute,
+
     )
     {
     }
@@ -51,8 +57,25 @@ export class AuthResetPasswordComponent implements OnInit
      */
     ngOnInit(): void
     {
+        this.token = this._route.snapshot.queryParams['token'];
+
+        // Validate the token
+        this.isLoading = true; 
+        this.isValidToken = false;
+        this._authService.validateResetToken(this.token).subscribe(
+            () => {
+                console.log('Token is valid');
+                this.isValidToken = true;
+                this.isLoading = false;
+            },
+            (error) => {
+                console.error('Token validation failed:', error);
+                this._router.navigate(['/404']);
+            }
+        );
         // Create the form
         this.resetPasswordForm = this._formBuilder.group({
+                email          : ['', [Validators.required, Validators.email]],
                 password       : ['', Validators.required],
                 passwordConfirm: ['', Validators.required],
             },
@@ -69,52 +92,51 @@ export class AuthResetPasswordComponent implements OnInit
     /**
      * Reset password
      */
-    resetPassword(): void
-    {
-        // Return if the form is invalid
-        if ( this.resetPasswordForm.invalid )
-        {
+    resetPassword(): void {
+        if (this.resetPasswordForm.invalid) {
             return;
         }
-
-        // Disable the form
+    
         this.resetPasswordForm.disable();
-
-        // Hide the alert
         this.showAlert = false;
-
-        // Send the request to the server
-        this._authService.resetPassword(this.resetPasswordForm.get('password').value)
-            .pipe(
-                finalize(() =>
-                {
-                    // Re-enable the form
-                    this.resetPasswordForm.enable();
-
-                    // Reset the form
-                    this.resetPasswordNgForm.resetForm();
-
-                    // Show the alert
+    
+        const email = this.resetPasswordForm.get('email').value;
+        const password = this.resetPasswordForm.get('password').value;
+    
+        this._authService.resetPassword(this.token, email, password)
+        .pipe(
+            finalize(() => {
+                this.resetPasswordForm.enable();
+                this.resetPasswordNgForm.resetForm();
+            })
+        )
+        .subscribe(
+            (response) => {
+                console.log("Reset password success:", response);
+    
+                if (response && response.message) {
+                    this._router.navigate(['/sign-in'], { 
+                        queryParams: { message: response.message } 
+                    });
+                } else {
+                    console.warn("Unexpected response structure:", response);
+                    this.alert = {
+                        type: 'error',
+                        message: 'Unexpected response from server.',
+                    };
                     this.showAlert = true;
-                }),
-            )
-            .subscribe(
-                (response) =>
-                {
-                    // Set the alert
-                    this.alert = {
-                        type   : 'success',
-                        message: 'Your password has been reset.',
-                    };
-                },
-                (response) =>
-                {
-                    // Set the alert
-                    this.alert = {
-                        type   : 'error',
-                        message: 'Something went wrong, please try again.',
-                    };
-                },
-            );
-    }
+                }
+            },
+            (error) => {
+                console.error("Error resetting password:", error);
+    
+                this.alert = {
+                    type: 'error',
+                    message: error?.error?.error || 'Something went wrong, please try again.',
+                };
+                this.showAlert = true;
+            }
+        );    
+    }    
+    
 }

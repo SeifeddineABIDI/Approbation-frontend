@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
-import { catchError, Observable, of, switchMap, throwError } from 'rxjs';
+import { BehaviorSubject, catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import {environment} from "../../../environments/environment";
 
 @Injectable({providedIn: 'root'})
@@ -12,6 +12,8 @@ export class AuthService
     private _httpClient = inject(HttpClient);
     private _userService = inject(UserService);
     apiUrl = environment.apiUrl
+    private _avatarUrl: BehaviorSubject<string> = new BehaviorSubject<string>(localStorage.getItem('avatarUrl') || '');
+
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
     // -----------------------------------------------------------------------------------------------------
@@ -28,7 +30,15 @@ export class AuthService
     {
         return localStorage.getItem('accessToken') ?? '';
     }
+    get avatarUrl$(): Observable<string> {
+        return this._avatarUrl.asObservable();
+    }
 
+    // Function to update avatar URL
+    setAvatarUrl(url: string): void {
+        localStorage.setItem('avatarUrl', url);
+        this._avatarUrl.next(url); // Emit new value
+    }
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
@@ -40,7 +50,7 @@ export class AuthService
      */
     forgotPassword(email: string): Observable<any>
     {
-        return this._httpClient.post('api/auth/forgot-password', email);
+        return this._httpClient.post(`${this.apiUrl}/api/v1/auth/forgot-password`, {email});
     }
 
     /**
@@ -48,9 +58,8 @@ export class AuthService
      *
      * @param password
      */
-    resetPassword(password: string): Observable<any>
-    {
-        return this._httpClient.post('api/auth/reset-password', password);
+    resetPassword(token: string, email: string, newPassword: string): Observable<any> {
+        return this._httpClient.post(`${this.apiUrl}/api/v1/auth/reset-password`, { token, email, newPassword });
     }
 
     /**
@@ -93,55 +102,39 @@ export class AuthService
     /**
      * Sign in using the access token
      */
-    signInUsingToken(): Observable<any>
-    {
-        // Sign in using the token
-        return this._httpClient.post('api/auth/sign-in-with-token', {
-            accessToken: this.accessToken,
-        }).pipe(
-            catchError(() =>
-
-                // Return false
-                of(false),
-            ),
-            switchMap((response: any) =>
-            {
-                // Replace the access token with the new one if it's available on
-                // the response object.
-                //
-                // This is an added optional step for better security. Once you sign
-                // in using the token, you should generate a new one on the server
-                // side and attach it to the response object. Then the following
-                // piece of code can replace the token with the refreshed one.
-                if ( response.accessToken )
-                {
+   signInUsingToken(): Observable<any> {
+    return this._httpClient
+        .post<{ accessToken: string; user: any }>(
+            `${this.apiUrl}/api/v1/auth/refresh-token`, 
+            {}, 
+            { withCredentials: true } // Ensures refresh token is sent
+        )
+        .pipe(
+            switchMap((response) => {
+                if (response.accessToken) {
                     this.accessToken = response.accessToken;
+                    this._authenticated = true;
+                    this._userService.user = response.user;
+
+                    return of(true);
+                } else {
+                    return throwError(() => new Error('Failed to refresh token.'));
                 }
-
-                // Set the authenticated flag to true
-                this._authenticated = true;
-
-                // Store the user on the user service
-                this._userService.user = response.user;
-
-                // Return true
-                return of(true);
             }),
+            catchError((error) => {
+                console.error('Token refresh failed:', error);
+                this.signOut(); // If refresh fails, log the user out
+                return throwError(() => new Error('Session expired. Please log in again.'));
+            })
         );
-    }
+}
 
     /**
      * Sign out
      */
     signOut(): Observable<any>
-    {
-        // Remove the access token from the local storage
-        localStorage.removeItem('accessToken');
-
-        // Set the authenticated flag to false
+    {   localStorage.clear();
         this._authenticated = false;
-
-        // Return the observable
         return of(true);
     }
 
@@ -150,10 +143,31 @@ export class AuthService
      *
      * @param user
      */
-    signUp(user: { name: string; email: string; password: string; company: string }): Observable<any>
-    {
-        return this._httpClient.post('api/auth/sign-up', user);
+    signUp(firstname: string, lastname: string, email: string, password: string, role: string, managerMatricule: string | null = null, avatar: File): Observable<any> {
+        const formData = new FormData();
+        formData.append('firstname', firstname);
+        formData.append('lastname', lastname);
+        formData.append('email', email);
+        formData.append('password', password);
+        formData.append('role', role);
+        formData.append('avatar', avatar);
+        if (managerMatricule) {
+            formData.append('managerMatricule', managerMatricule); 
+        }
+        // Log the formData content to ensure it's being populated
+        formData.forEach((value, key) => {
+            console.log(key, value);
+        });
+    
+        return this._httpClient.post(`${environment.apiUrl}/api/v1/auth/register`, formData)
+            .pipe(
+                catchError((error) => {
+                    console.error('Signup failed:', error);
+                    return throwError(() => new Error('Signup failed. Please check your credentials.'));
+                })
+            );
     }
+    
 
     /**
      * Unlock session
@@ -192,19 +206,20 @@ export class AuthService
             console.error('Failed to decode the JWT token.');
             return of(false);
         }
-        const tokenIp = decodedToken.ip || '';
-        const tokenAgent = decodedToken.agent || '';
 
-        const actualAgent = navigator.userAgent;
-        /*console.log('Decoded Token (Interceptor):', decodedToken);
-        console.log('Token IP (Interceptor):', tokenIp);
-        console.log('Token Agent (Interceptor):', tokenAgent);
-        console.log('Actual Agent (Interceptor):', actualAgent);*/
-        /*if (tokenIp !== '127.0.0.1' && tokenAgent !== actualAgent) {
-            console.warn('IP or User-Agent mismatch!');
-            this.signOut(); // Log out the user
-            return of(false);
-        }*/
+  
         return this.signInUsingToken();
     }
+   validateResetToken(token: string) {
+    console.log('Calling API with token:', token);
+    return this._httpClient.get(`${this.apiUrl}/api/v1/auth/validate-reset-token?token=${token}`, { responseType: 'text' })
+        .pipe(
+            tap(response => console.log('API Response:', response)),
+            catchError(error => {
+                console.error('API Error:', error);
+                return throwError(error);
+            })
+        );
+}
+
 }

@@ -52,6 +52,15 @@ export class AuthSignInComponent implements OnInit
      */
     ngOnInit(): void
     {
+        this._activatedRoute.queryParams.subscribe(params => {
+            if (params['message']) {
+                this.alert = {
+                    type: 'success',
+                    message: params['message']
+                };
+                this.showAlert = true; // Show the alert
+            }
+        });
         // Create the form
         this.signInForm = this._formBuilder.group({
             email     : ['hughes.brian@company.com', [Validators.required, Validators.email]],
