@@ -5,10 +5,10 @@
         120px   /* Narrower width for Request Date */
         120px   /* Narrower width for Start Date */
         120px   /* Narrower width for End Date */
-        1fr     /* Other columns with flexible width */
+        0.5fr     /* Other columns with flexible width */
         1fr
-        1fr
-        1fr
+        1.5fr
+        0.5fr
         1fr
         1fr;
     gap: 4px; /* Adjust gap between columns */

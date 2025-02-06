@@ -165,6 +165,17 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
             )
             .subscribe();
     }   
+    getFormattedDate(date: string): string {
+        const parsedDate = new Date(date);
+        const options: Intl.DateTimeFormatOptions = {
+          weekday: 'short',
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        };
+        return parsedDate.toLocaleDateString('en-US', options); // Modify 'en-US' for other locales
+      }
+    
     getAvatarUrl(avatarPath: string): string {
         const baseUrl = 'http://localhost:8080/images/';
         const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');

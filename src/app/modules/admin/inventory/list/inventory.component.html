@@ -92,7 +92,8 @@
                                             </span>
                                         </span>
                                     </div>
-                                    <div class="column-firstname hidden lg:block">{{product.managerApprovalDate}}</div>
+                                    <div class="column-firstname hidden lg:block">  {{ getFormattedDate(product.managerApprovalDate) }}
+                                    </div>
                                     <div class="column-soldeconge hidden sm:block">{{product.managerComments}}</div>
                                     <div class="column-role hidden sm:block">
                                         <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
@@ -106,7 +107,7 @@
                                             </span>
                                         </span>
                                     </div>                              
-                                    <div class="column-firstname hidden sm:block">{{product.rhApprovalDate}}</div>
+                                    <div class="column-firstname hidden sm:block">{{getFormattedDate(product.rhApprovalDate)}}</div>
                                     <div class="column-soldeconge hidden sm:block">{{product.rhComments}}</div>
                                 </div>
                                 

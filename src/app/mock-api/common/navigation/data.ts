@@ -17,6 +17,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link : '/request/list'
     },
     {
+        id   : 'requestAdd',
+        title: 'Request congé',
+        type : 'basic',
+        icon : 'heroicons_outline:calendar',
+        link : '/requests/add'
+    },
+    {
         id   : 'users',
         title: 'Users',
         type : 'collapsable',
