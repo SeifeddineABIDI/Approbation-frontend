@@ -1,26 +1,34 @@
-.inventory-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr 2fr 3fr 2fr;
-    gap: 4px;
-}
-
-.inventory-grid-header {
-    display: grid;
-    grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr 2fr 3fr 2fr;
-    gap: 4px;
-}
-
+.inventory-grid,
+.inventory-grid-header,
 .inventory-grid-row {
-    display: grid;
-    grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr 2fr 3fr 2fr;
-    gap: 4px;
+    grid-template-columns: 
+        120px   /* Narrower width for Request Date */
+        120px   /* Narrower width for Start Date */
+        120px   /* Narrower width for End Date */
+        1fr     /* Other columns with flexible width */
+        1fr
+        1fr
+        1fr
+        1fr
+        1fr;
+    gap: 4px; /* Adjust gap between columns */
+    max-width: 100%;
+    overflow-x: auto;
 }
 
 @media (max-width: 1024px) {
     .inventory-grid,
     .inventory-grid-header,
     .inventory-grid-row {
-        grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr 2fr 2fr;
+        grid-template-columns: 
+            100px  /* For tablets, reduce further */
+            100px
+            100px
+            1fr
+            1fr
+            1fr
+            1fr
+            1fr;
     }
 }
 
@@ -28,7 +36,15 @@
     .inventory-grid,
     .inventory-grid-header,
     .inventory-grid-row {
-        grid-template-columns: 1fr 2fr 3fr 3fr 4fr 2fr;
+        grid-template-columns: 
+            90px  /* Reduce more for smaller screens */
+            90px
+            90px
+            1fr
+            1fr
+            1fr
+            1fr
+            1fr;
     }
 }
 
@@ -36,6 +52,14 @@
     .inventory-grid,
     .inventory-grid-header,
     .inventory-grid-row {
-        grid-template-columns: 1fr 2fr 3fr 3fr;
+        grid-template-columns: 
+            80px  /* Reduce further for very small screens */
+            80px
+            80px
+            1fr
+            1fr
+            1fr
+            1fr
+            1fr;
     }
 }

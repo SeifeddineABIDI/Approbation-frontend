@@ -8,8 +8,27 @@
             *ngIf="isLoading">
             <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
         </div>
+        <div class="flex-1 min-w-0">
+            <!-- Breadcrumbs -->
+            <div class="flex flex-wrap items-center font-medium">
+                <div>
+                    <a class="whitespace-nowrap text-primary-500">Requests</a>
+                </div>
+                <div class="flex items-center ml-1 whitespace-nowrap">
+                    <mat-icon
+                        class="icon-size-5 text-secondary"
+                        [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
+                    <a class="ml-1 text-primary-500">List</a>
+                </div>
+            </div>
+            <!-- Title -->
+            <div class="mt-2">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                    Requests list
+                </h2>
+            </div>
+        </div>
         <!-- Title -->
-        <div class="text-4xl font-extrabold tracking-tight">Inventory</div>
         <!-- Actions -->
         <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
             <!-- Search -->
@@ -24,7 +43,7 @@
                     matInput
                     [formControl]="searchInputControl"
                     [autocomplete]="'off'"
-                    [placeholder]="'Search products'">
+                    [placeholder]="'Search requests'">
             </mat-form-field>
   
         </div>
@@ -40,57 +59,57 @@
                     <div class="grid">
                         <!-- Header -->
                         <div
-                            class="inventory-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
+                            class="inventory-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-6 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
                             matSort
                             matSortDisableClear>
-                            <div></div>
-
-                            <div class="column-matricule hidden lg:block" [mat-sort-header]="'matricule'">Matricule</div>
-                            <div class="column-firstname hidden lg:block" [mat-sort-header]="'firstName'">Firstname</div>
-                            <div class="column-lastname hidden sm:block" [mat-sort-header]="'lastName'">Lastname</div>
-                            <div class="column-email hidden lg:block" [mat-sort-header]="'email'">Email</div>
-                            <div class="column-role hidden sm:block" [mat-sort-header]="'role'">Role</div>
-                            <div class="column-soldeconge hidden lg:block" [mat-sort-header]="'soldeConge'">Solde Conge</div>
-                            <div class="column-managermatricule hidden lg:block" [mat-sort-header]="'managerMatricule'">Manager Matricule</div>
-                            <div class="hidden sm:block">Details</div>
+                            <div class="column-matricule hidden sm:block" [mat-sort-header]="'requestDate'">Request Date</div>
+                            <div class="column-firstname hidden sm:block" [mat-sort-header]="'startDate'">Start Date</div>
+                            <div class="column-firstname hidden sm:block" [mat-sort-header]="'endDate'">End Date</div>
+                            <div class="column-firstname hidden lg:block" [mat-sort-header]="'managerApproved'">Manager Approval</div>
+                            <div class="column-firstname hidden lg:block" [mat-sort-header]="'managerApprovalDate'">Manager Approval Date</div>
+                            <div class="column-firstname hidden sm:block" [mat-sort-header]="'managerComments'">Manager Comments</div>
+                            <div class="column-firstname hidden lg:block" [mat-sort-header]="'rhApproved'">HR Approval</div>
+                            <div class="column-firstname hidden sm:block" [mat-sort-header]="'rhApprovalDate'">HR Approval Date</div>
+                            <div class="column-role hidden sm:block" [mat-sort-header]="'rhComments'">HR Comments</div>
                         </div>
-                        <!-- Rows -->
+                        
+                        <!-- Products Rows -->
                         <ng-container *ngIf="(products$ | async) as products">
                             <ng-container *ngFor="let product of products; trackBy: trackByFn">
                                 <div class="inventory-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b">
-
-                                    <div class="flex items-center">
-                                        <div class="relative flex flex-0 items-center justify-center w-12 h-12 mr-6 rounded overflow-hidden border">
-                                            <img
-                                                class="w-8"
-                                                *ngIf="product.avatar"
-                                                [alt]="'Product thumbnail image'"
-                                                [src]="getAvatarUrl(product.avatar)">
-                                                <div
-                                                class="flex items-center justify-center w-full h-full text-xs font-semibold leading-none text-center uppercase"
-                                                *ngIf="!product.avatar">
-                                                NO THUMB
-                                            </div>
-                                        </div>
+                                    <div class="column-firstname hidden sm:block">{{product.requestDate}}</div>
+                                    <div class="column-firstname hidden sm:block">{{product.startDate}}</div>
+                                    <div class="column-firstname hidden sm:block">{{product.endDate}}</div>
+                                    <div class="column-role hidden lg:block">
+                                        <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
+                                            [ngClass]="{
+                                                'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product.managerApproved === null,
+                                                'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product.managerApproved === true,
+                                                'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': product.managerApproved === false
+                                            }">
+                                            <span class="leading-relaxed whitespace-nowrap">
+                                                {{ product.managerApproved === null ? 'pending' : product.managerApproved === true ? 'accepted' : 'rejected' }}
+                                            </span>
+                                        </span>
                                     </div>
-                                    <div class="column-matricule hidden lg:block ">{{product.matricule}}</div>
-                            <div class="column-firstname hidden lg:block">{{product.firstName}}</div>
-                            <div class="column-lastname hidden sm:block">{{product.lastName}}</div>
-                            <div class="column-email hidden lg:block">{{product.email}}</div>
-                            <div class="column-role hidden sm:block">{{product.role}}</div>
-                            <div class="column-soldeconge hidden sm:block">{{product.soldeConge}}</div>
-                            <div class="column-managermatricule hidden sm:block">{{product.managerMatricule}}</div>
-                                    <div>
-                                        <button
-                                            class="min-w-10 min-h-7 h-7 px-2 leading-6"
-                                            mat-stroked-button
-                                            (click)="toggleDetails(product.matricule)">
-                                            <mat-icon
-                                                class="icon-size-5"
-                                                [svgIcon]="selectedProduct?.id === product.id ? 'heroicons_solid:chevron-up' : 'heroicons_solid:chevron-down'"></mat-icon>
-                                        </button>
-                                    </div>
+                                    <div class="column-firstname hidden lg:block">{{product.managerApprovalDate}}</div>
+                                    <div class="column-soldeconge hidden sm:block">{{product.managerComments}}</div>
+                                    <div class="column-role hidden sm:block">
+                                        <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
+                                            [ngClass]="{
+                                                'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': (product.rhApproved === false || product.managerApproved === false),
+                                                'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product.rhApproved === true,
+                                                'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product.rhApproved === null
+                                            }">
+                                            <span class="leading-relaxed whitespace-nowrap">
+                                                {{ (product.rhApproved === false || product.managerApproved === false) ? 'rejected' : (product.rhApproved === null ? 'pending' : 'accepted') }}
+                                            </span>
+                                        </span>
+                                    </div>                              
+                                    <div class="column-firstname hidden sm:block">{{product.rhApprovalDate}}</div>
+                                    <div class="column-soldeconge hidden sm:block">{{product.rhComments}}</div>
                                 </div>
+                                
                                 <div class="grid">
                                     <ng-container *ngIf="selectedProduct?.id === product.id">
                                         <ng-container *ngTemplateOutlet="rowDetailsTemplate; context: {$implicit: product}"></ng-container>
@@ -99,17 +118,8 @@
                             </ng-container>
                         </ng-container>
                     </div>
-<!-- 
-                    <mat-paginator
-                        class="sm:absolute sm:inset-x-0 sm:bottom-0 border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
-                        [ngClass]="{'pointer-events-none': isLoading}"
-                        [length]="pagination.length"
-                        [pageIndex]="pagination.page"
-                        [pageSize]="pagination.size"
-                        [pageSizeOptions]="[5, 10, 25, 100]"
-                        [showFirstLastButtons]="true"></mat-paginator> -->
-
                 </ng-container>
+                
             </ng-container>
 
             <ng-template

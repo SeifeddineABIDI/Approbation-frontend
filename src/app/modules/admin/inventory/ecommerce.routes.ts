@@ -9,8 +9,5 @@ export default [
         path     : 'list',
         component: InventoryListComponent,
     },
-    {   
-        path: 'add',
-        component: AddUserComponent 
-    },
+
 ] as Routes;

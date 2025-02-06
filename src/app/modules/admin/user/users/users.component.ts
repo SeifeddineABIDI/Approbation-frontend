@@ -368,16 +368,6 @@ onFileSelected(event: Event): void {
         this._changeDetectorRef.markForCheck();
     }
 
-
-
-    /**
-     * Should the create tag button be visible
-     *
-     * @param inputValue
-     */
-
-
-
     /**
      * Delete the selected product using the form data
      */

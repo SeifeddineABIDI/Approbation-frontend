@@ -36,7 +36,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
     @ViewChild(MatPaginator) private _paginator: MatPaginator;
     @ViewChild(MatSort) private _sort: MatSort;
 
-    products$: Observable<User[]>;
+    products$: Observable<any>;
     roles: string[] = ['ADMIN', 'MANAGER', 'USER'];
     brands: InventoryBrand[];
     categories: InventoryCategory[];
@@ -79,15 +79,16 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
         // Create the selected product form
         this.selectedProductForm = this._formBuilder.group({
             id               : [''],
-            matricule         : [''],
-            firstName             : [''],
-            lastName          : [''],
-            email             : [''],
-            role              : [''],
-            soldeConge          : [''],
-            managerMatricule : [''],
-            avatar: [[]], 
-            currentImageIndex: [0],
+            requestDate      : [''],
+            startDate        : [''],
+            endDate          : [''],
+            managerApproved  : [''],
+            managerComments  : [''],
+            managerApprovalDate: [''],
+            rhApproved       : [''],
+            rhComments       : [''], 
+            rhApprovalDate   : [''],
+
         });
 
        
@@ -115,11 +116,10 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
                 this._changeDetectorRef.markForCheck();
             });
             var accessToken = localStorage.getItem('accessToken');
-            this.products$ = this.userService.getAllUsers(accessToken);
-            console.log(this.products$);
-        // );
+            this.products$ = this.userService.getLeaveRequests(accessToken);
+            // );
             
-          
+            
         // Get the products
 
         // Get the tags
@@ -164,7 +164,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
                 }),
             )
             .subscribe();
-    }
+    }   
     getAvatarUrl(avatarPath: string): string {
         const baseUrl = 'http://localhost:8080/images/';
         const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');

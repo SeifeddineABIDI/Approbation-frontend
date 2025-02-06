@@ -126,4 +126,14 @@ export class UserService
     uploadAvatar(userId: number, formData: FormData): Observable<string> {
         return this._httpClient.post(`${this.apiUrl}/api/v1/management/${userId}/image`, formData, { responseType: 'text' });
     }
+    getLeaveRequests(accessToken: string): Observable<User> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        
+        return this._httpClient.get<User>(`${this.apiUrl}/api/v1/admin/request/all`, { headers }).pipe(
+            catchError((error) => {
+                console.error('Error fetching requests', error);
+                return throwError(() => new Error('Failed to fetch requests data.'));
+            })
+        );
+    }
 }

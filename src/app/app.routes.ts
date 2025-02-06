@@ -79,7 +79,7 @@ export const appRoutes: Route[] = [
         },
         children: [
             {path: 'users', loadChildren: () => import('app/modules/admin/user/users.routes')},
-            // {path:'users',loadChildren:()=>import('app/modules/admin/inventory/ecommerce.routes')}
+            {path:'request',loadChildren:()=>import('app/modules/admin/inventory/ecommerce.routes')},
             {path: 'example', loadChildren: () => import('app/modules/admin/example/example.routes')},
             {path: 'settings', loadChildren: () => import('app/modules/settings/settings.routes')},
             {path: '**', loadChildren: () => import('app/modules/error/error-404/error-404.routes')}

@@ -10,6 +10,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
         link : '/example'
     },
     {
+        id   : 'requests',
+        title: 'Requests',
+        type : 'basic',
+        icon : 'heroicons_outline:calendar-days',
+        link : '/request/list'
+    },
+    {
         id   : 'users',
         title: 'Users',
         type : 'collapsable',
