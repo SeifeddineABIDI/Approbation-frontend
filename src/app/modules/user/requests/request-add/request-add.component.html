@@ -1,0 +1,78 @@
+<div class="flex flex-col flex-auto min-w-0">
+    <div class="flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between p-6 sm:py-8 sm:px-10 border-b bg-card dark:bg-transparent">
+        <div class="flex-1 min-w-0">
+            <!-- Breadcrumbs -->
+            <div class="flex flex-wrap items-center font-medium">
+                <div>
+                    <a class="whitespace-nowrap text-primary-500">Request</a>
+                </div>
+                <div class="flex items-center ml-1 whitespace-nowrap">
+                    <mat-icon
+                        class="icon-size-5 text-secondary"
+                        [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
+                    <a class="ml-1 text-primary-500">Add</a>
+                </div>
+            </div>
+            <!-- Title -->
+            <div class="mt-2">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                    Add Request
+                </h2>
+            </div>
+        </div>
+    </div>
+    <!-- Main -->
+    <div class="flex-auto p-6 sm:p-10">
+        <fuse-alert class="mt-8" *ngIf="showAlert" [appearance]="'outline'" [showIcon]="false" [type]="alert.type" [@shake]="alert.type === 'error'">
+      {{ alert.message }}
+    </fuse-alert>
+
+            <form class="flex flex-col mt-4 px-8 pt-10 bg-card shadow rounded overflow-hidden"
+            [formGroup]="signUpForm"
+            #signUpNgForm="ngForm">
+            <p class="text-lg font-medium">Profile</p>
+            <p class="text-secondary mb-6">
+                Set your login preferences, help us personalize your experience and make big account changes here
+            </p>
+            <div class="flex flex-col gt-xs:flex-row">
+                <mat-form-field class="flex-auto gt-xs:pr-3">
+                    <mat-label>Start Date</mat-label>
+                    <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+                    <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #startPicker></mat-datepicker>
+                    <mat-error *ngIf="signUpForm.get('startDate').hasError('required')">
+                        Start date is required
+                    </mat-error>
+                </mat-form-field>
+        
+                <mat-form-field class="flex-auto gt-xs:pl-3">
+                    <mat-label>End Date</mat-label>
+                    <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+                    <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #endPicker></mat-datepicker>
+                    <mat-error *ngIf="signUpForm.get('endDate').hasError('required')">
+                        End date is required
+                    </mat-error>
+                </mat-form-field>
+            </div>
+
+
+                <div class="flex items-center justify-end border-t -mx-8 mt-8 px-8 py-5 bg-gray-50 dark:bg-gray-700">
+                    <button mat-button (click)="clearForm()">
+                        Cancel
+                    </button>
+                    <button mat-flat-button
+                    [color]="'primary'"
+                    [disabled]="signUpForm.invalid || isSubmitting"
+                    (click)="signUp()"> 
+                <span *ngIf="!isSubmitting">
+                    Create request
+                </span>
+                <mat-progress-spinner *ngIf="isSubmitting" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
+            </button>
+                </div>
+            </form>
+
+    </div>
+
+</div>

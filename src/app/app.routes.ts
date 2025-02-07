@@ -82,8 +82,10 @@ export const appRoutes: Route[] = [
             {path:'request',loadChildren:()=>import('app/modules/admin/inventory/ecommerce.routes')},
             {path: 'example', loadChildren: () => import('app/modules/admin/example/example.routes')},
             {path: 'settings', loadChildren: () => import('app/modules/settings/settings.routes')},
-            {path: 'requests', loadChildren: () =>import('app/modules/user/request/request.routes')},
+            
+            {path: 'requests', loadChildren: () =>import('app/modules/user/requests/request.routes')},
             {path: '**', loadChildren: () => import('app/modules/error/error-404/error-404.routes')}
+            
 
         ]
     }

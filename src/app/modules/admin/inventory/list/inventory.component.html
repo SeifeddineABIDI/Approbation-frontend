@@ -107,7 +107,7 @@
                                             </span>
                                         </span>
                                     </div>                              
-                                    <div class="column-firstname hidden sm:block">{{getFormattedDate(product.rhApprovalDate)}}</div>
+                                    <div class="column-firstname hidden sm:block">{{ getFormattedDate(product.rhApprovalDate) || 'N/A' }}</div>
                                     <div class="column-soldeconge hidden sm:block">{{product.rhComments}}</div>
                                 </div>
                                 

@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { User } from 'app/core/user/user.types';
+import { TasksService } from 'app/modules/user/requests/tasks/tasks.service';
 import { environment } from 'environments/environment';
 import { catchError, map, Observable, ReplaySubject, tap, throwError } from 'rxjs';
 
@@ -10,6 +11,9 @@ export class UserService
     private _httpClient = inject(HttpClient);
     private _user: ReplaySubject<User> = new ReplaySubject<User>(1);
     private apiUrl = environment.apiUrl;
+    private _tasksService: TasksService;
+    
+
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
     // -----------------------------------------------------------------------------------------------------
@@ -65,7 +69,13 @@ export class UserService
         const userData = localStorage.getItem('user');
         if (userData) {
             this.user = JSON.parse(userData); 
+            if (this.user?.matricule) {
+                this._tasksService.fetchTasks(this.user.matricule);
+            }
         }
+
+        
+        
     }
     getAvatar(userId: number, accessToken: string): Observable<Blob> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
@@ -136,4 +146,16 @@ export class UserService
             })
         );
     }
+  
+    addLeaveRequest(userId: string, startDate: string, endDate: string, accessToken: string): Observable<any> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);        
+        const payload = {
+            userId,
+            startDate,
+            endDate
+        };
+    
+        return this._httpClient.post(`${this.apiUrl}/api/v1/management/request`, payload, { headers, responseType: 'text' });
+    }
+    
 }

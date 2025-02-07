@@ -45,7 +45,18 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 link : '/users/add'
             }
         ]
-    }
+    },
+    {
+        id   : 'navigation-features.badge-style-oval',
+        title: 'Demande de congés',
+        icon : 'heroicons_outline:tag',
+        link : '/requests/list',
+        type : 'basic',
+        badge: {
+            title  : '0',
+            classes: 'w-5 h-5 bg-teal-400 text-black rounded-full',
+        },
+    },
 ];
 export const compactNavigation: FuseNavigationItem[] = [
     {

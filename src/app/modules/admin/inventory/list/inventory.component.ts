@@ -165,16 +165,22 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
             )
             .subscribe();
     }   
-    getFormattedDate(date: string): string {
+    getFormattedDate(date: string | null | undefined): string | null {
+        if (!date) return null; // Return null if date is missing
+    
         const parsedDate = new Date(date);
+        if (isNaN(parsedDate.getTime())) return null; // Return null if invalid date
+    
         const options: Intl.DateTimeFormatOptions = {
-          weekday: 'short',
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
         };
-        return parsedDate.toLocaleDateString('en-US', options); // Modify 'en-US' for other locales
-      }
+        
+        return parsedDate.toLocaleDateString('en-US', options);
+    }
+    
     
     getAvatarUrl(avatarPath: string): string {
         const baseUrl = 'http://localhost:8080/images/';
