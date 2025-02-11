@@ -17,7 +17,11 @@
         "lib": [
             "ES2022",
             "dom"
-        ]
+        ],
+        "paths": {
+            "primeng/*": ["node_modules/primeng/*"],
+            "primeicons/*": ["node_modules/primeicons/*"]
+          }
     },
     "angularCompilerOptions": {
         "enableI18nLegacyMessageIdFormat": false

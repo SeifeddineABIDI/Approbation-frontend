@@ -12,7 +12,7 @@ import { provideAuth } from 'app/core/auth/auth.provider';
 import { provideIcons } from 'app/core/icons/icons.provider';
 import { mockApiServices } from 'app/mock-api';
 import { TranslocoHttpLoader } from './core/transloco/transloco.http-loader';
-
+import { PrimeNGConfig } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -22,7 +22,12 @@ export const appConfig: ApplicationConfig = {
             withPreloading(PreloadAllModules),
             withInMemoryScrolling({scrollPositionRestoration: 'enabled'}),
         ),
-
+        {
+            provide: PrimeNGConfig,
+            useValue: {
+              ripple: true 
+            }
+          },
         // Material Date Adapter
         {
             provide : DateAdapter,

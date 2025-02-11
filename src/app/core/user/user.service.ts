@@ -136,16 +136,31 @@ export class UserService
     uploadAvatar(userId: number, formData: FormData): Observable<string> {
         return this._httpClient.post(`${this.apiUrl}/api/v1/management/${userId}/image`, formData, { responseType: 'text' });
     }
-    getLeaveRequests(accessToken: string): Observable<User> {
+    getLeaveRequests(page: number, size: number, query: string | null, sortField: string, sortDirection: string, accessToken: string): Observable<any> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
-        
-        return this._httpClient.get<User>(`${this.apiUrl}/api/v1/admin/request/all`, { headers }).pipe(
+        let params = new HttpParams()
+            .set('page', page.toString())
+            .set('size', size.toString());
+    
+        // If a query exists, add it to the params
+        if (query) {
+            params = params.set('query', query);
+        }
+    
+        // For Spring, use 'sort' parameter in the format: field,direction
+        if (sortField && sortDirection) {
+            params = params.set('sort', `${sortField},${sortDirection}`);
+        }
+    
+        return this._httpClient.get<any>(`${this.apiUrl}/api/v1/admin/request/all`, { headers, params }).pipe(
             catchError((error) => {
-                console.error('Error fetching requests', error);
-                return throwError(() => new Error('Failed to fetch requests data.'));
+                console.error('Error fetching leave requests', error);
+                throw error;
             })
         );
     }
+    
+    
   
     addLeaveRequest(userId: string, startDate: string, endDate: string, accessToken: string): Observable<any> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);        

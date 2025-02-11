@@ -14,14 +14,17 @@
                         class="icon-size-5 text-secondary"
                         [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
                     <a class="ml-1 text-primary-500">List</a>
+                    
                 </div>
             </div>
+            
             <!-- Title -->
             <div class="mt-2">
                 <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
                     Users list
                 </h2>
             </div>
+            
         </div>
         <ng-container *ngIf="flashMessageDelete === 'success'">
             <mat-icon
@@ -39,7 +42,9 @@
         
         <!-- Title -->
         <!-- Actions -->
+        
         <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+
             <!-- Search -->
             <mat-form-field
                 class="fuse-mat-dense fuse-mat-rounded min-w-64"
@@ -54,8 +59,9 @@
                     [autocomplete]="'on'"
                     [placeholder]="'Search users'">
             </mat-form-field>
-  
+           
         </div>
+        
     </div>
 
     <!-- Main -->

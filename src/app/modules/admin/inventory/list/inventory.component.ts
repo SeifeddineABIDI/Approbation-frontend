@@ -1,9 +1,8 @@
-import { user } from './../../../../mock-api/common/user/data';
 import { AsyncPipe, CurrencyPipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule, MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,8 +17,9 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { UserService } from 'app/core/user/user.service';
 import { User } from 'app/core/user/user.types';
 import { InventoryService } from 'app/modules/admin/inventory/inventory.service';
-import { InventoryBrand, InventoryCategory, InventoryPagination, InventoryProduct, InventoryTag, InventoryVendor } from 'app/modules/admin/inventory/inventory.types';
-import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil } from 'rxjs';
+import { InventoryBrand, InventoryCategory, InventoryTag, InventoryVendor } from 'app/modules/admin/inventory/inventory.types';
+import { BehaviorSubject, debounceTime, merge, Subject, switchMap, takeUntil, tap } from 'rxjs';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 
 @Component({
     selector       : 'inventory-list',
@@ -29,21 +29,19 @@ import { debounceTime, map, merge, Observable, Subject, switchMap, takeUntil } f
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe],
+    imports        : [NgIf,MatTableModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe],
 })
 export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
 {
     @ViewChild(MatPaginator) private _paginator: MatPaginator;
     @ViewChild(MatSort) private _sort: MatSort;
-
-    products$: Observable<any>;
-    roles: string[] = ['ADMIN', 'MANAGER', 'USER'];
+    roles: string[] = ['ADMIN', 'MANAGER', 'USER','RH'];
     brands: InventoryBrand[];
     categories: InventoryCategory[];
     filteredTags: InventoryTag[];
     flashMessage: 'success' | 'error' | null = null;
     isLoading: boolean = false;
-    pagination: InventoryPagination;
+    pagination: any = { page: 0, size: 10, length: 0 }; // Default pagination
     searchInputControl: UntypedFormControl = new UntypedFormControl();
     selectedProduct: User | null = null;
     selectedProductForm: UntypedFormGroup;
@@ -52,6 +50,11 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
     vendors: InventoryVendor[];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     user: User;
+    displayedColumns: string[] = ['requestDate', 'startDate', 'endDate', 'managerApproved', 'managerApprovalDate', 'managerComments', 'rhApproved', 'rhApprovalDate', 'rhComments'];
+    dataSource = new MatTableDataSource([]);
+    private _productsSubject = new BehaviorSubject<any[]>([]);
+    products$ = this._productsSubject.asObservable();
+    pageSizes: number[] = [10, 25, 50, 100]; // Page size options (you can change these values)
 
     /**
      * Constructor
@@ -90,97 +93,64 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
             rhApprovalDate   : [''],
 
         });
+        var accessToken = localStorage.getItem('accessToken');
 
-       
-        // Get the categories
-        this._inventoryService.categories$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((categories: InventoryCategory[]) =>
-            {
-                // Update the categories
-                this.categories = categories;
+        if (accessToken) {
+            // Get the first page of products
+            this.getLeaveRequests(this.pagination.page, this.pagination.size, accessToken);
+          }
+        this.searchInputControl.valueChanges.pipe(
+            takeUntil(this._unsubscribeAll),
+            debounceTime(300), // Wait 300ms after the user stops typing
+            switchMap((query) => {
+                this.isLoading = true;
+                this.pagination.page = 0;
+                return this.userService.getLeaveRequests(this.pagination.page, this.pagination.size, query,this._sort.active, this._sort.direction, accessToken);
+            }),
+            tap((data) => {
+                console.log('Data received from API:', data); // Log the data to inspect
+                this.isLoading = false;
+            })
+        ).subscribe((data) => {
+            this.dataSource.data=data.content;
+            this._changeDetectorRef.markForCheck(); // Ensure changes are detected
+            this._productsSubject.next(data.content);
+            this.pagination.length = data.totalElements; // Set the total number of elements for pagination
+            this._changeDetectorRef.markForCheck(); // Ensure changes are detected
+        });
 
-                // Mark for check
-                this._changeDetectorRef.markForCheck();
-            });
 
-        // Get the pagination
-        this._inventoryService.pagination$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((pagination: InventoryPagination) =>
-            {
-                // Update the pagination
-                this.pagination = pagination;
 
-                // Mark for check
-                this._changeDetectorRef.markForCheck();
-            });
-            var accessToken = localStorage.getItem('accessToken');
-            this.products$ = this.userService.getLeaveRequests(accessToken);
-            // );
-            
-            
-        // Get the products
-
-        // Get the tags
-        this._inventoryService.tags$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((tags: InventoryTag[]) =>
-            {
-                // Update the tags
-                this.tags = tags;
-                this.filteredTags = tags;
-
-                // Mark for check
-                this._changeDetectorRef.markForCheck();
-            });
-
-        // Get the vendors
-        this._inventoryService.vendors$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((vendors: InventoryVendor[]) =>
-            {
-                // Update the vendors
-                this.vendors = vendors;
-
-                // Mark for check
-                this._changeDetectorRef.markForCheck();
-            });
-
-        // Subscribe to search input field value changes
-        this.searchInputControl.valueChanges
-            .pipe(
-                takeUntil(this._unsubscribeAll),
-                debounceTime(300),
-                switchMap((query) =>
-                {
-                    this.closeDetails();
-                    this.isLoading = true;
-                    return this._inventoryService.getProducts(0, 10, 'matricule', 'asc', query);
-                }),
-                map(() =>
-                {
-                    this.isLoading = false;
-                }),
-            )
-            .subscribe();
     }   
-    getFormattedDate(date: string | null | undefined): string | null {
-        if (!date) return null; // Return null if date is missing
-    
-        const parsedDate = new Date(date);
-        if (isNaN(parsedDate.getTime())) return null; // Return null if invalid date
-    
-        const options: Intl.DateTimeFormatOptions = {
-            weekday: 'short',
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-        };
+
+    getLeaveRequests(page: number, size: number, accessToken: string, query?: string, sortField?: string, sortDirection?: string): void {
         
-        return parsedDate.toLocaleDateString('en-US', options);
+        this.userService.getLeaveRequests(page, size, query, sortField, sortDirection, accessToken).pipe(
+            tap((data) => console.log('Data received:', data)),
+            takeUntil(this._unsubscribeAll)
+        )
+        .subscribe(
+            (data) => {
+                this._productsSubject.next(data.content);
+                this.dataSource.data = data.content;
+                this.pagination.length = data.totalElements;
+                this.isLoading = false;
+                this._changeDetectorRef.markForCheck();
+            },
+            (error) => {
+                console.error('Error fetching leave requests', error);
+                this.isLoading = false;
+                this._changeDetectorRef.markForCheck();
+            }
+        );
     }
     
+      getFormattedDate(date: string | null | undefined): string | null {
+        if (!date) return null;
+        const parsedDate = new Date(date);
+        if (isNaN(parsedDate.getTime())) return null;
+        return parsedDate.toLocaleDateString('en-US');
+    }
     
     getAvatarUrl(avatarPath: string): string {
         const baseUrl = 'http://localhost:8080/images/';
@@ -190,48 +160,76 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
     /**
      * After view init
      */
-    ngAfterViewInit(): void
-    {
-        if ( this._sort && this._paginator )
-        {
-            // Set the initial sort
-            this._sort.sort({
-                id          : 'matricule',
-                start       : 'asc',
-                disableClear: true,
-            });
-
-            // Mark for check
-            this._changeDetectorRef.markForCheck();
-
-            // If the user changes the sort order...
-            this._sort.sortChange
+    ngAfterViewInit(): void {
+        if (this._sort && this._paginator) {
+            merge(this._sort.sortChange, this._paginator.page)
                 .pipe(takeUntil(this._unsubscribeAll))
-                .subscribe(() =>
-                {
-                    // Reset back to the first page
-                    this._paginator.pageIndex = 0;
-
-                    // Close the details
-                    this.closeDetails();
+                .subscribe(() => {
+                    const accessToken = localStorage.getItem('accessToken');
+                    if (accessToken) {
+                        this.getLeaveRequests(
+                            this._paginator.pageIndex,
+                            this._paginator.pageSize,
+                            accessToken,
+                            this.searchInputControl.value,
+                            this._sort.active,  // Persist sorting column
+                            this._sort.direction // Persist sorting direction
+                        );
+                    }
                 });
-
-            // Get products if sort or page changes
-            merge(this._sort.sortChange, this._paginator.page).pipe(
-                switchMap(() =>
-                {
-                    this.closeDetails();
-                    this.isLoading = true;
-                    return this._inventoryService.getProducts(this._paginator.pageIndex, this._paginator.pageSize, this._sort.active, this._sort.direction);
-                }),
-                map(() =>
-                {
-                    this.isLoading = false;
-                }),
-            ).subscribe();
+    
+            // Ensure paginator and sort are linked
+            this.dataSource.paginator = this._paginator;
+            this.dataSource.sort = this._sort;
         }
     }
-
+    
+    sortData(event: any): void {
+        this.pagination.page = 0; // Reset to first page on sort change
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            this.getLeaveRequests(
+                this.pagination.page,
+                this.pagination.size,
+                accessToken,
+                this.searchInputControl.value, // Keep search query if exists
+                event.active, // Sorting column
+                event.direction // Sorting direction
+            );
+        }
+    }
+    onPageChange(event: any): void {
+        this.pagination.page = event.pageIndex;
+        this.pagination.size = event.pageSize;
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            this.getLeaveRequests(
+                this.pagination.page,
+                this.pagination.size,
+                accessToken,
+                this.searchInputControl.value, // Preserve search query
+                this._sort.active, // Preserve sorting column
+                this._sort.direction // Preserve sorting direction
+            );
+        }
+    }
+    
+    onPageSizeChange(event: any): void {
+        this.pagination.size = event.pageSize;
+        this.pagination.page = 0; // Reset to first page when page size changes
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            this.getLeaveRequests(
+                this.pagination.page,
+                this.pagination.size,
+                accessToken,
+                this.searchInputControl.value, // Preserve search query
+                this._sort.active, // Preserve sorting column
+                this._sort.direction // Preserve sorting direction
+            );
+        }
+    }
+    
     /**
      * On destroy
      */
@@ -240,174 +238,6 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
         // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
-    }
-
-    // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Toggle product details
-     *
-     * @param productId
-     */
-    toggleDetails(productId: string): void
-    {
-        // If the product is already selected...
-        if ( this.selectedProduct && this.selectedProduct.matricule === productId )
-        {
-            // Close the details
-            this.closeDetails();
-            return;
-        }
-        const accessToken = localStorage.getItem('accessToken');
-        // Get the product by id
-        this.userService.getUsersByMatricule(productId,accessToken)
-            .subscribe((product) =>
-            {
-                // Set the selected product
-                this.selectedProduct = product;
-
-                // Fill the form
-                this.selectedProductForm.patchValue(product);
-
-                // Mark for check
-                this._changeDetectorRef.markForCheck();
-            });
-    }
-
-    /**
-     * Close the details
-     */
-    closeDetails(): void
-    {
-        this.selectedProduct = null;
-    }
-
-
-    /**
-     * Toggle the tags edit mode
-     */
-    toggleTagsEditMode(): void
-    {
-        this.tagsEditMode = !this.tagsEditMode;
-    }
-
-    /**
-     * Filter tags
-     *
-     * @param event
-     */
-    filterTags(event): void
-    {
-        // Get the value
-        const value = event.target.value.toLowerCase();
-
-        // Filter the tags
-        this.filteredTags = this.tags.filter(tag => tag.title.toLowerCase().includes(value));
-    }
-
-
- 
-
-    /**
-     * Update the tag title
-     *
-     * @param tag
-     * @param event
-     */
-    updateTagTitle(tag: InventoryTag, event): void
-    {
-        // Update the title on the tag
-        tag.title = event.target.value;
-
-        // Update the tag on the server
-        this._inventoryService.updateTag(tag.id, tag)
-            .pipe(debounceTime(300))
-            .subscribe();
-
-        // Mark for check
-        this._changeDetectorRef.markForCheck();
-    }
-
-    /**
-     * Delete the tag
-     *
-     * @param tag
-     */
-    deleteTag(tag: InventoryTag): void
-    {
-        // Delete the tag from the server
-        this._inventoryService.deleteTag(tag.id).subscribe();
-
-        // Mark for check
-        this._changeDetectorRef.markForCheck();
-    }
-
-
-
-    /**
-     * Should the create tag button be visible
-     *
-     * @param inputValue
-     */
-
-
-
-    /**
-     * Delete the selected product using the form data
-     */
-    deleteSelectedProduct(): void
-    {
-        // Open the confirmation dialog
-        const confirmation = this._fuseConfirmationService.open({
-            title  : 'Delete product',
-            message: 'Are you sure you want to remove this product? This action cannot be undone!',
-            actions: {
-                confirm: {
-                    label: 'Delete',
-                },
-            },
-        });
-
-        // Subscribe to the confirmation dialog closed action
-        confirmation.afterClosed().subscribe((result) =>
-        {
-            // If the confirm button pressed...
-            if ( result === 'confirmed' )
-            {
-                // Get the product object
-                const product = this.selectedProductForm.getRawValue();
-
-                // Delete the product on the server
-                this._inventoryService.deleteProduct(product.id).subscribe(() =>
-                {
-                    // Close the details
-                    this.closeDetails();
-                });
-            }
-        });
-    }
-
-    /**
-     * Show flash message
-     */
-    showFlashMessage(type: 'success' | 'error'): void
-    {
-        // Show the message
-        this.flashMessage = type;
-
-        // Mark for check
-        this._changeDetectorRef.markForCheck();
-
-        // Hide it after 3 seconds
-        setTimeout(() =>
-        {
-            this.flashMessage = null;
-
-            // Mark for check
-            this._changeDetectorRef.markForCheck();
-        }, 3000);
     }
 
     /**

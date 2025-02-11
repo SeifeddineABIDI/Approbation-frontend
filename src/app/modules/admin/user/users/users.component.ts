@@ -37,7 +37,7 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
     @ViewChild(MatSort) private _sort: MatSort;
 
     products$: Observable<User[]>;
-    roles: string[] = ['ADMIN', 'MANAGER', 'USER'];
+    roles: string[] = ['ADMIN', 'MANAGER', 'USER','RH'];
     brands: InventoryBrand[];
     categories: InventoryCategory[];
     filteredTags: InventoryTag[];
@@ -304,7 +304,20 @@ onFileSelected(event: Event): void {
               this.flashMessage = 'success';
               this.selectedProduct = response;  
               this.selectedProductForm.patchValue(response); 
+              const index = this.products$.pipe(take(1)).subscribe((users) => {
+                const userIndex = users.findIndex(user => user.matricule === this.selectedProductForm.value.matricule);
+                users[userIndex] = this.selectedProduct;
+                this.products$ = of(users);
+                this.selectedProductForm.patchValue(this.selectedProduct);
+                this._changeDetectorRef.markForCheck();
+              });
               
+              setTimeout
+                (() => {this.closeDetails();
+                    this.flashMessage = null;
+
+                }
+                , 2000);
             },
             error : (error) => {
               this.flashMessage = 'error';

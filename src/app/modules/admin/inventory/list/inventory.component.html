@@ -28,7 +28,6 @@
                 </h2>
             </div>
         </div>
-        <!-- Title -->
         <!-- Actions -->
         <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
             <!-- Search -->
@@ -45,255 +44,113 @@
                     [autocomplete]="'off'"
                     [placeholder]="'Search requests'">
             </mat-form-field>
-  
         </div>
     </div>
 
     <!-- Main -->
     <div class="flex flex-auto overflow-hidden">
-
         <!-- Products list -->
         <div class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto">
             <ng-container *ngIf="(products$ | async) as products">
                 <ng-container *ngIf="products.length > 0; else noProducts">
-                    <div class="grid">
-                        <!-- Header -->
-                        <div
-                            class="inventory-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-6 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5"
-                            matSort
-                            matSortDisableClear>
-                            <div class="column-matricule hidden sm:block" [mat-sort-header]="'requestDate'">Request Date</div>
-                            <div class="column-firstname hidden sm:block" [mat-sort-header]="'startDate'">Start Date</div>
-                            <div class="column-firstname hidden sm:block" [mat-sort-header]="'endDate'">End Date</div>
-                            <div class="column-firstname hidden lg:block" [mat-sort-header]="'managerApproved'">Manager Approval</div>
-                            <div class="column-firstname hidden lg:block" [mat-sort-header]="'managerApprovalDate'">Manager Approval Date</div>
-                            <div class="column-firstname hidden sm:block" [mat-sort-header]="'managerComments'">Manager Comments</div>
-                            <div class="column-firstname hidden lg:block" [mat-sort-header]="'rhApproved'">HR Approval</div>
-                            <div class="column-firstname hidden sm:block" [mat-sort-header]="'rhApprovalDate'">HR Approval Date</div>
-                            <div class="column-role hidden sm:block" [mat-sort-header]="'rhComments'">HR Comments</div>
-                        </div>
-                        
-                        <!-- Products Rows -->
-                        <ng-container *ngIf="(products$ | async) as products">
-                            <ng-container *ngFor="let product of products; trackBy: trackByFn">
-                                <div class="inventory-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b">
-                                    <div class="column-firstname hidden sm:block">{{product.requestDate}}</div>
-                                    <div class="column-firstname hidden sm:block">{{product.startDate}}</div>
-                                    <div class="column-firstname hidden sm:block">{{product.endDate}}</div>
-                                    <div class="column-role hidden lg:block">
-                                        <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
-                                            [ngClass]="{
-                                                'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product.managerApproved === null,
-                                                'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product.managerApproved === true,
-                                                'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': product.managerApproved === false
-                                            }">
-                                            <span class="leading-relaxed whitespace-nowrap">
-                                                {{ product.managerApproved === null ? 'pending' : product.managerApproved === true ? 'accepted' : 'rejected' }}
-                                            </span>
-                                        </span>
-                                    </div>
-                                    <div class="column-firstname hidden lg:block">  {{ getFormattedDate(product.managerApprovalDate) }}
-                                    </div>
-                                    <div class="column-soldeconge hidden sm:block">{{product.managerComments}}</div>
-                                    <div class="column-role hidden sm:block">
-                                        <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
-                                            [ngClass]="{
-                                                'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': (product.rhApproved === false || product.managerApproved === false),
-                                                'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product.rhApproved === true,
-                                                'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product.rhApproved === null
-                                            }">
-                                            <span class="leading-relaxed whitespace-nowrap">
-                                                {{ (product.rhApproved === false || product.managerApproved === false) ? 'rejected' : (product.rhApproved === null ? 'pending' : 'accepted') }}
-                                            </span>
-                                        </span>
-                                    </div>                              
-                                    <div class="column-firstname hidden sm:block">{{ getFormattedDate(product.rhApprovalDate) || 'N/A' }}</div>
-                                    <div class="column-soldeconge hidden sm:block">{{product.rhComments}}</div>
-                                </div>
-                                
-                                <div class="grid">
-                                    <ng-container *ngIf="selectedProduct?.id === product.id">
-                                        <ng-container *ngTemplateOutlet="rowDetailsTemplate; context: {$implicit: product}"></ng-container>
-                                    </ng-container>
-                                </div>
-                            </ng-container>
+                    <!-- Table -->
+                    <table mat-table [dataSource]="dataSource" (matSortChange)="sortData($event)" matSort class="w-full">
+                        <!-- Request Date Column -->
+                        <ng-container matColumnDef="requestDate">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Request Date</th>
+                            <td mat-cell *matCellDef="let product">{{ product?.requestDate }}</td>
                         </ng-container>
-                    </div>
+
+                        <!-- Start Date Column -->
+                        <ng-container matColumnDef="startDate">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Start Date</th>
+                            <td mat-cell *matCellDef="let product">{{ product?.startDate }}</td>
+                        </ng-container>
+
+                        <!-- End Date Column -->
+                        <ng-container matColumnDef="endDate">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>End Date</th>
+                            <td mat-cell *matCellDef="let product">{{ product?.endDate }}</td>
+                        </ng-container>
+
+                        <!-- Manager Approval Column -->
+                        <ng-container matColumnDef="managerApproved">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Manager Approval</th>
+                            <td mat-cell *matCellDef="let product">
+                                <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
+                                    [ngClass]="{
+                                        'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product?.managerApproved === null,
+                                        'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product?.managerApproved === true,
+                                        'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': product?.managerApproved === false
+                                    }">
+                                    <span class="leading-relaxed whitespace-nowrap">
+                                        {{ product?.managerApproved === null ? 'pending' : product?.managerApproved === true ? 'accepted' : 'rejected' }}
+                                    </span>
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- Manager Approval Date Column -->
+                        <ng-container matColumnDef="managerApprovalDate">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Manager Approval Date</th>
+                            <td mat-cell *matCellDef="let product">{{ getFormattedDate(product?.managerApprovalDate) }}</td>
+                        </ng-container>
+
+                        <!-- Manager Comments Column -->
+                        <ng-container matColumnDef="managerComments">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Manager Comments</th>
+                            <td mat-cell *matCellDef="let product">{{ product?.managerComments }}</td>
+                        </ng-container>
+
+                        <!-- HR Approval Column -->
+                        <ng-container matColumnDef="rhApproved">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>HR Approval</th>
+                            <td mat-cell *matCellDef="let product">
+                                <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
+                                    [ngClass]="{
+                                        'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': (product?.rhApproved === false || product?.managerApproved === false),
+                                        'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product?.rhApproved === true,
+                                        'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product?.rhApproved === null
+                                    }">
+                                    <span class="leading-relaxed whitespace-nowrap">
+                                        {{ (product?.rhApproved === false || product?.managerApproved === false) ? 'rejected' : (product?.rhApproved === null ? 'pending' : 'accepted') }}
+                                    </span>
+                                </span>
+                            </td>
+                        </ng-container>
+
+                        <!-- HR Approval Date Column -->
+                        <ng-container matColumnDef="rhApprovalDate">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>HR Approval Date</th>
+                            <td mat-cell *matCellDef="let product">{{ getFormattedDate(product?.rhApprovalDate) || 'N/A' }}</td>
+                        </ng-container>
+
+                        <!-- HR Comments Column -->
+                        <ng-container matColumnDef="rhComments">
+                            <th mat-header-cell *matHeaderCellDef mat-sort-header>HR Comments</th>
+                            <td mat-cell *matCellDef="let product">{{ product?.rhComments }}</td>
+                        </ng-container>
+
+                        <!-- Table Header and Rows -->
+                        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                    </table>
+
+                    <!-- Paginator -->
+                    <mat-paginator
+                        [length]="pagination.length"
+                        [pageSize]="pagination.size"
+                        [pageIndex]="pagination.page"
+                        [pageSizeOptions]="pageSizes"
+                        (page)="onPageChange($event)"
+                        (pageSizeChange)="onPageSizeChange($event)">
+                    </mat-paginator>
                 </ng-container>
-                
             </ng-container>
 
-            <ng-template
-                #rowDetailsTemplate
-                let-product>
-                <div class="shadow-lg overflow-hidden">
-                    <div class="flex border-b">
-                        <!-- Selected product form -->
-                        <form
-                            class="flex flex-col w-full"
-                            [formGroup]="selectedProductForm">
-
-                            <div class="flex flex-col sm:flex-row p-8">
-
-                                <!-- Product images and status -->
-                                <div class="flex flex-col items-center sm:items-start mb-8 sm:mb-0">
-                                    <div class="flex flex-col items-center">
-                                        <div class="w-32 h-44 border rounded overflow-hidden">
-                                            <ng-container *ngIf="selectedProductForm.get('avatar')?.value?.length; else noImage">
-                                                <img
-                                                    class="w-full h-full object-cover"
-                                                    [src]="getAvatarUrl(selectedProduct.avatar)">
-                                                </ng-container>
-                                            <ng-template #noImage>
-                                                <span class="flex items-center min-h-20 text-lg font-semibold">NO IMAGE</span>
-                                            </ng-template>
-                                        </div>
-                                        <!-- <div
-                                            class="flex items-center mt-2 whitespace-nowrap"
-                                            *ngIf="selectedProductForm.get('images').value.length">
-                                            <button
-                                                mat-icon-button
-                                                (click)="cycleImages(false)">
-                                                <mat-icon
-                                                    class="icon-size-5"
-                                                    [svgIcon]="'heroicons_mini:arrow-long-left'"></mat-icon>
-                                            </button>
-                                            <span class="font-sm mx-2">
-                                                {{selectedProductForm.get('currentImageIndex').value + 1}} of {{selectedProductForm.get('images').value.length}}
-                                            </span>
-                                            <button
-                                                mat-icon-button
-                                                (click)="cycleImages(true)">
-                                                <mat-icon
-                                                    class="icon-size-5"
-                                                    [svgIcon]="'heroicons_mini:arrow-long-right'"></mat-icon>
-                                            </button>
-                                        </div> -->
-                                    </div>
-                                    <!-- <div class="flex flex-col mt-8">
-                                        <span class="font-semibold mb-2">Product status</span>
-                                        <mat-slide-toggle
-                                            [formControlName]="'active'"
-                                            [color]="'primary'">
-                                            {{selectedProductForm.get('active').value === true ? 'Active' : 'Disabled'}}
-                                        </mat-slide-toggle>
-                                    </div> -->
-                                </div>
-
-                                <div class="flex flex-auto flex-wrap">
-                                    <!-- Name, SKU & etc. -->
-                                    <div class="flex flex-col w-full lg:w-2/4 sm:pl-8">
-
-                                        <div class="flex">
-                                             <mat-form-field class="w-1/2 pr-2">
-                                            <mat-label>Firstname</mat-label>
-                                            <input
-                                                matInput
-                                                [formControlName]="'firstName'">
-                                        </mat-form-field>
-
-                                        <mat-form-field class="w-1/2 pr-2">
-                                            <mat-label>Lastname</mat-label>
-                                            <input
-                                                matInput
-                                                [formControlName]="'lastName'">
-                                        </mat-form-field>     
-                                        </div>                                   <div class="flex">
-                                           
-                                        </div>
-
-                                        <!-- Category, Brand & Vendor -->
-                                        <div class="flex">
-                                            <mat-form-field class="w-1/3 pr-2">
-                                                <mat-label>Role</mat-label>
-                                                <mat-select [formControlName]="'role'">
-                                                    <ng-container >
-                                                        <mat-option *ngFor="let role of roles" [value]="role">
-                                                            {{role}}
-                                                        </mat-option>
-                                                    </ng-container>
-                                                </mat-select>
-                                            </mat-form-field>
-                                            <mat-form-field class="w-1/3 px-2">
-                                                <mat-label>Solde Conge</mat-label>
-                                                <input
-                                                    matInput
-                                                    [formControlName]="'soldeConge'">
-                                            </mat-form-field>
-                                            <mat-form-field class="w-1/3 pl-2">
-                                                <mat-label>Manager Matricule</mat-label>
-                                                <input
-                                                matInput
-                                                [formControlName]="'managerMatricule'">
-                                            </mat-form-field>
-                                        </div>
-
-                                    </div>
-
-                                    <div class="flex flex-col w-full lg:w-1/2 sm:pl-8">
-                                        <mat-form-field class="w-1/2 pl-2">
-                                            <mat-label>Matricule</mat-label>
-                                            <input
-                                                matInput
-                                                [formControlName]="'matricule'">
-                                        </mat-form-field>
-                                        <mat-form-field class="w-1/2 pl-2">
-                                            <mat-label>Email</mat-label>
-                                            <input
-                                                matInput
-                                                [formControlName]="'email'">
-                                        </mat-form-field>
-                                    </div>
-
-                                </div>
-                           
-                            </div>
-
-                            <div class="flex items-center justify-between w-full border-t px-8 py-4">
-                                <button
-                                    class="-ml-4"
-                                    mat-button
-                                    [color]="'warn'"
-                                    (click)="deleteSelectedProduct()">
-                                    Delete
-                                </button>
-                                <div class="flex items-center">
-                                    <div
-                                        class="flex items-center mr-4"
-                                        *ngIf="flashMessage">
-                                        <ng-container *ngIf="flashMessage === 'success'">
-                                            <mat-icon
-                                                class="text-green-500"
-                                                [svgIcon]="'heroicons_outline:check'"></mat-icon>
-                                            <span class="ml-2">Product updated</span>
-                                        </ng-container>
-                                        <ng-container *ngIf="flashMessage === 'error'">
-                                            <mat-icon
-                                                class="text-red-500"
-                                                [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
-                                            <span class="ml-2">An error occurred, try again!</span>
-                                        </ng-container>
-                                    </div>
-                                    <button
-                                        mat-flat-button
-                                        [color]="'primary'"
-                                        (click)="updateSelectedProduct()">
-                                        Update
-                                    </button>
-                                </div>
-                            </div>
-
-                        </form>
-                    </div>
-                </div>
-            </ng-template>
-
             <ng-template #noProducts>
-                <div class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center">There are no products!</div>
+                <div class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center">There are no requests!</div>
             </ng-template>
-
         </div>
-
     </div>
-
 </div>
