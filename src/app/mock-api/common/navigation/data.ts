@@ -1,20 +1,22 @@
-/* eslint-disable */
 import { FuseNavigationItem } from '@fuse/components/navigation';
-
+import { NavigationService } from 'app/core/navigation/navigation.service';
+import { UserService } from 'app/core/user/user.service';
 export const defaultNavigation: FuseNavigationItem[] = [
     {
         id   : 'example',
-        title: 'Example',
+        title: 'Home',
         type : 'basic',
-        icon : 'heroicons_outline:chart-pie',
-        link : '/example'
+        icon : 'heroicons_outline:home',
+        link : '/example',
     },
     {
         id   : 'requests',
         title: 'Requests',
         type : 'basic',
         icon : 'heroicons_outline:calendar-days',
-        link : '/request/list'
+        link : '/request/list',
+        roles: ['ADMIN'],
+
     },
     {
         id   : 'requestAdd',
@@ -29,6 +31,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type : 'collapsable',
         icon : 'heroicons_outline:users',
         link : '/users',
+        roles: ['ADMIN'],   
         children : [
             {
                 id   : 'users.list',
@@ -50,14 +53,25 @@ export const defaultNavigation: FuseNavigationItem[] = [
         id   : 'navigation-features.badge-style-oval',
         title: 'Demande de congés',
         icon : 'heroicons_outline:tag',
-        link : '/requests/list',
+        link : '/requests/confirmList',
         type : 'basic',
-        badge: {
+        roles: ['MANAGER', 'RH'],
+            badge: {
             title  : '0',
             classes: 'w-5 h-5 bg-teal-400 text-black rounded-full',
+        },},
+        {
+            id   : 'completeedtasks',
+            title: 'Completed Tasks',
+            icon : 'heroicons_outline:check-badge',
+            link : '/requests/tasksLog',
+            type : 'basic',
+            roles: ['MANAGER', 'RH'],
+            
         },
-    },
+   
 ];
+
 export const compactNavigation: FuseNavigationItem[] = [
     {
         id   : 'example',

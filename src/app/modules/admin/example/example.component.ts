@@ -1,17 +1,74 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { CommonModule, NgClass, NgFor, NgIf } from '@angular/common';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatRippleModule } from '@angular/material/core';
+import { MatIcon, MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatTable, MatTableModule } from '@angular/material/table';
+import { MatTabsModule } from '@angular/material/tabs';
+import { TranslocoModule } from '@ngneat/transloco';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { User } from 'app/core/user/user.types';
+import { UserService } from 'app/core/user/user.service';
 
 @Component({
     selector     : 'example',
     standalone   : true,
     templateUrl  : './example.component.html',
     encapsulation: ViewEncapsulation.None,
+    imports        : [CommonModule,TranslocoModule, MatIconModule, MatButtonModule, MatRippleModule, MatMenuModule, MatTabsModule, MatButtonToggleModule, NgFor, NgIf, MatTableModule, NgClass],
 })
-export class ExampleComponent
+export class ExampleComponent implements OnInit
 {
+    completedTasks: number = 0;
+    waitingTasks: number = 0;
+    allTasks: number = 0;
+    errorMessage: string = '';
+    team: any[] = [];
+    private user:User ;
     /**
      * Constructor
      */
-    constructor()
+    constructor(
+        private _userService: UserService
+
+    )
     {
     }
+
+    ngOnInit(): void {
+        const accessToken=localStorage.getItem('accessToken');
+        this._userService.user$.subscribe(user=>this.user=user);
+        const userData = localStorage.getItem('user');
+        if (userData) {
+            this.user = JSON.parse(userData);}
+        this._userService.getUsersStats(this.user.matricule,accessToken).subscribe({
+            next: (stats) => {
+              // On success, extract the data and assign it to component variables
+              this.completedTasks = stats.completedTasks;
+              console.log(this.completedTasks);
+              this.waitingTasks = stats.waitingTasks;
+              this.allTasks = stats.completedTasks + stats.waitingTasks;
+            },
+            error: (error) => {
+              // Handle error
+              this.errorMessage = error.message || 'An error occurred while fetching task stats';
+            }
+          });
+          this._userService.getTeam(this.user.matricule, accessToken).subscribe({
+            next: (data) => {
+              this.team = data;
+              console.log("ddddd"+JSON.stringify(this.team));
+              
+            },
+            error: (err) => {
+              this.errorMessage = 'Failed to fetch team data.';
+            }
+          });
+        }
+        getAvatarUrl(avatarPath: string): string {
+            const baseUrl = 'http://localhost:8080/images/';
+            const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');
+            return baseUrl + cleanedPath;
+          }
 }

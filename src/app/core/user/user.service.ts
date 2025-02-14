@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { User } from 'app/core/user/user.types';
+import { Task } from 'app/modules/admin/inventory/inventory.types';
 import { TasksService } from 'app/modules/user/requests/tasks/tasks.service';
 import { environment } from 'environments/environment';
 import { catchError, map, Observable, ReplaySubject, tap, throwError } from 'rxjs';
@@ -12,7 +13,32 @@ export class UserService
     private _user: ReplaySubject<User> = new ReplaySubject<User>(1);
     private apiUrl = environment.apiUrl;
     private _tasksService: TasksService;
-    
+    private _userRoles: string[] = [];
+
+    // Method to set user roles (e.g., after login)
+    setUserRoles(roles: string[]): void {
+      this._userRoles = roles;
+    }
+  
+    // Method to get user roles
+getCurrentUserRole(): string[] {
+    const userData = localStorage.getItem('user');
+    if (!userData) {
+        return []; // Return an empty array if no user data is found
+    }
+    try {
+        const user = JSON.parse(userData);
+        this._userRoles=Array.isArray(user.role) ? user.role : [user.role];
+                return this._userRoles;
+    } catch {
+        return []; // Return an empty array if parsing fails
+    }
+}
+getUserRole(): string {
+    const roles = this.getCurrentUserRole();
+    return roles.length > 0 ? roles[0] : '';
+}
+
 
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
@@ -50,7 +76,7 @@ export class UserService
             }),
         );
     }
-
+  
     /**
      * Update the user
      *
@@ -107,6 +133,17 @@ export class UserService
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
         
         return this._httpClient.get<User>(`${this.apiUrl}/api/v1/admin/getUserByMat/${matricule}`, { headers }).pipe(
+            catchError((error) => {
+                // Handle error here if needed, e.g., logging or throwing a custom error
+                console.error('Error fetching user by matricule:', error);
+                return throwError(() => new Error('Failed to fetch user data.'));
+            })
+        );
+    }
+    getTaskByProcessId(id: string, accessToken: string): Observable<Task[]> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        
+        return this._httpClient.get<Task[]>(`${this.apiUrl}/tasks/process/${id}`, { headers }).pipe(
             catchError((error) => {
                 // Handle error here if needed, e.g., logging or throwing a custom error
                 console.error('Error fetching user by matricule:', error);
@@ -172,5 +209,17 @@ export class UserService
     
         return this._httpClient.post(`${this.apiUrl}/api/v1/management/request`, payload, { headers, responseType: 'text' });
     }
-    
+    getUsersStats(matricule: string, accessToken: string): Observable<any> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        
+        return this._httpClient.get<User>(`${this.apiUrl}/tasks/user/${matricule}/task-stats`, { headers }).pipe(
+            catchError((error) => {
+                return throwError(() => new Error('Failed to fetch user data.'));
+            })
+        );
+    }
+    getTeam(matricule: string, accessToken: string): Observable<any> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        
+        return this._httpClient.get<any>(`${this.apiUrl}/api/v1/management/team`, { headers });}
 }

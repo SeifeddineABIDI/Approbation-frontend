@@ -4,6 +4,7 @@ import { AuthUtils } from 'app/core/auth/auth.utils';
 import { UserService } from 'app/core/user/user.service';
 import { BehaviorSubject, catchError, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import {environment} from "../../../environments/environment";
+import { RoleNavigationService } from '../navigation/roleNavigation.service';
 
 @Injectable({providedIn: 'root'})
 export class AuthService
@@ -13,6 +14,7 @@ export class AuthService
     private _userService = inject(UserService);
     apiUrl = environment.apiUrl
     private _avatarUrl: BehaviorSubject<string> = new BehaviorSubject<string>(localStorage.getItem('avatarUrl') || '');
+    private _roleNavigationService = inject(RoleNavigationService);
 
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
@@ -89,8 +91,10 @@ export class AuthService
                     this.accessToken = response.accessToken;
                     this._authenticated = true;
                     this._userService.user = response.user;
+                    this._roleNavigationService.setUserRole(response.user.role);  
                     localStorage.setItem('user', JSON.stringify(response.user));
-
+                    this._userService.setUserRoles(['ADMIN']); // Set user roles
+                    this._roleNavigationService.setUserRole('ADMIN');
                     return of(response);
                 } else {
                     throw new Error('Access token is missing in the response.');
@@ -248,5 +252,7 @@ export class AuthService
             })
         );
 }
+
+
 
 }

@@ -74,17 +74,20 @@ export const appRoutes: Route[] = [
         canActivate: [AuthGuard],
         canActivateChild: [AuthGuard],
         component: LayoutComponent,
+        
         resolve: {
             initialData: initialDataResolver
         },
         children: [
-            {path: 'users', loadChildren: () => import('app/modules/admin/user/users.routes')},
+            {path: 'users', loadChildren: () => import('app/modules/admin/user/users.routes'),
+                data: { roles: ['ADMIN'] }
+            },
             {path:'request',loadChildren:()=>import('app/modules/admin/inventory/ecommerce.routes')},
             {path: 'example', loadChildren: () => import('app/modules/admin/example/example.routes')},
             {path: 'settings', loadChildren: () => import('app/modules/settings/settings.routes')},
             {path: 'rh', loadChildren: () =>import('app/modules/rh/rh.routes')},
-
             {path: 'requests', loadChildren: () =>import('app/modules/user/requests/request.routes')},
+            
             {path: '**', loadChildren: () => import('app/modules/error/error-404/error-404.routes')}
             
 

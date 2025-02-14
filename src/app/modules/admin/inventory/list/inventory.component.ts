@@ -1,4 +1,4 @@
-import { AsyncPipe, CurrencyPipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
+import { AsyncPipe, CurrencyPipe, DatePipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,42 +15,39 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { UserService } from 'app/core/user/user.service';
-import { User } from 'app/core/user/user.types';
 import { InventoryService } from 'app/modules/admin/inventory/inventory.service';
-import { InventoryBrand, InventoryCategory, InventoryTag, InventoryVendor } from 'app/modules/admin/inventory/inventory.types';
 import { BehaviorSubject, debounceTime, merge, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { Task } from '../inventory.types';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
     selector       : 'inventory-list',
     templateUrl    : './inventory.component.html',
     styleUrls      : ['./inventory.component.scss'],
+    providers: [DatePipe],
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf,MatTableModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe],
+    imports        : [NgIf,MatProgressSpinnerModule,MatTableModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe],
 })
 export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
 {
     @ViewChild(MatPaginator) private _paginator: MatPaginator;
     @ViewChild(MatSort) private _sort: MatSort;
     roles: string[] = ['ADMIN', 'MANAGER', 'USER','RH'];
-    brands: InventoryBrand[];
-    categories: InventoryCategory[];
-    filteredTags: InventoryTag[];
     flashMessage: 'success' | 'error' | null = null;
     isLoading: boolean = false;
     pagination: any = { page: 0, size: 10, length: 0 }; // Default pagination
     searchInputControl: UntypedFormControl = new UntypedFormControl();
-    selectedProduct: User | null = null;
+    selectedProduct: Task[] = [];   
+    selectedProcInstId : string = '';
     selectedProductForm: UntypedFormGroup;
-    tags: InventoryTag[];
+    selectedTaskForm: UntypedFormGroup;
     tagsEditMode: boolean = false;
-    vendors: InventoryVendor[];
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-    user: User;
-    displayedColumns: string[] = ['requestDate', 'startDate', 'endDate', 'managerApproved', 'managerApprovalDate', 'managerComments', 'rhApproved', 'rhApprovalDate', 'rhComments'];
+        displayedColumns: string[] = ['requestDate', 'startDate', 'endDate', 'approved', 'procInstId', 'toggleDetails'];
     dataSource = new MatTableDataSource([]);
     private _productsSubject = new BehaviorSubject<any[]>([]);
     products$ = this._productsSubject.asObservable();
@@ -65,6 +62,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
         private _formBuilder: UntypedFormBuilder,
         private _inventoryService: InventoryService,
         private userService: UserService,
+        private datepipe: DatePipe
     )
     {
     }
@@ -78,19 +76,16 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
      */
     ngOnInit(): void
     {
-        
         // Create the selected product form
         this.selectedProductForm = this._formBuilder.group({
             id               : [''],
+            requester: [''],
             requestDate      : [''],
             startDate        : [''],
             endDate          : [''],
-            managerApproved  : [''],
-            managerComments  : [''],
-            managerApprovalDate: [''],
-            rhApproved       : [''],
-            rhComments       : [''], 
-            rhApprovalDate   : [''],
+            approved            : [''],
+            procInstId        : [''],
+   
 
         });
         var accessToken = localStorage.getItem('accessToken');
@@ -122,7 +117,72 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
 
 
     }   
+    // Inside your component
+    calculateDaysDifference(startDate: string, endDate: string): string {
+        if (!startDate || !endDate) return "0 days";  // return a default string if dates are not valid
+        
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        
+        const timeDiff = Math.abs(end.getTime() - start.getTime()) + 1; // Add 1 to include both start and end day
+        const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));  // Convert milliseconds to days
+        
+        let res = "";
+        if (diffDays === 1) {
+          res = `${diffDays} day`;  // Singular form
+        } else {
+          res = `${diffDays} days`; // Plural form
+        }
+      
+        return res;
+      }
+      
+  
+   // In your component class
+isTaskSelected(procInstId: string): boolean {
+    return this.selectedProcInstId === procInstId;
+}
 
+toggleDetails(procInstId: string): void {
+    console.log('Toggle Details Called:', {
+        procInstId,
+        currentSelected: this.selectedProcInstId,
+        selectedProduct: this.selectedProduct
+    });
+    
+    if (this.selectedProcInstId === procInstId) {
+        // If clicking on the same request, close it
+        console.log('Closing details');
+        this.selectedProcInstId = '';
+        this.selectedProduct = [];
+    } else {
+        // If clicking on a different request, fetch its tasks
+        console.log('Opening details');
+        this.isLoading = true;
+        this.selectedProcInstId = procInstId;
+        
+        const accessToken = localStorage.getItem('accessToken');
+        if (accessToken) {
+            this.userService.getTaskByProcessId(procInstId, accessToken).subscribe({
+                next: (tasks: any[]) => {
+                    console.log('Tasks received:', tasks);
+                    this.selectedProduct = tasks;
+                    this.isLoading = false;
+                    this._changeDetectorRef.markForCheck();
+                },
+                error: (error) => {
+                    console.error('Error fetching task details:', error);
+                    this.isLoading = false;
+                    this._changeDetectorRef.markForCheck();
+                }
+            });
+        }
+    }
+}
+    
+getFormattedDate(date: string | Date): string | null {
+    return this.datepipe.transform(date, 'yyyy-MM-dd HH:mm:ss'); // Format the date as you want
+  }
     getLeaveRequests(page: number, size: number, accessToken: string, query?: string, sortField?: string, sortDirection?: string): void {
         
         this.userService.getLeaveRequests(page, size, query, sortField, sortDirection, accessToken).pipe(
@@ -145,12 +205,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
         );
     }
     
-      getFormattedDate(date: string | null | undefined): string | null {
-        if (!date) return null;
-        const parsedDate = new Date(date);
-        if (isNaN(parsedDate.getTime())) return null;
-        return parsedDate.toLocaleDateString('en-US');
-    }
+
     
     getAvatarUrl(avatarPath: string): string {
         const baseUrl = 'http://localhost:8080/images/';
@@ -213,7 +268,17 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
             );
         }
     }
+   
     
+    
+
+    closeDetails(): void
+    {
+        console.log('Closing details section...'); 
+        this.selectedProduct = [];
+        this.selectedProductForm.reset(); 
+        this._changeDetectorRef.markForCheck();
+    }
     onPageSizeChange(event: any): void {
         this.pagination.size = event.pageSize;
         this.pagination.page = 0; // Reset to first page when page size changes

@@ -4,14 +4,16 @@
 .inventory-grid-row {
     grid-template-columns: 
         120px   /* Narrower width for Request Date */
-        120px   /* Narrower width for Start Date */
-        120px   /* Narrower width for End Date */
-        0.5fr     /* Other columns with flexible width */
-        1fr
-        1.5fr
-        0.5fr
-        1fr
-        1fr;
+        100px   /* Narrower width for Start Date */
+        150px   /* Narrower width for End Date */
+        0.3fr     /* Other columns with flexible width */
+        0.55fr
+        0.3fr
+        0.3fr
+        0.2fr
+        0.3fr
+        0.7fr
+        0.5fr;
     gap: 4px; /* Adjust gap between columns */
     max-width: 100%;
     overflow-x: auto;
@@ -62,4 +64,67 @@
             1fr
             1fr;
     }
+}
+.task-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.task-details {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    margin-top: 16px;
+}
+
+.task-detail-item {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    padding: 8px 0;
+}
+
+.task-detail-item mat-icon {
+    margin-right: 8px;
+    font-size: 1.5rem;
+    color: #3f51b5; /* Material Blue color */
+}
+
+.mat-card-header {
+    background-color: #f3f4f6; /* Light grey background for the card header */
+    padding: 16px;
+    border-radius: 8px 8px 0 0;
+}
+
+.mat-card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.mat-card-subtitle {
+    color: #666;
+}
+
+.mat-spinner {
+    margin: 20px auto;
+}
+
+.mat-card-content {
+    padding: 16px;
+}
+.custom-card-header {
+    font-size: 1.5rem; /* Adjust the font size */
+    padding: 8px; /* Increase padding for a bigger header */
+}
+
+.custom-card-header .mat-card-title {
+    font-size: 1.4rem; /* Adjust the title font size */
+}
+.completed {
+    color: green;
+}
+
+.not-completed {
+    color: red;
 }

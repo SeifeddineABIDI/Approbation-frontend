@@ -1,27 +1,32 @@
 import { inject } from '@angular/core';
-import { CanActivateChildFn, CanActivateFn, Router } from '@angular/router';
+import { CanActivateChildFn, CanActivateFn, Router, UrlTree } from '@angular/router';
 import { AuthService } from 'app/core/auth/auth.service';
-import { of, switchMap } from 'rxjs';
+import { UserService } from 'app/core/user/user.service';
+import { Observable, of, switchMap } from 'rxjs';
 
-export const AuthGuard: CanActivateFn | CanActivateChildFn = (route, state) =>
-{
+export const AuthGuard: CanActivateFn | CanActivateChildFn = (route, state) => 
+    {
     const router: Router = inject(Router);
+    const authService: AuthService = inject(AuthService);
+    const userService: UserService = inject(UserService);
 
-    // Check the authentication status
-    return inject(AuthService).check().pipe(
-        switchMap((authenticated) =>
-        {
-            // If the user is not authenticated...
-            if ( !authenticated )
-            {
-                // Redirect to the sign-in page with a redirectUrl param
+    return authService.check().pipe(
+        switchMap((authenticated): Observable<boolean | UrlTree> => {
+            // If not authenticated, redirect to sign-in
+            if (!authenticated) {
                 const redirectURL = state.url === '/sign-out' ? '' : `redirectURL=${state.url}`;
-                const urlTree = router.parseUrl(`sign-in?${redirectURL}`);
-
-                return of(urlTree);
+                return of(router.parseUrl(`sign-in?${redirectURL}`));
+            }
+            const requiredRoles = route.data['roles'] as string[];
+            if (requiredRoles?.length > 0) {
+                const userRole = userService.getUserRole();
+                
+                if (!userRole || !requiredRoles.includes(userRole)) {
+                    console.log('Unauthorized access attempt. User role:', userRole, 'Required roles:', requiredRoles);
+                    return of(router.parseUrl('/unauthorized'));
+                }
             }
 
-            // Allow the access
             return of(true);
         }),
     );

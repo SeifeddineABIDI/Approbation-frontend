@@ -2,155 +2,174 @@
 
     <!-- Header -->
     <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
-        <!-- Loader -->
-        <div
-            class="absolute inset-x-0 bottom-0"
-            *ngIf="isLoading">
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
             <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
         </div>
         <div class="flex-1 min-w-0">
-            <!-- Breadcrumbs -->
             <div class="flex flex-wrap items-center font-medium">
                 <div>
                     <a class="whitespace-nowrap text-primary-500">Requests</a>
                 </div>
                 <div class="flex items-center ml-1 whitespace-nowrap">
-                    <mat-icon
-                        class="icon-size-5 text-secondary"
-                        [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
+                    <mat-icon class="icon-size-5 text-secondary" [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
                     <a class="ml-1 text-primary-500">List</a>
                 </div>
             </div>
-            <!-- Title -->
             <div class="mt-2">
                 <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
                     Requests list
                 </h2>
             </div>
         </div>
-        <!-- Actions -->
+
         <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
-            <!-- Search -->
-            <mat-form-field
-                class="fuse-mat-dense fuse-mat-rounded min-w-64"
-                [subscriptSizing]="'dynamic'">
-                <mat-icon
-                    class="icon-size-5"
-                    matPrefix
-                    [svgIcon]="'heroicons_solid:magnifying-glass'"></mat-icon>
-                <input
-                    matInput
-                    [formControl]="searchInputControl"
-                    [autocomplete]="'off'"
-                    [placeholder]="'Search requests'">
+            <mat-form-field class="fuse-mat-dense fuse-mat-rounded min-w-64" [subscriptSizing]="'dynamic'">
+                <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:magnifying-glass'"></mat-icon>
+                <input matInput [formControl]="searchInputControl" [autocomplete]="'off'" [placeholder]="'Search requests'">
             </mat-form-field>
         </div>
     </div>
 
-    <!-- Main -->
+    <!-- Main Content -->
     <div class="flex flex-auto overflow-hidden">
-        <!-- Products list -->
         <div class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto">
             <ng-container *ngIf="(products$ | async) as products">
                 <ng-container *ngIf="products.length > 0; else noProducts">
-                    <!-- Table -->
-                    <table mat-table [dataSource]="dataSource" (matSortChange)="sortData($event)" matSort class="w-full">
-                        <!-- Request Date Column -->
-                        <ng-container matColumnDef="requestDate">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Request Date</th>
-                            <td mat-cell *matCellDef="let product">{{ product?.requestDate }}</td>
-                        </ng-container>
+                    <div class="grid">
+                        <div class="inventory-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5" matSort matSortDisableClear>
+                            <div class="column-requestDate hidden lg:block" [mat-sort-header]="'requeser'">Requester</div>
+                            <div class="column-requestDate hidden lg:block" [mat-sort-header]="'matricule'">Matricule</div>
+                            <div class="column-requestDate hidden lg:block" [mat-sort-header]="'email'">Email</div>
+                            <div class="column-requestDate hidden lg:block" [mat-sort-header]="'manager'">Manager</div>
+                            <div class="column-requestDate hidden lg:block" [mat-sort-header]="'requestDate'">Request Date</div>
+                            <div class="column-startDate hidden lg:block" [mat-sort-header]="'startDate'">Start Date</div>
+                            <div class="column-endDate hidden sm:block" [mat-sort-header]="'endDate'">End Date</div>
+                            <div class="column-endDate hidden sm:block" [mat-sort-header]="'nbDays'">Number of days</div>
+                            <div class="column-status hidden lg:block" [mat-sort-header]="'approved'">Status</div>
+                            <div class="column-procInstId hidden sm:block" [mat-sort-header]="'procInstId'">Process Instance Id</div>
+                            <div class="hidden sm:block">Details</div>
+                        </div>
 
-                        <!-- Start Date Column -->
-                        <ng-container matColumnDef="startDate">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Start Date</th>
-                            <td mat-cell *matCellDef="let product">{{ product?.startDate }}</td>
-                        </ng-container>
-
-                        <!-- End Date Column -->
-                        <ng-container matColumnDef="endDate">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>End Date</th>
-                            <td mat-cell *matCellDef="let product">{{ product?.endDate }}</td>
-                        </ng-container>
-
-                        <!-- Manager Approval Column -->
-                        <ng-container matColumnDef="managerApproved">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Manager Approval</th>
-                            <td mat-cell *matCellDef="let product">
-                                <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
-                                    [ngClass]="{
-                                        'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product?.managerApproved === null,
-                                        'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product?.managerApproved === true,
-                                        'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': product?.managerApproved === false
-                                    }">
-                                    <span class="leading-relaxed whitespace-nowrap">
-                                        {{ product?.managerApproved === null ? 'pending' : product?.managerApproved === true ? 'accepted' : 'rejected' }}
+                        <ng-container *ngFor="let product of products; trackBy: trackByFn">
+                            <div class="inventory-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b">
+                                <div class="column-startDate hidden lg:block">{{ product?.user?.firstName }} {{ product?.user?.lastName }}</div>
+                                <div class="column-startDate hidden lg:block">{{ product?.user?.matricule }}</div>
+                                <div class="column-startDate hidden lg:block">{{ product?.user?.email }}</div>
+                                <div class="column-startDate hidden lg:block">{{ product?.user?.manager?.matricule }}</div>
+                                <div class="column-requestDate hidden lg:block">{{ getFormattedDate(product?.requestDate) }}</div>
+                                <div class="column-startDate hidden lg:block">{{ product?.startDate }}</div>
+                                <div class="column-endDate hidden sm:block">{{ product?.endDate }}</div>
+                                <div class="column-daysDifference hidden sm:block">
+                                    {{ calculateDaysDifference(product?.startDate, product?.endDate) }}
+                                </div>
+                                <div class="column-status hidden lg:block">
+                                    <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
+                                        [ngClass]="{
+                                            'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product?.approved === null,
+                                            'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': product?.approved === false,
+                                            'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product?.approved === true
+                                        }">
+                                        {{ product?.approved === null ? 'pending' : product?.approved === false ? 'rejected' : 'accepted' }}
                                     </span>
-                                </span>
-                            </td>
+                                </div>
+                                <div class="column-procInstId hidden sm:block">{{ product?.procInstId }}</div>
+                                <div>
+                                    <button class="min-w-10 min-h-7 h-7 px-2 leading-6" mat-stroked-button (click)="toggleDetails(product.procInstId)">
+                                        <mat-icon
+                                        class="icon-size-5"
+                                        [svgIcon]="selectedProcInstId === product.procInstId ? 'heroicons_solid:chevron-up' : 'heroicons_solid:chevron-down'"></mat-icon>
+                                    </button>
+                                </div>
+                                
+                            </div>
+                            
+                            <ng-template [ngIf]="isTaskSelected(product.procInstId)">
+                                <!-- Task Details Section -->
+                                <div class="p-6 bg-white dark:bg-gray-800">
+                                    <h3 class="text-2xl font-bold mb-6">Task Details</h3>
+                                    
+                                    <!-- Loading State -->
+                                    <div *ngIf="isLoading" class="p-4 text-center">
+                                        <mat-spinner diameter="50"></mat-spinner>
+                                        <div>Loading tasks...</div>
+                                    </div>
+                            
+                                    <!-- Tasks List -->
+                                    <div *ngIf="!isLoading && selectedProduct && selectedProduct.length > 0">
+                                        <div *ngFor="let task of selectedProduct" class="mb-6">
+                                            <mat-card class="task-card">
+                                                <mat-card-header class="custom-card-header">
+                                                    <mat-card-title>{{ task?.name }}</mat-card-title>
+                                                </mat-card-header>                                             
+                            
+                                                <mat-card-content>
+                                                    <div class="task-details">
+                                                        <div class="task-detail-item">
+                                                            <mat-icon>turned_in_not</mat-icon>
+                                                            <div><strong>Validator:</strong> {{ task?.assignee || 'No owner' }}</div>
+                                                        </div>
+                                                        <div class="task-detail-item">
+                                                            <mat-icon>person</mat-icon>
+                                                            <div><strong>Owner:</strong> {{ task?.owner || 'No owner' }}</div>
+                                                        </div>
+                                                        <div class="task-detail-item">
+                                                            <mat-icon>description</mat-icon>
+                                                            <div><strong>Description:</strong> {{ task?.description || 'No description available.' }}</div>
+                                                        </div>
+                                                        <div class="task-detail-item">
+                                                            <mat-icon>schedule</mat-icon>
+                                                            <div><strong>Start Time:</strong> {{ getFormattedDate(task?.startTime) || 'Not started' }}</div>
+                                                        </div>
+                                                        <div class="task-detail-item">
+                                                            <mat-icon>schedule</mat-icon>
+                                                            <div><strong>End Time:</strong> {{ getFormattedDate(task?.endTime) || 'Not completed' }}</div>
+                                                        </div>
+                                                        <div class="task-detail-item">
+                                                            <mat-icon>watch_later</mat-icon>
+                                                            <div>
+                                                                <strong>Task status:</strong>
+                                                                <span [ngClass]="{'completed': task?.deleteReason === 'completed', 'not-completed': task?.deleteReason !== 'completed'}">
+                                                                    {{ task.deleteReason || 'Not Completed' }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        
+                                                    </div>
+                                                </mat-card-content>
+                                            </mat-card>
+                                        </div>
+                                    </div>
+                            
+                                    <!-- No Tasks Message -->
+                                    <div *ngIf="!isLoading && (!selectedProduct || selectedProduct.length === 0)" class="text-center py-4">
+                                        No tasks available for this request.
+                                    </div>
+                                </div>
+                            </ng-template>
+                            
+                            
+                            
                         </ng-container>
-
-                        <!-- Manager Approval Date Column -->
-                        <ng-container matColumnDef="managerApprovalDate">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Manager Approval Date</th>
-                            <td mat-cell *matCellDef="let product">{{ getFormattedDate(product?.managerApprovalDate) }}</td>
-                        </ng-container>
-
-                        <!-- Manager Comments Column -->
-                        <ng-container matColumnDef="managerComments">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>Manager Comments</th>
-                            <td mat-cell *matCellDef="let product">{{ product?.managerComments }}</td>
-                        </ng-container>
-
-                        <!-- HR Approval Column -->
-                        <ng-container matColumnDef="rhApproved">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>HR Approval</th>
-                            <td mat-cell *matCellDef="let product">
-                                <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
-                                    [ngClass]="{
-                                        'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': (product?.rhApproved === false || product?.managerApproved === false),
-                                        'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product?.rhApproved === true,
-                                        'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product?.rhApproved === null
-                                    }">
-                                    <span class="leading-relaxed whitespace-nowrap">
-                                        {{ (product?.rhApproved === false || product?.managerApproved === false) ? 'rejected' : (product?.rhApproved === null ? 'pending' : 'accepted') }}
-                                    </span>
-                                </span>
-                            </td>
-                        </ng-container>
-
-                        <!-- HR Approval Date Column -->
-                        <ng-container matColumnDef="rhApprovalDate">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>HR Approval Date</th>
-                            <td mat-cell *matCellDef="let product">{{ getFormattedDate(product?.rhApprovalDate) || 'N/A' }}</td>
-                        </ng-container>
-
-                        <!-- HR Comments Column -->
-                        <ng-container matColumnDef="rhComments">
-                            <th mat-header-cell *matHeaderCellDef mat-sort-header>HR Comments</th>
-                            <td mat-cell *matCellDef="let product">{{ product?.rhComments }}</td>
-                        </ng-container>
-
-                        <!-- Table Header and Rows -->
-                        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                    </table>
-
-                    <!-- Paginator -->
-                    <mat-paginator
-                        [length]="pagination.length"
-                        [pageSize]="pagination.size"
-                        [pageIndex]="pagination.page"
-                        [pageSizeOptions]="pageSizes"
-                        (page)="onPageChange($event)"
-                        (pageSizeChange)="onPageSizeChange($event)">
-                    </mat-paginator>
+                    </div>
                 </ng-container>
+                <mat-paginator
+                [length]="pagination.length"
+                [pageSize]="pagination.size"
+                [pageIndex]="pagination.page"
+                [pageSizeOptions]="pageSizes"
+                (page)="onPageChange($event)"
+                (pageSizeChange)="onPageSizeChange($event)">
+            </mat-paginator>
             </ng-container>
 
+            <!-- No Products Available -->
             <ng-template #noProducts>
                 <div class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center">There are no requests!</div>
             </ng-template>
         </div>
+                 <!-- Paginator -->
+
     </div>
+
 </div>

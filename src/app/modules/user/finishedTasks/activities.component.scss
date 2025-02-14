@@ -1,0 +1,22 @@
+/* Force the icon color for approved/rejected tasks */
+mat-icon.approved {
+    color: green !important; /* Green color for approved */
+}
+
+mat-icon.rejected {
+    color: red !important; /* Red color for rejected */
+}
+
+/* Background colors for task approval status */
+.bg-green-500 {
+    background-color: #38a169 !important; /* Green background for approved tasks */
+}
+
+.bg-red-500 {
+    background-color: #e53e3e !important; /* Red background for rejected tasks */
+}
+
+/* Customize icon size */
+.icon-size-7 {
+    font-size: 2rem !important; /* Larger icon size */
+}

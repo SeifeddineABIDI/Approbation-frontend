@@ -23,6 +23,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from 'app/core/auth/auth.service';
 import { Task } from 'app/modules/user/requests/tasks/tasks.types';
 import { TasksService } from 'app/modules/user/requests/tasks/tasks.service';
+import { RoleNavigationService } from 'app/core/navigation/roleNavigation.service';
 
 @Component({
     selector     : 'classy-layout',
@@ -53,7 +54,8 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         private _httpClient: HttpClient,
         private _authService: AuthService,
         private _tasksService: TasksService,
-        private _cdr: ChangeDetectorRef
+        private _cdr: ChangeDetectorRef,
+        private _roleNavigationService: RoleNavigationService
     )
     {
     }
@@ -99,7 +101,10 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
             const userData = localStorage.getItem('user');
         if (userData) {
             this.user = JSON.parse(userData);
+            
         }
+        this._roleNavigationService.setUserRole(this.user.role);
+
         if (this.user?.matricule) {
             this._tasksService.fetchTasks(this.user.matricule);
         }

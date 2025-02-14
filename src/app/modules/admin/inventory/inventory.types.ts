@@ -58,3 +58,16 @@ export interface InventoryVendor
     name: string;
     slug: string;
 }
+export interface Task
+{
+    id: string;
+    procInstId: string;
+    name?: string;
+    assignee?: string;
+    owner?: string;
+    startTime?: string | null;
+    endTime?: string | null;
+    description?: string | null;
+    deleteReason?: string | null;
+    
+}
