@@ -22,3 +22,4 @@ export class TranslocoHttpLoader implements TranslocoLoader
         return this._httpClient.get<Translation>(`./assets/i18n/${lang}.json`);
     }
 }
+

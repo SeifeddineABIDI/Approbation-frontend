@@ -5,6 +5,7 @@ import { TasksListComponent } from 'app/modules/user/requests/tasks/list/list.co
 import { TasksComponent } from 'app/modules/user/requests/tasks/tasks.component';
 import { TasksService } from 'app/modules/user/requests/tasks/tasks.service';
 import { catchError, throwError } from 'rxjs';
+import { TasksListUserComponent } from '../listUser/listUser.component';
 
 /**
  * Task resolver
@@ -105,4 +106,5 @@ export default [
             },
         ],
     },
+    
 ] as Routes;

@@ -69,6 +69,22 @@ export const defaultNavigation: FuseNavigationItem[] = [
             roles: ['MANAGER', 'RH'],
             
         },
+        {
+            id   : 'allRequestsUser',
+            title: 'My requests',
+            icon : 'heroicons_outline:document-text',
+            link : '/requests/all',
+            type : 'basic',
+            
+        },
+        {
+            id   : 'allRequestsConfirmedUser',
+            title: 'My vacations',
+            icon : 'heroicons_outline:map',
+            link : '/requests/allConfirmed',
+            type : 'basic',
+            
+        },
    
 ];
 

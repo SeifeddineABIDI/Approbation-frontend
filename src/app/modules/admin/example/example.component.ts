@@ -16,7 +16,7 @@ import { UserService } from 'app/core/user/user.service';
     standalone   : true,
     templateUrl  : './example.component.html',
     encapsulation: ViewEncapsulation.None,
-    imports        : [CommonModule,TranslocoModule, MatIconModule, MatButtonModule, MatRippleModule, MatMenuModule, MatTabsModule, MatButtonToggleModule, NgFor, NgIf, MatTableModule, NgClass],
+    imports        : [CommonModule, MatIconModule, MatButtonModule, MatRippleModule, MatMenuModule, MatTabsModule, MatButtonToggleModule, NgFor, NgIf, MatTableModule, NgClass],
 })
 export class ExampleComponent implements OnInit
 {

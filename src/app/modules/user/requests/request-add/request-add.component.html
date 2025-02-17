@@ -54,6 +54,28 @@
                         End date is required
                     </mat-error>
                 </mat-form-field>
+                <div class="flex flex-col">
+                    <div class="flex flex-col">
+                      <mat-checkbox
+                        formControlName="goAfterMidday" 
+                        [(ngModel)]="isDepartureAfterMiddayChecked"
+                        (change)="toggleDepartureChecked()"
+                        class="mb-2"
+                        [color]="'primary'">
+                        Departure After Midday
+                      </mat-checkbox>
+                  
+                      <mat-checkbox
+                        formControlName="backAfterMidday"  
+                        [(ngModel)]="isReturnAfterMiddayChecked"
+                        (change)="toggleReturnChecked()"
+                        class="mb-2"
+                        [color]="'primary'">
+                        Return After Midday
+                      </mat-checkbox>
+                    </div>
+                  </div>
+                  
             </div>
 
 
@@ -71,6 +93,7 @@
                 <mat-progress-spinner *ngIf="isSubmitting" [diameter]="24" [mode]="'indeterminate'"></mat-progress-spinner>
             </button>
                 </div>
+                
             </form>
 
     </div>

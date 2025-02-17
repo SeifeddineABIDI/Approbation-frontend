@@ -13,6 +13,8 @@ import { provideIcons } from 'app/core/icons/icons.provider';
 import { mockApiServices } from 'app/mock-api';
 import { TranslocoHttpLoader } from './core/transloco/transloco.http-loader';
 import { PrimeNGConfig } from 'primeng/api';
+import { of } from 'rxjs';
+import { catchError, defaultIfEmpty } from 'rxjs/operators';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -68,19 +70,28 @@ export const appConfig: ApplicationConfig = {
             },
             loader: TranslocoHttpLoader,
         }),
-        {
-            // Preload the default language before the app starts to prevent empty/jumping content
-            provide   : APP_INITIALIZER,
-            useFactory: () =>
-            {
-                const translocoService = inject(TranslocoService);
-                const defaultLang = translocoService.getDefaultLang();
-                translocoService.setActiveLang(defaultLang);
+{
+    provide: APP_INITIALIZER,
+    useFactory: () => {
+        const translocoService = inject(TranslocoService);
+        const defaultLang = translocoService.getDefaultLang();
+        translocoService.setActiveLang(defaultLang);
 
-                return () => firstValueFrom(translocoService.load(defaultLang));
-            },
-            multi     : true,
-        },
+        return () =>
+            firstValueFrom(
+                translocoService.load(defaultLang).pipe(
+                    defaultIfEmpty('en'), // Provide a fallback value if no elements are emitted
+                    catchError((error) => {
+                        console.error('Error loading language:', error);
+                        translocoService.setActiveLang('en');
+                        return of('en'); // Ensure a fallback language is emitted
+                    })
+                )
+            );
+    },
+    multi: true,
+},
+
 
         // Fuse
         provideAuth(),

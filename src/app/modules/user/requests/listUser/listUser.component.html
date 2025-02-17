@@ -1,0 +1,113 @@
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent">
+
+    <!-- Header -->
+    <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
+        <div class="absolute inset-x-0 bottom-0" *ngIf="isLoading">
+            <mat-progress-bar [mode]="'indeterminate'"></mat-progress-bar>
+        </div>
+        <div class="flex-1 min-w-0">
+            <div class="flex flex-wrap items-center font-medium">
+                <div>
+                    <a class="whitespace-nowrap text-primary-500">Requests</a>
+                </div>
+                <div class="flex items-center ml-1 whitespace-nowrap">
+                    <mat-icon class="icon-size-5 text-secondary" [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
+                    <a class="ml-1 text-primary-500">List</a>
+                </div>
+            </div>
+            <div class="mt-2">
+                <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
+                    Requests list
+                </h2>
+            </div>
+        </div>
+
+
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex flex-auto overflow-hidden">
+        <div class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto">
+            <ng-container *ngIf="(products$ | async) as products">
+                <ng-container *ngIf="products.length > 0; else noProducts">
+                    <div class="grid">
+                        <div class="inventory-grid z-10 sticky top-0 grid gap-4 py-4 px-6 md:px-8 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5" matSort matSortDisableClear>
+                            <div class="column-requestDate hidden lg:block" [mat-sort-header]="'matricule'">Matricule</div>
+                            <div class="column-requestDate hidden lg:block" [mat-sort-header]="'email'">Email</div>
+                            <div class="column-requestDate hidden lg:block" [mat-sort-header]="'manager'">Manager</div>
+                            <div class="column-requestDate hidden lg:block" [mat-sort-header]="'requestDate'">Request Date</div>
+                            <div class="column-startDate hidden lg:block" [mat-sort-header]="'startDate'">Start Date</div>
+                            <div class="column-endDate hidden sm:block" [mat-sort-header]="'endDate'">End Date</div>
+                            <div class="column-endDate hidden sm:block" [mat-sort-header]="'nbDays'">Number of days</div>
+                            <div class="column-procInstId hidden sm:block" [mat-sort-header]="'goAfterMidday'">GoAfterMidday</div>
+                            <div class="column-procInstId hidden sm:block" [mat-sort-header]="'backAfterMidday'">BackAfterMidday</div>
+                            <div class="column-status hidden lg:block" [mat-sort-header]="'approved'">Status</div>
+
+
+
+                        </div>
+
+                        <ng-container *ngFor="let product of products; trackBy: trackByFn">
+                            <div class="inventory-grid grid items-center gap-4 py-3 px-6 md:px-8 border-b">
+                                <div class="column-startDate hidden lg:block">{{ product?.user?.matricule }}</div>
+                                <div class="column-startDate hidden lg:block">{{ product?.user?.email }}</div>
+                                <div class="column-startDate hidden lg:block">{{ product?.user?.manager?.firstName }} {{ product?.user?.manager?.lastName }}</div>
+                                <div class="column-requestDate hidden lg:block">{{ getFormattedDate(product?.requestDate) }}</div>
+                                <div class="column-startDate hidden lg:block">{{ product?.startDate }}</div>
+                                <div class="column-endDate hidden sm:block">{{ product?.endDate }}</div>
+                                <div class="column-daysDifference hidden sm:block">
+                                    {{ calculateDaysDifference(product?.startDate, product?.endDate) }}
+                                </div>
+                               
+                                <div class="column-endDate hidden sm:block">
+                                    <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
+                                        [ngClass]="{
+                                            'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product?.goAfterMidday === true,
+                                            'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': product?.goAfterMidday === false
+                                        }">
+                                        {{ product?.goAfterMidday === true ? 'yes' : 'no' }}
+                                    </span>
+                                </div>
+                                
+                                <div class="column-endDate hidden sm:block">
+                                    <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
+                                        [ngClass]="{
+                                            'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product?.backAfterMidday === true,
+                                            'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': product?.backAfterMidday === false
+                                        }">
+                                        {{ product?.backAfterMidday === true ? 'yes' : 'no' }}
+                                    </span>
+                                </div>
+                                <div class="column-status hidden lg:block">
+                                    <span class="inline-flex items-center font-bold text-xs px-2.5 py-0.5 rounded-full tracking-wide uppercase"
+                                        [ngClass]="{
+                                            'bg-yellow-200 text-yellow-800 dark:bg-yellow-600 dark:text-yellow-50': product?.approved === null,
+                                            'bg-red-200 text-red-800 dark:bg-red-600 dark:text-red-50': product?.approved === false,
+                                            'bg-green-200 text-green-800 dark:bg-green-600 dark:text-green-50': product?.approved === true
+                                        }">
+                                        {{ product?.approved === null ? 'pending' : product?.approved === false ? 'rejected' : 'accepted' }}
+                                    </span>
+                                </div>
+
+                            </div>
+                            
+              
+                            
+                            
+                            
+                        </ng-container>
+                    </div>
+                </ng-container>
+
+            </ng-container>
+
+            <!-- No Products Available -->
+            <ng-template #noProducts>
+                <div class="p-8 sm:p-16 border-t text-4xl font-semibold tracking-tight text-center">There are no requests!</div>
+            </ng-template>
+        </div>
+                 <!-- Paginator -->
+
+    </div>
+
+</div>

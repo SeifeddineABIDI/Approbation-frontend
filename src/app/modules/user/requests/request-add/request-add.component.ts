@@ -47,7 +47,8 @@ export class RequestAddComponent {
   managers: { fullname: string, matricule: string }[] = [];
   user: User;
   private _unsubscribeAll: Subject<any> = new Subject<any>();
-
+  isDepartureAfterMiddayChecked: boolean = false;
+  isReturnAfterMiddayChecked: boolean = false;
   constructor(
     private _userService: UserService,
     private _formBuilder: UntypedFormBuilder,
@@ -62,10 +63,22 @@ export class RequestAddComponent {
     this.signUpForm = this._formBuilder.group({
       startDate: ['', Validators.required],
       endDate: ['', Validators.required],
+      goAfterMidday: [''],
+      backAfterMidday: [''],
       
     });
   }
+  toggleDepartureChecked(): void {
+    if (this.isDepartureAfterMiddayChecked) {
+      this.isReturnAfterMiddayChecked = false; 
+    }
+  }
 
+  toggleReturnChecked(): void {
+    if (this.isReturnAfterMiddayChecked) {
+      this.isDepartureAfterMiddayChecked = false; 
+    }
+  }
   signUp(): void {
     if (this.signUpForm.invalid || this.isSubmitting) {
         return;
@@ -92,12 +105,14 @@ export class RequestAddComponent {
             this.showAlert = false;
             const startDate = this.signUpForm.value.startDate ? new Date(this.signUpForm.value.startDate).toISOString().split('T')[0] : null;
             const endDate = this.signUpForm.value.endDate ? new Date(this.signUpForm.value.endDate).toISOString().split('T')[0] : null;
+            const goAfterMidday=this.signUpForm.value.goAfterMidday;
+            const backAfterMidday=this.signUpForm.value.backAfterMidday;
             const accessToken = localStorage.getItem('accessToken');
             const userData = localStorage.getItem('user');
             if (userData) {
                 this.user = JSON.parse(userData);
             }
-            this._userService.addLeaveRequest(this.user.matricule, startDate, endDate, accessToken).subscribe(
+            this._userService.addLeaveRequest(this.user.matricule, startDate, endDate,goAfterMidday,backAfterMidday, accessToken).subscribe(
                 (response) => {
                     this.isSubmitting = false;
                     this.signUpForm.enable();

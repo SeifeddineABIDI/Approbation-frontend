@@ -18,13 +18,13 @@ import { UserService } from 'app/core/user/user.service';
 import { InventoryService } from 'app/modules/admin/inventory/inventory.service';
 import { BehaviorSubject, debounceTime, merge, Subject, switchMap, takeUntil, tap } from 'rxjs';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { Task } from '../inventory.types';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Task } from '../tasks/tasks.types';
 
 @Component({
     selector       : 'inventory-list',
-    templateUrl    : './inventory.component.html',
-    styleUrls      : ['./inventory.component.scss'],
+    templateUrl    : './listUserConfirmed.component.html',
+    styleUrls      : ['./listUserConfirmed.component.scss'],
     providers: [DatePipe],
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
@@ -32,7 +32,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     standalone     : true,
     imports        : [NgIf,MatProgressSpinnerModule,MatTableModule, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, CurrencyPipe],
 })
-export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
+export class RequestsListUserConfirmedComponent implements OnInit, OnDestroy
 {
     @ViewChild(MatPaginator) private _paginator: MatPaginator;
     @ViewChild(MatSort) private _sort: MatSort;
@@ -47,7 +47,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
     selectedTaskForm: UntypedFormGroup;
     tagsEditMode: boolean = false;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-        displayedColumns: string[] = ['requeser','matricule','email','manager','requestDate', 'startDate', 'endDate', 'nbDays',, 'goAfterMidday','backAfterMidday', 'toggleDetails'];
+        displayedColumns: string[] = ['requestDate', 'startDate', 'endDate', 'approved', 'goAfterMidday','backAfterMidday'];
     dataSource = new MatTableDataSource([]);
     private _productsSubject = new BehaviorSubject<any[]>([]);
     products$ = this._productsSubject.asObservable();
@@ -84,15 +84,14 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
             startDate        : [''],
             endDate          : [''],
             approved            : [''],
-            procInstId        : [''],
    
 
         });
         var accessToken = localStorage.getItem('accessToken');
-
+        var user = JSON.parse(localStorage.getItem('user') || '{}');
         if (accessToken) {
             // Get the first page of products
-            this.getLeaveRequests(this.pagination.page, this.pagination.size, accessToken);
+            this.getLeaveRequests(user.matricule, accessToken);
           }
         this.searchInputControl.valueChanges.pipe(
             takeUntil(this._unsubscribeAll),
@@ -100,17 +99,16 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
             switchMap((query) => {
                 this.isLoading = true;
                 this.pagination.page = 0;
-                return this.userService.getLeaveRequests(this.pagination.page, this.pagination.size, query,this._sort.active, this._sort.direction, accessToken);
+                return this.userService.getRequestsConfirmedByUser(user.matricule, accessToken);
             }),
             tap((data) => {
                 console.log('Data received from API:', data); // Log the data to inspect
                 this.isLoading = false;
             })
         ).subscribe((data) => {
-            this.dataSource.data=data.content;
+            this.dataSource.data=data;
             this._changeDetectorRef.markForCheck(); // Ensure changes are detected
-            this._productsSubject.next(data.content);
-            this.pagination.length = data.totalElements; // Set the total number of elements for pagination
+            this._productsSubject.next(data);
             this._changeDetectorRef.markForCheck(); // Ensure changes are detected
         });
 
@@ -183,17 +181,16 @@ toggleDetails(procInstId: string): void {
 getFormattedDate(date: string | Date): string | null {
     return this.datepipe.transform(date, 'yyyy-MM-dd HH:mm:ss'); // Format the date as you want
   }
-    getLeaveRequests(page: number, size: number, accessToken: string, query?: string, sortField?: string, sortDirection?: string): void {
+    getLeaveRequests(matricule : string, accessToken:string): void {
         
-        this.userService.getLeaveRequests(page, size, query, sortField, sortDirection, accessToken).pipe(
+        this.userService.getRequestsConfirmedByUser(matricule, accessToken).pipe(
             tap((data) => console.log('Data received:', data)),
             takeUntil(this._unsubscribeAll)
         )
         .subscribe(
             (data) => {
-                this._productsSubject.next(data.content);
-                this.dataSource.data = data.content;
-                this.pagination.length = data.totalElements;
+                this._productsSubject.next(data);
+                this.dataSource.data = data;
                 this.isLoading = false;
                 this._changeDetectorRef.markForCheck();
             },
@@ -203,96 +200,6 @@ getFormattedDate(date: string | Date): string | null {
                 this._changeDetectorRef.markForCheck();
             }
         );
-    }
-    
-
-    
-    getAvatarUrl(avatarPath: string): string {
-        const baseUrl = 'http://localhost:8080/images/';
-        const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');
-        return baseUrl + cleanedPath;
-      }
-    /**
-     * After view init
-     */
-    ngAfterViewInit(): void {
-        if (this._sort && this._paginator) {
-            merge(this._sort.sortChange, this._paginator.page)
-                .pipe(takeUntil(this._unsubscribeAll))
-                .subscribe(() => {
-                    const accessToken = localStorage.getItem('accessToken');
-                    if (accessToken) {
-                        this.getLeaveRequests(
-                            this._paginator.pageIndex,
-                            this._paginator.pageSize,
-                            accessToken,
-                            this.searchInputControl.value,
-                            this._sort.active,  // Persist sorting column
-                            this._sort.direction // Persist sorting direction
-                        );
-                    }
-                });
-    
-            // Ensure paginator and sort are linked
-            this.dataSource.paginator = this._paginator;
-            this.dataSource.sort = this._sort;
-        }
-    }
-    
-    sortData(event: any): void {
-        this.pagination.page = 0; // Reset to first page on sort change
-        const accessToken = localStorage.getItem('accessToken');
-        if (accessToken) {
-            this.getLeaveRequests(
-                this.pagination.page,
-                this.pagination.size,
-                accessToken,
-                this.searchInputControl.value, // Keep search query if exists
-                event.active, // Sorting column
-                event.direction // Sorting direction
-            );
-        }
-    }
-    onPageChange(event: any): void {
-        this.pagination.page = event.pageIndex;
-        this.pagination.size = event.pageSize;
-        const accessToken = localStorage.getItem('accessToken');
-        if (accessToken) {
-            this.getLeaveRequests(
-                this.pagination.page,
-                this.pagination.size,
-                accessToken,
-                this.searchInputControl.value, // Preserve search query
-                this._sort.active, // Preserve sorting column
-                this._sort.direction // Preserve sorting direction
-            );
-        }
-    }
-   
-    
-    
-
-    closeDetails(): void
-    {
-        console.log('Closing details section...'); 
-        this.selectedProduct = [];
-        this.selectedProductForm.reset(); 
-        this._changeDetectorRef.markForCheck();
-    }
-    onPageSizeChange(event: any): void {
-        this.pagination.size = event.pageSize;
-        this.pagination.page = 0; // Reset to first page when page size changes
-        const accessToken = localStorage.getItem('accessToken');
-        if (accessToken) {
-            this.getLeaveRequests(
-                this.pagination.page,
-                this.pagination.size,
-                accessToken,
-                this.searchInputControl.value, // Preserve search query
-                this._sort.active, // Preserve sorting column
-                this._sort.direction // Preserve sorting direction
-            );
-        }
     }
     
     /**

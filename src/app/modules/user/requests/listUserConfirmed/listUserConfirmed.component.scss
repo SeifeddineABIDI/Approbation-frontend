@@ -1,26 +1,20 @@
+
 .inventory-grid,
 .inventory-grid-header,
 .inventory-grid-row {
-    align-items: center;
-    justify-items: start;
-    display: grid;
     grid-template-columns: 
-        120px   /* Fixed width for Request Date */
-        100px   /* Fixed width for Start Date */
-        190px   /* Fixed width for End Date */
-        0.5fr     /* Flexible width for other columns */
-        0.9fr
-        0.5fr
-        0.5fr
+        100px   /* Narrower width for Start Date */
+        190px   /* Narrower width for End Date */
+        0.3fr     /* Other columns with flexible width */
+        0.55fr
+        0.3fr
+        0.3fr
         0.2fr
-        0.5fr
-        0.5fr
-        0.5fr
-        0.5fr;
-    gap: 3px;
+        0.3fr
+            0.3fr;
+    gap: 4px; /* Adjust gap between columns */
     max-width: 100%;
-    overflow-x: auto; /* Ensure horizontal scroll for overflowing content */
-    grid-auto-rows: minmax(30px, auto); /* Ensure row heights adapt to content */
+    overflow-x: auto;
 }
 @media (max-width: 1024px) {
     .inventory-grid,

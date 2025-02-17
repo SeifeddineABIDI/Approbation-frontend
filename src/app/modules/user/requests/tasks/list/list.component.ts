@@ -72,8 +72,7 @@ export class TasksListComponent implements OnInit, OnDestroy
                     this.tasks = tasks;
 
                     // Update the counts
-                    this.tasksCount.total = tasks.length;
-                    this.tasksCount.incomplete = this.tasksCount.total - this.tasksCount.completed;
+                    this.updateTaskCounts();
 
                     // Mark for check
                     this._changeDetectorRef.markForCheck();
@@ -155,19 +154,23 @@ export class TasksListComponent implements OnInit, OnDestroy
     }
     private updateNavigationCount(count: number): void {
         setTimeout(() => {
-            const mainNavigationComponent = this._fuseNavigationService.getComponent<FuseVerticalNavigationComponent>('mainNavigation');
-            if (mainNavigationComponent) {
-                const mainNavigation = mainNavigationComponent.navigation;
-                const menuItem = this._fuseNavigationService.getItem('navigation-features.badge-style-oval', mainNavigation);
-                if (menuItem) {
-                    menuItem.badge.title = count.toString();
-                    mainNavigationComponent.refresh();
-                }
+          const mainNavigationComponent = this._fuseNavigationService.getComponent<FuseVerticalNavigationComponent>('mainNavigation');
+          if (mainNavigationComponent) {
+            const mainNavigation = mainNavigationComponent.navigation;
+            const menuItem = this._fuseNavigationService.getItem('navigation-features.badge-style-oval', mainNavigation);
+            if (menuItem) {
+              menuItem.badge.title = count.toString();
+              mainNavigationComponent.refresh();
             }
+          }
         });
-    }
+      }
 
     
+    private updateTaskCounts(): void {
+        // Update task count for total, completed, and incomplete tasks
+        this.tasksCount.total = this.tasks.length;
+      }
     
     selectTask(task: Task): void {
         // Set the selected task

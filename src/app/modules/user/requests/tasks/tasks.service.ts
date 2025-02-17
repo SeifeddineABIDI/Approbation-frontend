@@ -157,7 +157,6 @@ fetchTasks(userMatricule: string): void {
             )),
         );
     }
-
     getTasksByUser(userId: string, accessToken: string): Observable<Task[]> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
         return this._httpClient.get<Task[]>(`${this.apiUrl}/tasks/user/${userId}`, { headers }).pipe(

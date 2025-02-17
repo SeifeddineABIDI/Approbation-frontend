@@ -199,12 +199,14 @@ getUserRole(): string {
     
     
   
-    addLeaveRequest(userId: string, startDate: string, endDate: string, accessToken: string): Observable<any> {
+    addLeaveRequest(userId: string, startDate: string, endDate: string,goAfterMidday: string,backAfterMidday: string, accessToken: string): Observable<any> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);        
         const payload = {
             userId,
             startDate,
-            endDate
+            endDate,
+            goAfterMidday,
+            backAfterMidday
         };
     
         return this._httpClient.post(`${this.apiUrl}/api/v1/management/request`, payload, { headers, responseType: 'text' });
@@ -222,4 +224,21 @@ getUserRole(): string {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
         
         return this._httpClient.get<any>(`${this.apiUrl}/api/v1/management/team`, { headers });}
-}
+
+    getRequestsByUser(matricule: string, accessToken: string): Observable<any[]> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        return this._httpClient.get<any[]>(`${this.apiUrl}/tasks/requests/${matricule}`, { headers }).pipe(
+            catchError((error) => {
+                    return throwError(() => new Error('Failed to fetch request data.'));
+            })
+        );
+    }
+    getRequestsConfirmedByUser(matricule: string, accessToken: string): Observable<any[]> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        return this._httpClient.get<any[]>(`${this.apiUrl}/tasks/requestsConfirmed/${matricule}`, { headers }).pipe(
+            catchError((error) => {
+                    return throwError(() => new Error('Failed to fetch request data.'));
+            })
+        );
+    }
+    }
