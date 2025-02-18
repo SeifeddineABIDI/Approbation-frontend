@@ -1,5 +1,19 @@
 {
+    "Home": "Home",
     "welcome-back": "Welcome back",
     "Project": "Project",
     "Analytics": "Analytics",
+    "Assigned": "Assigned",
+    "Team": "Team",
+    "Settings": "Settings",
+    "Completed": "Completed",
+    "Waiting": "Waiting",
+    "Leave balance": "Leave balance",
+    "Days": "Days",
+    "Tasks": "Tasks",
+    "Requests": "Requests",
+    "Request congé": "Request congé",
+    "Users": "Users",
+    "List": "List",
+    "Add": "Add"
 }

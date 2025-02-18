@@ -11,9 +11,9 @@
                     </div>
                     <div class="flex flex-col min-w-0 ml-4">
                         <ng-container *transloco="let t">
-                            <div class="text-2xl md:text-5xl font-semibold tracking-tight leading-7 md:leading-snug truncate">{{t('Welcome back')}}, {{ user.firstName }} {{ user.lastName }}!</div>
+                            <div class="text-2xl md:text-5xl font-semibold tracking-tight leading-7 md:leading-snug truncate"> {{ t('welcome-back') }}, {{ user.firstName }} {{ user.lastName }}!</div>
                         </ng-container>
-                        <div class="flex items-center">
+                        <div *ngIf="user.role=='MANAGER'" class="flex items-center">
                             <mat-icon
                                 class="icon-size-5"
                                 [svgIcon]="'heroicons_solid:bell'"></mat-icon>
@@ -24,21 +24,12 @@
                 <!-- Actions -->
                 <div class="flex items-center mt-6 sm:mt-0 sm:ml-2 space-x-3">
                     <button
-                        class="bg-accent"
-                        mat-flat-button
-                        [color]="'accent'">
-                        <mat-icon
-                            class="icon-size-5"
-                            [svgIcon]="'heroicons_solid:envelope'"></mat-icon>
-                        <span class="ml-2">Messages</span>
-                    </button>
-                    <button
                         mat-flat-button
                         [color]="'primary'">
                         <mat-icon
                             class="icon-size-5"
                             [svgIcon]="'heroicons_solid:cog-8-tooth'"></mat-icon>
-                        <span class="ml-2">Settings</span>
+                        <span class="ml-2">{{ 'Settings' | transloco }}</span>
                     </button>
                     <div *ngIf="errorMessage">
                         <p style="color: red;">{{ errorMessage }}</p>
@@ -58,51 +49,51 @@
                 [animationDuration]="'0'">
 
                 <!-- Home -->
-                <mat-tab label="Home">
+                <mat-tab label="{{ 'Home' | transloco }}">]">
                     <ng-template matTabContent>
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full min-w-0">
                             <!-- Summary -->
                             <div class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
                                 <div class="flex items-start justify-between">
-                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">Solde Congé</div>
+                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">{{ 'Leave balance'|transloco }}</div>
                                     <div class="ml-2 -mt-2 -mr-3">
 
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-center mt-8">
                                     <div class="text-7xl sm:text-8xl font-bold tracking-tight leading-none text-blue-500">{{ user.soldeConge }}</div>
-                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Days</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">{{ 'Days'| transloco }}</div>
      
                                 </div>
                             </div>
                             <!-- Overdue -->
                             <div *ngIf="user.role=='MANAGER' ||user.role=='RH' ||user.role=='ADMIN'" class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
                                 <div class="flex items-start justify-between">
-                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">All Assigned Tasks</div>
+                                    <div class="text-lg font-medium tracking-tight leading-6 truncate" >{{ 'Assigned' | transloco }}</div>
                                 </div>
                                 <div class="flex flex-col items-center mt-8">
                                     <div class="text-7xl sm:text-8xl font-bold tracking-tight leading-none text-blue-500">{{ allTasks }}</div>
-                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">Tasks</div>
+                                    <div class="text-lg font-medium text-blue-600 dark:text-blue-500">{{ 'Tasks'| transloco }}</div>
                                 </div>
                             </div>
                                                         <!-- Features -->
                             <div *ngIf="user.role=='MANAGER' ||user.role=='RH' ||user.role=='ADMIN'"  class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
                                 <div class="flex items-start justify-between">
-                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">Completed </div>
+                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">{{ 'Completed'|transloco }} </div>
                                 </div>
                                 <div class="flex flex-col items-center mt-8">
                                     <div class="text-7xl sm:text-8xl font-bold tracking-tight leading-none text-green-500">{{ completedTasks }}</div>
-                                    <div class="text-lg font-medium text-green-600 dark:text-green-500">Tasks</div>
+                                    <div class="text-lg font-medium text-green-600 dark:text-green-500">{{ 'Tasks'| transloco }}</div>
                                 </div>
                             </div>
                             <!-- Issues -->
                             <div *ngIf="user.role=='MANAGER' ||user.role=='RH' ||user.role=='ADMIN'"  class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
                                 <div class="flex items-start justify-between">
-                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">Waiting</div>
+                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">{{ 'Waiting'| transloco }}</div>
                                 </div>
                                 <div class="flex flex-col items-center mt-2">
                                     <div class="text-7xl sm:text-8xl font-bold tracking-tight leading-none text-amber-500">{{ waitingTasks }}</div>
-                                    <div class="text-lg font-medium text-amber-600 dark:text-amber-500">Tasks</div>
+                                    <div class="text-lg font-medium text-amber-600 dark:text-amber-500">{{ 'Tasks'| transloco }}</div>
                                 </div>
                             </div>
                         </div>
@@ -111,7 +102,7 @@
                 <mat-tab>
                     <ng-template mat-tab-label>
                         <span class="inline-flex items-center space-x-2">
-                            <span class="">Team</span>
+                            <span class="">{{ 'Team' | transloco }}</span>
                             <span class="px-2 py-1 text-sm rounded-full bg-primary-100 text-on-primary-100">{{ team.length }}</span>
                         </span>
                     </ng-template>
@@ -126,7 +117,7 @@
                                                 class="w-full h-full object-cover"
                                                 [src]="getAvatarUrl(member?.avatar)">
                                         </div>
-                                        <div class="mt-6 font-medium">{{member.firstName}}</div>
+                                        <div class="mt-6 font-medium">{{member.firstName}} {{ member.lastName }}</div>
                                         <div class="text-secondary">{{member.title}}</div>
                                     </div>
                                     <!-- Email & Phone -->

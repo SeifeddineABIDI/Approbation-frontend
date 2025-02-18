@@ -59,8 +59,8 @@ export const appConfig: ApplicationConfig = {
                         label: 'English',
                     },
                     {
-                        id   : 'tr',
-                        label: 'Turkish',
+                        id   : 'fr',
+                        label: 'Frensh',
                     },
                 ],
                 defaultLang         : 'en',
@@ -80,11 +80,11 @@ export const appConfig: ApplicationConfig = {
         return () =>
             firstValueFrom(
                 translocoService.load(defaultLang).pipe(
-                    defaultIfEmpty('en'), // Provide a fallback value if no elements are emitted
+                    defaultIfEmpty('tn'),
                     catchError((error) => {
                         console.error('Error loading language:', error);
-                        translocoService.setActiveLang('en');
-                        return of('en'); // Ensure a fallback language is emitted
+                        translocoService.setActiveLang('tn');
+                        return of('tn');
                     })
                 )
             );

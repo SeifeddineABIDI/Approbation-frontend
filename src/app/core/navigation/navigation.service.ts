@@ -1,3 +1,4 @@
+import { TranslocoService } from '@ngneat/transloco';
 import { UserService } from 'app/core/user/user.service';
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
@@ -16,13 +17,19 @@ export class NavigationService
     private userRoles: string[] = [];
     private tasksCount: number = 0;
     private tasksCountSubject: BehaviorSubject<number> = new BehaviorSubject(this.tasksCount);
+   
 
     constructor(
         private _httpClient: HttpClient,
         private userService: UserService,
         private _fuseNavigationService: FuseNavigationService,
         private _tasksService: TasksService,
-      ) {}
+        private translocoService  : TranslocoService 
+      ) {
+        this.translocoService.langChanges$.subscribe(() => {
+          this.updateNavigation();
+        });
+      }
     // -----------------------------------------------------------------------------------------------------
     // @ Accessors
     // -----------------------------------------------------------------------------------------------------
@@ -52,6 +59,7 @@ export class NavigationService
           })
         );
       }
+      
       private filterNavigationByRoles(navigation: Navigation): Navigation {
         const userRoles = this.userService.getCurrentUserRole();
     
@@ -69,7 +77,7 @@ export class NavigationService
             return true;
           }
               return item.roles.some((role) => userRoles.includes(role));
-        });
+        }).map((item) => this.translateItem(item)); 
       }
 
       private updateNavigationCount(count: number): void {
@@ -97,5 +105,25 @@ export class NavigationService
       });
     }
   }
+  private translateItem(item: FuseNavigationItem): FuseNavigationItem {
+    item.title = this.translocoService.translate(item.title); 
 
+    if (item.children) {
+      item.children.forEach(child => {
+        child.title = this.translocoService.translate(child.title);
+      });
+    }
+    if (item.badge) {
+      item.badge.title = this.translocoService.translate(item.badge.title);
+    }
+
+    return item;
+  }
+
+  private updateNavigation() {
+    this._httpClient.get<Navigation>('api/common/navigation').subscribe((navigation) => {
+      const filteredNavigation = this.filterNavigationByRoles(navigation);
+      this._navigation.next(filteredNavigation);  // Emit updated navigation
+    });
+  }
 }

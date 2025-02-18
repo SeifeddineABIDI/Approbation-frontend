@@ -3,12 +3,13 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { FuseNavigationItem } from '@fuse/components/navigation';
 import { defaultNavigation } from 'app/mock-api/common/navigation/data';
 import { UserService } from '../user/user.service';
+import { TranslocoService } from '@ngneat/transloco';
 
 @Injectable({ providedIn: 'root' })
 export class RoleNavigationService {
   private _userRole: BehaviorSubject<string> = new BehaviorSubject<string>('user');
   private _navigationItems: BehaviorSubject<FuseNavigationItem[]> = new BehaviorSubject<FuseNavigationItem[]>([]);
-
+  private transloco : TranslocoService;
   constructor(private userService: UserService) {}
 
   setUserRole(role: string): void {
@@ -27,8 +28,9 @@ export class RoleNavigationService {
         return item.roles.some((r) => userRoles.includes(r));
       }
       return true;
-    });
-
+    }); 
     this._navigationItems.next(filteredItems);
+
   }
+  
 }

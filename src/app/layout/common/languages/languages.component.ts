@@ -49,6 +49,7 @@ export class LanguagesComponent implements OnInit, OnDestroy
         {
             // Get the active lang
             this.activeLang = activeLang;
+console.log(this.activeLang);
 
             // Update the navigation
             this._updateNavigation(activeLang);
@@ -57,8 +58,7 @@ export class LanguagesComponent implements OnInit, OnDestroy
         // Set the country iso codes for languages for flags
         this.flagCodes = {
             'en': 'us',
-            'tr': 'tr',
-            'tn':'TN'
+            'fr': 'fr'
         };
     }
 

@@ -16,7 +16,7 @@ import { UserService } from 'app/core/user/user.service';
     standalone   : true,
     templateUrl  : './example.component.html',
     encapsulation: ViewEncapsulation.None,
-    imports        : [CommonModule, MatIconModule, MatButtonModule, MatRippleModule, MatMenuModule, MatTabsModule, MatButtonToggleModule, NgFor, NgIf, MatTableModule, NgClass],
+    imports        : [TranslocoModule,CommonModule, MatIconModule, MatButtonModule, MatRippleModule, MatMenuModule, MatTabsModule, MatButtonToggleModule, NgFor, NgIf, MatTableModule, NgClass],
 })
 export class ExampleComponent implements OnInit
 {
@@ -25,7 +25,7 @@ export class ExampleComponent implements OnInit
     allTasks: number = 0;
     errorMessage: string = '';
     team: any[] = [];
-    private user:User ;
+    user:User ;
     /**
      * Constructor
      */
