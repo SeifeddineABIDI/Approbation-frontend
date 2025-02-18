@@ -48,9 +48,7 @@ export class LanguagesComponent implements OnInit, OnDestroy
         this._translocoService.langChanges$.subscribe((activeLang) =>
         {
             // Get the active lang
-            this.activeLang = activeLang;
-console.log(this.activeLang);
-
+            this.activeLang = activeLang;    
             // Update the navigation
             this._updateNavigation(activeLang);
         });
@@ -155,5 +153,8 @@ console.log(this.activeLang);
                     navComponent.refresh();
                 });
         }
+    }
+    translateLabel(label: string): string {
+        return this._translocoService.translate(label);
     }
 }

@@ -74,17 +74,18 @@ export const appConfig: ApplicationConfig = {
     provide: APP_INITIALIZER,
     useFactory: () => {
         const translocoService = inject(TranslocoService);
-        const defaultLang = translocoService.getDefaultLang();
-        translocoService.setActiveLang(defaultLang);
+        const savedLang = sessionStorage.getItem('activeLang');
+        
+        translocoService.setActiveLang(savedLang);
 
         return () =>
             firstValueFrom(
-                translocoService.load(defaultLang).pipe(
-                    defaultIfEmpty('tn'),
+                translocoService.load(savedLang).pipe(
+                    defaultIfEmpty(savedLang),
                     catchError((error) => {
                         console.error('Error loading language:', error);
-                        translocoService.setActiveLang('tn');
-                        return of('tn');
+                        translocoService.setActiveLang(savedLang);
+                        return of(savedLang);
                     })
                 )
             );

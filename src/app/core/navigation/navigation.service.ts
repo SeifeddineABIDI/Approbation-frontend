@@ -12,9 +12,7 @@ import { Task } from 'app/modules/user/requests/tasks/tasks.types';
 @Injectable({providedIn: 'root'})
 export class NavigationService
 {
-    private roleNavigationService = inject(RoleNavigationService);
     private _navigation: ReplaySubject<Navigation> = new ReplaySubject<Navigation>(1);
-    private userRoles: string[] = [];
     private tasksCount: number = 0;
     private tasksCountSubject: BehaviorSubject<number> = new BehaviorSubject(this.tasksCount);
    
@@ -27,6 +25,7 @@ export class NavigationService
         private translocoService  : TranslocoService 
       ) {
         this.translocoService.langChanges$.subscribe(() => {
+          this.changeLanguage();
           this.updateNavigation();
         });
       }
@@ -59,7 +58,10 @@ export class NavigationService
           })
         );
       }
-      
+      changeLanguage() {
+        const lang = this.translocoService.getActiveLang();
+        sessionStorage.setItem('activeLang', lang);
+      }
       private filterNavigationByRoles(navigation: Navigation): Navigation {
         const userRoles = this.userService.getCurrentUserRole();
     
@@ -78,6 +80,7 @@ export class NavigationService
           }
               return item.roles.some((role) => userRoles.includes(role));
         }).map((item) => this.translateItem(item)); 
+        
       }
 
       private updateNavigationCount(count: number): void {
@@ -87,8 +90,8 @@ export class NavigationService
             const mainNavigation = mainNavigationComponent.navigation;
             const menuItem = this._fuseNavigationService.getItem('navigation-features.badge-style-oval', mainNavigation);
             if (menuItem) {
-              menuItem.badge.title = count.toString(); // Update badge with task count
-              mainNavigationComponent.refresh(); // Refresh navigation
+              menuItem.badge.title = count.toString(); 
+              mainNavigationComponent.refresh(); 
             }
           }
         });
@@ -99,9 +102,9 @@ export class NavigationService
 
     if (user && user.matricule && accessToken) {
       this._tasksService.getTasksByUser(user.matricule, accessToken).subscribe((tasks: Task[]) => {
-        this.tasksCount = tasks.length; // Update the task count
-        this.tasksCountSubject.next(this.tasksCount); // Emit the updated task count
-        this.updateNavigationCount(this.tasksCount); // Update navigation badge
+        this.tasksCount = tasks.length;
+        this.tasksCountSubject.next(this.tasksCount); 
+        this.updateNavigationCount(this.tasksCount); 
       });
     }
   }
@@ -123,7 +126,7 @@ export class NavigationService
   private updateNavigation() {
     this._httpClient.get<Navigation>('api/common/navigation').subscribe((navigation) => {
       const filteredNavigation = this.filterNavigationByRoles(navigation);
-      this._navigation.next(filteredNavigation);  // Emit updated navigation
+      this._navigation.next(filteredNavigation); 
     });
   }
 }

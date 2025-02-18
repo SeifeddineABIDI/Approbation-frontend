@@ -1,5 +1,6 @@
 {
     "Home": "Home",
+    
     "welcome-back": "Welcome back",
     "Project": "Project",
     "Analytics": "Analytics",
@@ -12,8 +13,13 @@
     "Days": "Days",
     "Tasks": "Tasks",
     "Requests": "Requests",
-    "Request congé": "Request congé",
+    "Request congé": "Request leave",
     "Users": "Users",
     "List": "List",
-    "Add": "Add"
+    "Add": "Add",
+    "Sign out": "Sign out",
+    "Signed in as": "Signed in as",
+    "Profile": "Profile",
+    "English": "English",
+    "French": "French"
 }
