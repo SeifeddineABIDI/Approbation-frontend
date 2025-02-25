@@ -1,4 +1,4 @@
-<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent">
+<div class="sm:absolute sm:inset-0 flex flex-col flex-auto min-w-0 sm:overflow-hidden bg-card dark:bg-transparent h-full">
 
     <!-- Header -->
     <div class="relative flex flex-col sm:flex-row flex-0 sm:items-center sm:justify-between py-8 px-6 md:px-8 border-b">
@@ -31,8 +31,8 @@
     </div>
 
     <!-- Main Content -->
-    <div class="flex flex-auto overflow-hidden">
-        <div class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto">
+    <div class="flex flex-auto overflow-hidden h-full">
+        <div class="flex flex-col flex-auto sm:mb-18 overflow-hidden sm:overflow-y-auto h-full">
             <ng-container *ngIf="(products$ | async) as products">
                 <ng-container *ngIf="products.length > 0; else noProducts">
                     <div class="grid">
@@ -118,6 +118,7 @@
                             
                                     <!-- Tasks List -->
                                     <div *ngIf="!isLoading && selectedProduct && selectedProduct.length > 0">
+                                        <button *ngIf="product.approved===true" mat-raised-button (click)="openAvisCongeReport(selectedProcInstId)">Open Avis Conge Report</button>
                                         <div *ngFor="let task of selectedProduct" class="mb-6">
                                             <mat-card class="task-card">
                                                 <mat-card-header class="custom-card-header">
@@ -176,6 +177,7 @@
                     </div>
                 </ng-container>
                 <mat-paginator
+                class="sticky bottom-0 z-10"
                 [length]="pagination.length"
                 [pageSize]="pagination.size"
                 [pageIndex]="pagination.page"

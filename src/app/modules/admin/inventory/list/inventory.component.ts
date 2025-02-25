@@ -21,6 +21,7 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { Task } from '../inventory.types';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@ngneat/transloco';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
     selector       : 'inventory-list',
@@ -52,8 +53,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
     dataSource = new MatTableDataSource([]);
     private _productsSubject = new BehaviorSubject<any[]>([]);
     products$ = this._productsSubject.asObservable();
-    pageSizes: number[] = [10, 25, 50, 100]; // Page size options (you can change these values)
-
+    pageSizes: number[] = [10, 25, 50, 100];
     /**
      * Constructor
      */
@@ -63,7 +63,8 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
         private _formBuilder: UntypedFormBuilder,
         private _inventoryService: InventoryService,
         private userService: UserService,
-        private datepipe: DatePipe
+        private datepipe: DatePipe,
+        private _httpClient: HttpClient,
     )
     {
     }
@@ -228,29 +229,28 @@ getFormattedDate(date: string | Date): string | null {
                             this._paginator.pageSize,
                             accessToken,
                             this.searchInputControl.value,
-                            this._sort.active,  // Persist sorting column
-                            this._sort.direction // Persist sorting direction
+                            this._sort.active,  
+                            this._sort.direction
                         );
                     }
                 });
     
-            // Ensure paginator and sort are linked
             this.dataSource.paginator = this._paginator;
             this.dataSource.sort = this._sort;
         }
     }
     
     sortData(event: any): void {
-        this.pagination.page = 0; // Reset to first page on sort change
+        this.pagination.page = 0; 
         const accessToken = localStorage.getItem('accessToken');
         if (accessToken) {
             this.getLeaveRequests(
                 this.pagination.page,
                 this.pagination.size,
                 accessToken,
-                this.searchInputControl.value, // Keep search query if exists
-                event.active, // Sorting column
-                event.direction // Sorting direction
+                this.searchInputControl.value, 
+                event.active, 
+                event.direction 
             );
         }
     }
@@ -263,9 +263,9 @@ getFormattedDate(date: string | Date): string | null {
                 this.pagination.page,
                 this.pagination.size,
                 accessToken,
-                this.searchInputControl.value, // Preserve search query
-                this._sort.active, // Preserve sorting column
-                this._sort.direction // Preserve sorting direction
+                this.searchInputControl.value, 
+                this._sort.active, 
+                this._sort.direction 
             );
         }
     }
@@ -282,20 +282,32 @@ getFormattedDate(date: string | Date): string | null {
     }
     onPageSizeChange(event: any): void {
         this.pagination.size = event.pageSize;
-        this.pagination.page = 0; // Reset to first page when page size changes
+        this.pagination.page = 0; 
         const accessToken = localStorage.getItem('accessToken');
         if (accessToken) {
             this.getLeaveRequests(
                 this.pagination.page,
                 this.pagination.size,
                 accessToken,
-                this.searchInputControl.value, // Preserve search query
-                this._sort.active, // Preserve sorting column
-                this._sort.direction // Preserve sorting direction
+                this.searchInputControl.value, 
+                this._sort.active, 
+                this._sort.direction 
             );
         }
     }
+    openAvisCongeReport(instanceId) {
     
+        console.log(instanceId);
+        
+        this._httpClient.get(`http://localhost:8080/tasks/generateAvisCongeReport?instanceId=${instanceId}`, { responseType: 'blob' })
+          .subscribe((response: Blob) => {
+            const fileURL = URL.createObjectURL(response);
+    
+            window.open(fileURL, '_blank');
+          }, error => {
+            console.error('Error generating report:', error);
+          });
+      }
     /**
      * On destroy
      */

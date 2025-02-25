@@ -26,7 +26,7 @@
     #userActions="matMenu">
     <button mat-menu-item>
         <span class="flex flex-col leading-none">
-            <span>{{ 'Signed in as'|transloco }}</span>
+            <span>{{ 'Signed in as'|transloco }} </span>
             <span class="mt-1.5 text-md font-medium">{{user?.email}}</span>
         </span>
     </button>
@@ -35,7 +35,7 @@
         <mat-icon [svgIcon]="'heroicons_outline:user-circle'"></mat-icon>
         <span>{{ 'Profile' |transloco}}</span>
     </button>
-    <button *ngIf="user.role!='ADMIN'" mat-menu-item (click)="goToSettings()">
+    <button *ngIf="user?.role!='ADMIN'" mat-menu-item (click)="goToSettings()">
 
         <mat-icon [svgIcon]="'heroicons_outline:cog-8-tooth'"></mat-icon>
         <span router>Settings</span>
