@@ -173,7 +173,7 @@ getUserRole(): string {
     uploadAvatar(userId: number, formData: FormData): Observable<string> {
         return this._httpClient.post(`${this.apiUrl}/api/v1/management/${userId}/image`, formData, { responseType: 'text' });
     }
-    getLeaveRequests(page: number, size: number, query: string | null, sortField: string, sortDirection: string, accessToken: string): Observable<any> {
+    getLeaveRequests(page: number, size: number, query: string | null, sortField: string, sortDirection: string, accessToken: string,type?: string): Observable<any> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
         let params = new HttpParams()
             .set('page', page.toString())
@@ -188,7 +188,9 @@ getUserRole(): string {
         if (sortField && sortDirection) {
             params = params.set('sort', `${sortField},${sortDirection}`);
         }
-    
+        if (type) {
+            params = params.set('type', type);
+        }
         return this._httpClient.get<any>(`${this.apiUrl}/api/v1/admin/request/all`, { headers, params }).pipe(
             catchError((error) => {
                 console.error('Error fetching leave requests', error);
@@ -210,6 +212,16 @@ getUserRole(): string {
         };
     
         return this._httpClient.post(`${this.apiUrl}/api/v1/management/request`, payload, { headers, responseType: 'text' });
+    }
+    addAuthorizationRequest(userId: string, startDateTime: string, endDateTime: string, accessToken: string): Observable<any> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);        
+        const payload = {
+            userId,
+            startDateTime,
+            endDateTime
+        };
+    
+        return this._httpClient.post(`${this.apiUrl}/api/v1/management/requestAuthorization`, payload, { headers, responseType: 'text' });
     }
     getUsersStats(matricule: string, accessToken: string): Observable<any> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);

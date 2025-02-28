@@ -21,11 +21,17 @@
                 </h2>
             </div>
         </div>
-
-        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
+        <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4 space-x-4">
             <mat-form-field class="fuse-mat-dense fuse-mat-rounded min-w-64" [subscriptSizing]="'dynamic'">
                 <mat-icon class="icon-size-5" matPrefix [svgIcon]="'heroicons_solid:magnifying-glass'"></mat-icon>
                 <input matInput [formControl]="searchInputControl" [autocomplete]="'off'" [placeholder]="'Search requests'">
+            </mat-form-field>
+            <!-- Request Type Filter -->
+            <mat-form-field class="fuse-mat-dense fuse-mat-rounded min-w-64" [subscriptSizing]="'dynamic'">
+                <mat-select [formControl]="requestTypeControl" (selectionChange)="onRequestTypeChange()" placeholder="{{ 'All Types' | transloco }}">
+                    <mat-option [value]="null">{{ 'All Types' | transloco }}</mat-option>
+                    <mat-option *ngFor="let type of requestTypes" [value]="type">{{ type }}</mat-option>
+                </mat-select>
             </mat-form-field>
         </div>
     </div>
@@ -39,15 +45,16 @@
                         <div class="inventory-grid z-10 sticky top-0 grid gap-4 py-3 px-2 md:px-12 shadow text-md font-semibold text-secondary bg-gray-50 dark:bg-black dark:bg-opacity-5" matSort matSortDisableClear>
                             <div class="" [mat-sort-header]="'requeser'">{{ 'Requester'|transloco }}</div>
                             <div class="column-requestDate" [mat-sort-header]="'matricule'">Matricule</div>
-                            <div class="column-requestDate" [mat-sort-header]="'email'">Email</div>
                             <div class="column-requestDate" [mat-sort-header]="'manager'">Manager</div>
                             <div class="column-requestDate" [mat-sort-header]="'requestDate'">{{ 'Request Date' |transloco}}</div>
-                            <div class="ms-20" [mat-sort-header]="'startDate'">{{ 'Start Date' |transloco}}</div>
-                            <div class="ms-9" [mat-sort-header]="'endDate'">{{ 'End Date'|transloco }}</div>
-                            <div class="ms-6" [mat-sort-header]="'nbDays'">{{ 'Number of days'|transloco }}</div>
+                            <div class="" [mat-sort-header]="'startDate'">{{ 'Start Date' |transloco}}</div>
+                            <div class="" [mat-sort-header]="'endDate'">{{ 'End Date'|transloco }}</div>
+                            <div class="" [mat-sort-header]="'nbDays'">{{ 'Number of days'|transloco }}</div>
                             <div class="column-status" [mat-sort-header]="'approved'">Status</div>
                             <div class="column-procInstId" [mat-sort-header]="'goAfterMidday'">{{ 'GoAfterMidday'|transloco }}</div>
                             <div class="column-procInstId" [mat-sort-header]="'backAfterMidday'">{{ 'BackAfterMidday'|transloco }}</div>
+                            <div class="column-procInstId" [mat-sort-header]="'requestType'">{{ 'Type'|transloco }}</div>
+
                             <div class="column-details">Details</div>
                             
                         </div>
@@ -57,11 +64,10 @@
                             <div class="inventory-grid grid items-center gap-4 py-3 px-12 md:px-12 border-b">
                                 <div class="column-startDate hidden lg:block">{{ product?.user?.firstName }} {{ product?.user?.lastName }}</div>
                                 <div class="column-startDate hidden lg:block">{{ product?.user?.matricule }}</div>
-                                <div class="column-startDate hidden lg:block">{{ product?.user?.email }}</div>
                                 <div class="column-startDate hidden lg:block">{{ product?.user?.manager?.matricule }}</div>
-                                <div class="column-startDate hidden lg:block">{{ getFormattedDate(product?.requestDate) }}</div>
-                                <div class="column-startDate hidden lg:block">{{ product?.startDate }}</div>
-                                <div class="column-startDate hidden sm:block">{{ product?.endDate }}</div>
+                                <div class="column-startDate hidden lg:block">{{ getDate(product?.requestDate) }}</div>
+                                <div class="column-startDate hidden lg:block">{{ getDate(product?.startDate) }}</div>
+                                <div class="column-startDate hidden sm:block">{{ getDate(product?.endDate) }}</div>
                                 <div class="column-daysDifference hidden sm:block">
                                     {{ calculateDaysDifference(product?.startDate, product?.endDate) }}
                                 </div>
@@ -94,6 +100,7 @@
                                         {{ product?.backAfterMidday === true ? 'yes' : 'no' }}
                                     </span>
                                 </div>
+                                <div class="column-startDate hidden lg:block">{{ product?.type?.name }}</div>
 
                                 <div>
                                     <button class="min-w-10 min-h-7 h-7 px-2 leading-6" mat-stroked-button (click)="toggleDetails(product.procInstId)">

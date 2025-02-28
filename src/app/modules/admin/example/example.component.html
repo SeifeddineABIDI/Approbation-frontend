@@ -52,7 +52,7 @@
                 <!-- Home -->
                 <mat-tab label="{{ 'Home' | transloco }}">]">
                     <ng-template matTabContent>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full min-w-0">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full min-w-0">
                             <!-- Summary -->
                             <div class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
                                 <div class="flex items-start justify-between">
@@ -67,7 +67,24 @@
      
                                 </div>
                             </div>
-                            <!-- Overdue -->
+                            <div class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
+                                <div class="flex items-start justify-between">
+                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">{{ 'Authorization credit'| transloco }}</div>
+                                </div>
+                                <div class="flex flex-col items-center mt-8">
+                                    <div class="text-7xl sm:text-8xl font-bold tracking-tight leading-none text-green-500">{{ authCredit }}</div>
+                                    <div class="text-lg font-medium text-green-600 dark:text-green-500">{{ 'Hour(s)'| transloco }}</div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
+                                <div class="flex items-start justify-between">
+                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">{{ 'Authorization Occurency'| transloco }}</div>
+                                </div>
+                                <div class="flex flex-col items-center mt-8">
+                                    <div class="text-7xl sm:text-8xl font-bold tracking-tight leading-none text-amber-500">{{ authOcc }}</div>
+                                    <div class="text-lg font-medium text-amber-600 dark:text-amber-500">{{ 'Time(s)'| transloco }}</div>
+                                </div>
+                            </div>
                             <div *ngIf="user.role=='MANAGER' ||user.role=='RH' ||user.role=='ADMIN'" class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
                                 <div class="flex items-start justify-between">
                                     <div class="text-lg font-medium tracking-tight leading-6 truncate" >{{ 'Assigned' | transloco }}</div>
@@ -77,7 +94,6 @@
                                     <div class="text-lg font-medium text-blue-600 dark:text-blue-500">{{ 'Tasks'| transloco }}</div>
                                 </div>
                             </div>
-                                                        <!-- Features -->
                             <div *ngIf="user.role=='MANAGER' ||user.role=='RH' ||user.role=='ADMIN'"  class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
                                 <div class="flex items-start justify-between">
                                     <div class="text-lg font-medium tracking-tight leading-6 truncate">{{ 'Completed'|transloco }} </div>
@@ -87,7 +103,6 @@
                                     <div class="text-lg font-medium text-green-600 dark:text-green-500">{{ 'Tasks'| transloco }}</div>
                                 </div>
                             </div>
-                            <!-- Issues -->
                             <div *ngIf="user.role=='MANAGER' ||user.role=='RH' ||user.role=='ADMIN'"  class="flex flex-col flex-auto p-6 bg-card shadow rounded-2xl overflow-hidden">
                                 <div class="flex items-start justify-between">
                                     <div class="text-lg font-medium tracking-tight leading-6 truncate">{{ 'Waiting'| transloco }}</div>
@@ -97,7 +112,7 @@
                                     <div class="text-lg font-medium text-amber-600 dark:text-amber-500">{{ 'Tasks'| transloco }}</div>
                                 </div>
                             </div>
-                        </div>
+                        </div>            
                     </ng-template>
                 </mat-tab>
                 <mat-tab>
@@ -111,7 +126,6 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full min-w-0">
                             <ng-container *ngFor="let member of team">
                                 <div class="flex flex-col flex-auto items-center bg-card shadow rounded-2xl overflow-hidden">
-                                    <!-- Avatar & Info -->
                                     <div class="flex flex-col flex-auto w-full p-8 text-center">
                                         <div class="w-32 h-32 mx-auto rounded-full overflow-hidden">
                                             <img
@@ -121,7 +135,6 @@
                                         <div class="mt-6 font-medium">{{member.firstName}} {{ member.lastName }}</div>
                                         <div class="text-secondary">{{member.title}}</div>
                                     </div>
-                                    <!-- Email & Phone -->
                                     <div class="flex items-center w-full border-t divide-x">
                                         <a
                                             class="flex flex-auto items-center justify-center py-4 hover:bg-hover"
@@ -142,4 +155,3 @@
         </div>
     </div>
 </div>
-

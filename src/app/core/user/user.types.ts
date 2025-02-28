@@ -8,7 +8,7 @@ export interface User
     email: string;
     avatar?: string;
     status?: string;
-    manager?: string;
+    manager?:{ matricule: string };
     onLeave: boolean;
     soldeConge: number;
     managerMatricule?: string | null;

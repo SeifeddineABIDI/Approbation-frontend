@@ -67,18 +67,11 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
     )
     {
     }
-
-    
-    
-    
-
     /**
      * On init
      */
     ngOnInit(): void
     {
-        
-        
         this.selectedProductForm = this._formBuilder.group({
             id                : [''],
             matricule         : [''],
@@ -92,63 +85,41 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
             avatar: [null]
         });
 
-       
-        
         this._inventoryService.categories$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((categories: InventoryCategory[]) =>
             {
-                
-                this.categories = categories;
-
-                
+                this.categories = categories; 
                 this._changeDetectorRef.markForCheck();
             });
 
-        
         this._inventoryService.pagination$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((pagination: InventoryPagination) =>
-            {
-                
+            {    
                 this.pagination = pagination;
-
-                
                 this._changeDetectorRef.markForCheck();
             });
-            var accessToken = localStorage.getItem('accessToken');
-            this.products$ = this.userService.getAllUsers(accessToken);
-        
-            
-          
-        
-
-        
+        var accessToken = localStorage.getItem('accessToken');
+        this.products$ = this.userService.getAllUsers(accessToken);
         this._inventoryService.tags$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((tags: InventoryTag[]) =>
             {
-                
                 this.tags = tags;
-                this.filteredTags = tags;
-
-                
+                this.filteredTags = tags;      
                 this._changeDetectorRef.markForCheck();
             });
 
-        
         this._inventoryService.vendors$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((vendors: InventoryVendor[]) =>
-            {
-                
-                this.vendors = vendors;
-
-                
+            { 
+                this.vendors = vendors; 
                 this._changeDetectorRef.markForCheck();
             });
 
-            var accessToken = localStorage.getItem('accessToken');            
+        var accessToken = localStorage.getItem('accessToken');            
         this.searchInputControl.valueChanges
             .pipe(
                 takeUntil(this._unsubscribeAll),
@@ -160,7 +131,6 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
                     if (!query || query.trim() === '') {
                         return this.userService.getAllUsers(accessToken);
                     }
-        
                     return this.userService.searchUsers(query, query, query, query,accessToken);
                 }),
                 map((users) =>
@@ -171,42 +141,37 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
             )
             .subscribe();
     }
-onFileSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0]; 
-    if (file) {
-        
-        this.selectedProductForm.patchValue({ avatar: file });
-        this.selectedProductForm.get('avatar')?.updateValueAndValidity();
-
-        
-        const reader = new FileReader();
-        reader.onload = () => {
-            this.previewUrl = reader.result as string; 
-        };
-        reader.readAsDataURL(file); 
+    onFileSelected(event: Event): void {
+        const file = (event.target as HTMLInputElement).files?.[0]; 
+        if (file) {
+            this.selectedProductForm.patchValue({ avatar: file });
+            this.selectedProductForm.get('avatar')?.updateValueAndValidity();
+            const reader = new FileReader();
+            reader.onload = () => {
+                this.previewUrl = reader.result as string; 
+            };
+            reader.readAsDataURL(file); 
+        }
     }
-}
-    
+        
     getAvatarUrl(avatarPath: string): string {
         const baseUrl = 'http://localhost:8080/images/';
         const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');
         return baseUrl + cleanedPath;
       }
+
     /**
      * After view init
      */
     ngAfterViewInit(): void
     {
         if ( this._sort && this._paginator )
-        {
-            
+        {     
             this._sort.sort({
                 id          : 'matricule',
                 start       : 'asc',
                 disableClear: true,
             });
-
-            
             this._changeDetectorRef.markForCheck();
 
             
@@ -247,10 +212,6 @@ onFileSelected(event: Event): void {
         this._unsubscribeAll.complete();
     }
 
-    
-    
-    
-
     /**
      * Toggle product details
      *
@@ -258,7 +219,6 @@ onFileSelected(event: Event): void {
      */
     toggleDetails(productId: string): void
     {
-        
         if ( this.selectedProduct && this.selectedProduct.matricule === productId )
         {
             
@@ -266,20 +226,15 @@ onFileSelected(event: Event): void {
             return;
         }
         const accessToken = localStorage.getItem('accessToken');
-        
         this.userService.getUsersByMatricule(productId,accessToken)
             .subscribe((product) =>
-            {
-                
+            {  
                 this.selectedProduct = product;
-
-                
                 this.selectedProductForm.patchValue(product);
-
-                
                 this._changeDetectorRef.markForCheck();
             });
     }
+
     updateSelectedProduct() {
         const accessToken = localStorage.getItem('accessToken');
         if (this.selectedProductForm.valid) {
@@ -328,7 +283,6 @@ onFileSelected(event: Event): void {
         }   
       }
 
-
     closeDetails(): void
     {
         console.log('Closing details section...'); 
@@ -336,6 +290,7 @@ onFileSelected(event: Event): void {
         this.selectedProductForm.reset(); 
         this._changeDetectorRef.markForCheck();
     }
+
     toggleTagsEditMode(): void
     {
         this.tagsEditMode = !this.tagsEditMode;
@@ -351,9 +306,6 @@ onFileSelected(event: Event): void {
         const value = event.target.value.toLowerCase();
         this.filteredTags = this.tags.filter(tag => tag.title.toLowerCase().includes(value));
     }
-
-
- 
 
     /**
      * Update the tag title
@@ -395,9 +347,7 @@ onFileSelected(event: Event): void {
                     label: 'Delete',
                 },
             },
-        });
-
-        
+        });      
         confirmation.afterClosed().subscribe((result) =>
         {
             
@@ -422,56 +372,38 @@ onFileSelected(event: Event): void {
             }
         });
     }
-    removeUserFromTable(userId: string): void {
-        
-        this.products$.pipe(take(1)).subscribe((users) => {
-            
-            console.log('Before filtering:', users); 
 
+    removeUserFromTable(userId: string): void {   
+        this.products$.pipe(take(1)).subscribe((users) => {  
+            console.log('Before filtering:', users);
             const updatedUsers = users.filter(user => user.id !== Number.parseInt(userId) );
-            console.log('After filtering:', updatedUsers); 
-
-            
-            this.products$ = of(updatedUsers);
-    
-            
+            console.log('After filtering:', updatedUsers);  
+            this.products$ = of(updatedUsers); 
             this._changeDetectorRef.markForCheck();
         });
     }
+
     /**
      * Show flash message
      */
     showFlashMessage(type: 'success' | 'error'): void
-    {
-        
+    {  
         this.flashMessage = type;
-
-        
         this._changeDetectorRef.markForCheck();
-
-        
         setTimeout(() =>
         {
-            this.flashMessage = null;
-
-            
+            this.flashMessage = null;  
             this._changeDetectorRef.markForCheck();
         }, 3000);
     }
+
     showFlashMessageDelete(type: 'success' | 'error'): void
-    {
-        
-        this.flashMessageDelete = type;
-
-        
+    { 
+        this.flashMessageDelete = type; 
         this._changeDetectorRef.markForCheck();
-
-        
         setTimeout(() =>
         {
-            this.flashMessageDelete = null;
-
-            
+            this.flashMessageDelete = null;         
             this._changeDetectorRef.markForCheck();
         }, 3000);
     }

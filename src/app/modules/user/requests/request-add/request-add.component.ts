@@ -5,13 +5,12 @@ import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFo
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatOptionModule } from '@angular/material/core';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatNativeDateModule } from '@angular/material/core'; // Required for datepicker
 import { MatButtonModule } from '@angular/material/button';
 import { MatRadioModule } from '@angular/material/radio';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
-import { AuthService } from 'app/core/auth/auth.service';
 import { Router, RouterLink } from '@angular/router';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { fuseAnimations } from '@fuse/animations';
@@ -21,26 +20,29 @@ import { FuseConfirmationService } from '@fuse/services/confirmation';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { Subject, takeUntil } from 'rxjs';
 import { User } from 'app/core/user/user.types';
-
+import { NgxMatDatetimePickerModule } from '@angular-material-components/datetime-picker';
 @Component({
   selector: 'app-add-user',
   encapsulation: ViewEncapsulation.None,
   standalone: true,
   animations   : fuseAnimations,
 
-  imports      : [MatDatepickerModule,MatIconModule,MatDialogModule,CommonModule ,NgIf, FuseAlertComponent,MatDividerModule, FormsModule,MatRadioModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule,MatSelectModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule],
+  imports      : [NgxMatDatetimePickerModule,MatNativeDateModule, MatDatepickerModule,MatIconModule,MatDialogModule,CommonModule ,NgIf, FuseAlertComponent,MatDividerModule, FormsModule,MatRadioModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule,MatSelectModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule],
 
   templateUrl: './request-add.component.html',
   styleUrl: './request-add.component.scss'
 })
 export class RequestAddComponent {
   @ViewChild('signUpNgForm') signUpNgForm: NgForm;
+  @ViewChild('autorisNgForm') autorisNgForm: NgForm;
 
   alert: { type: FuseAlertType; message: string } = {
     type: 'success',
     message: ''
   };
   signUpForm: UntypedFormGroup;
+  autorisForm: UntypedFormGroup;
+
   showAlert: boolean = false;
   isSubmitting: boolean = false; 
   showManagerSelect = false;
@@ -49,10 +51,11 @@ export class RequestAddComponent {
   private _unsubscribeAll: Subject<any> = new Subject<any>();
   isDepartureAfterMiddayChecked: boolean = false;
   isReturnAfterMiddayChecked: boolean = false;
-  constructor(
+  formFieldHelpers: string[] = [''];
+  selectedType: string | null = null;
+    constructor(
     private _userService: UserService,
     private _formBuilder: UntypedFormBuilder,
-    private _router: Router,
     private _dialog: MatDialog,
     private _fuseConfirmationService: FuseConfirmationService,
     private _changeDetectorRef: ChangeDetectorRef,
@@ -65,6 +68,14 @@ export class RequestAddComponent {
       endDate: ['', Validators.required],
       goAfterMidday: [''],
       backAfterMidday: [''],
+      
+      
+    });
+    this.autorisForm = this._formBuilder.group({
+      date: ['', Validators.required], // Date part
+      startTime: ['', Validators.required], // Time part
+      endTime: ['', Validators.required]    // Time part
+      
       
     });
   }
@@ -139,7 +150,76 @@ export class RequestAddComponent {
     });
 }
 
+authorize(): void {
+  if (this.autorisForm.invalid || this.isSubmitting) {
+      return;
+  }
 
+  const dialogRef = this._fuseConfirmationService.open({
+      title: 'Confirm Action',
+      message: 'Are you sure you want to proceed?',
+      icon: {
+          name: 'heroicons_outline:exclamation-circle',
+          color: 'warn'
+      },
+      actions: {
+          confirm: { label: 'Yes', color: 'primary' },
+          cancel: { label: 'No', show: true }
+      },
+      dismissible: true
+  });
+
+  dialogRef.afterClosed().subscribe((result) => {
+      if (result === 'confirmed') {
+          this.isSubmitting = true;
+          this.autorisForm.disable();
+          this.showAlert = false;
+
+          // Get form values
+          const selectedDate = new Date(this.autorisForm.value.date);
+          const year = selectedDate.getFullYear();
+          const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+          const day = String(selectedDate.getDate()).padStart(2, '0');
+          const date = `${year}-${month}-${day}`;
+          const startTime = this.autorisForm.value.startTime;
+          const endTime = this.autorisForm.value.endTime;
+
+          const startDateTime = `${date}T${startTime}:00`;
+          const endDateTime = `${date}T${endTime}:00`;
+          const userData = localStorage.getItem('user');
+          
+          if (userData) {
+              this.user = JSON.parse(userData);
+          }
+          const accessToken = localStorage.getItem('accessToken');
+          
+          console.log(startDateTime," ",endDateTime);
+          
+          this._userService.addAuthorizationRequest(this.user.matricule,startDateTime,endDateTime, accessToken).subscribe(
+              (response) => {
+                  this.isSubmitting = false;
+                  this.autorisForm.enable();
+                  this.alert = {
+                      type: 'success',
+                      message: response
+                  };
+                  this.showAlert = true;
+                  this.autorisNgForm.resetForm();
+              },
+              (error) => {
+                  console.error('API Error:', error);
+                  this.isSubmitting = false;
+                  this.autorisForm.enable();
+                  this.alert = {
+                      type: 'error',
+                      message: error.error?.message || 'Something went wrong. Please try again.'
+                  };
+                  this.showAlert = true;
+              }
+          );
+      }
+  });
+}
   onRoleChange(event: any): void {
     const selectedRole = event.value;
     
@@ -179,11 +259,13 @@ fetchManagers(): void {
       this.showManagerSelect = false;
       this.signUpForm.get('managerMatricule').clearValidators();
       this.signUpForm.get('managerMatricule').reset();
-      
+      this.autorisForm.reset();
       this.signUpForm.markAsUntouched();
       this.signUpForm.markAsPristine();
+      this.autorisForm.markAsUntouched();
+      this.autorisForm.markAsPristine();
+      this._changeDetectorRef.markForCheck();
     
-      
       Object.keys(this.signUpForm.controls).forEach(controlName => {
         const control = this.signUpForm.get(controlName);
         if (control) {

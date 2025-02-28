@@ -62,7 +62,7 @@ export class SettingsAccountComponent implements OnInit
               firstName: user.firstName,
               lastName: user.lastName,
               matricule: user.matricule ,
-              managerMatricule: user.manager["matricule"], 
+              managerMatricule: user.manager?.matricule || '', 
               email: user.email,
               soldeConge: user.soldeConge,
             });

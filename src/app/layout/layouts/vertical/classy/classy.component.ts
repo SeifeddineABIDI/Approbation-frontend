@@ -21,7 +21,6 @@ import { UserComponent } from 'app/layout/common/user/user.component';
 import { Subject, takeUntil } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from 'app/core/auth/auth.service';
-import { Task } from 'app/modules/user/requests/tasks/tasks.types';
 import { TasksService } from 'app/modules/user/requests/tasks/tasks.service';
 import { RoleNavigationService } from 'app/core/navigation/roleNavigation.service';
 
@@ -111,7 +110,6 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         this._tasksService.tasksCount$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe(count => {
-                console.log('Task count received:', count);
                 this._updateTaskCountBadge(count);
                 this._cdr.detectChanges(); // Force UI update
             });
@@ -156,14 +154,9 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         });
     
         if (updated) {
-            console.log('Task badge updated:', count);
             this._cdr.markForCheck(); // Ensure Angular detects the change
         }
     }
-    
-    
-        
-    
     
     /**
      * On destroy

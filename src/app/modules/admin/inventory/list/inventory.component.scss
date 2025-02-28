@@ -5,22 +5,23 @@
     justify-items: start;
     display: grid;
     grid-template-columns: 
-        120px   /* Fixed width for Request Date */
-        100px   /* Fixed width for Start Date */
-        190px   /* Fixed width for End Date */
-        0.5fr     /* Flexible width for other columns */
-        0.9fr
-        0.5fr
-        0.5fr
-        0.2fr
-        0.5fr
-        0.5fr
-        0.5fr
-        0.5fr;
+        100px   /* Requester */
+        100px   /* Matricule */
+        100px   /* Manager */
+        120px   /* Request Date */
+        130px   /* Start Date */
+        130px   /* End Date */
+        60px   /* Number of Days */
+        100px   /* Status */
+        110px   /* GoAfterMidday */
+        110px   /* BackAfterMidday */
+        100px   /* Type */
+        80px;   /* Details (button) */
     gap: 3px;
     max-width: 100%;
-    overflow-x: auto; /* Ensure horizontal scroll for overflowing content */
-    grid-auto-rows: minmax(30px, auto); /* Ensure row heights adapt to content */
+    overflow-x: auto;
+    grid-auto-rows: minmax(30px, auto);
+    padding: 0 12px; /* Consistent padding */
 }
 @media (max-width: 1024px) {
     .inventory-grid,
