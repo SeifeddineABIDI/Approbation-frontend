@@ -44,13 +44,11 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
      * Constructor
      */
     constructor(
-        private _activatedRoute: ActivatedRoute,
-        private _router: Router,
+
         private _navigationService: NavigationService,
         private _userService: UserService,
         private _fuseMediaWatcherService: FuseMediaWatcherService,
         private _fuseNavigationService: FuseNavigationService,
-        private _httpClient: HttpClient,
         private _authService: AuthService,
         private _tasksService: TasksService,
         private _cdr: ChangeDetectorRef,

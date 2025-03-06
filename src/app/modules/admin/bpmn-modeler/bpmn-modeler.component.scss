@@ -1,0 +1,141 @@
+/* Container for the entire component */
+:host {
+  display: flex;
+  height: 100vh; /* Full viewport height */
+  width: 100%;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Canvas styling */
+#canvas {
+  flex-grow: 1;
+  background-color: #ffffff;
+  border: 1px solid #d1d1d1;
+  min-width: 0;
+}
+
+/* Properties panel styling */
+#properties {
+  width: 300px;
+  background-color: #f8f8f8;
+  border-left: 1px solid #d1d1d1;
+  overflow-y: auto;
+  padding: 12px;
+  box-sizing: border-box;
+  height: 100vh;
+}
+
+/* Styling for properties panel sections */
+:host ::ng-deep .properties-panel {
+  font-size: 13px;
+  color: #333;
+}
+
+/* Group headers */
+:host ::ng-deep .bio-properties-panel-group-header {
+  background-color: #e0e0e0;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Individual property entries */
+:host ::ng-deep .bio-properties-panel-entry {
+  padding: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Labels */
+:host ::ng-deep .bio-properties-panel-label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #444;
+  display: block;
+}
+
+/* Input fields */
+:host ::ng-deep .bio-properties-panel-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: #fff;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease-in-out;
+}
+
+:host ::ng-deep .bio-properties-panel-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Textareas */
+:host ::ng-deep .bio-properties-panel-textarea {
+  min-height: 80px;
+  resize: vertical;
+  padding: 8px;
+}
+
+/* Buttons */
+:host ::ng-deep .bio-properties-panel-btn,
+:host ::ng-deep button,
+:host ::ng-deep [type="button"] {
+  background-color: #007bff; /* Primary blue */
+  color: #fff;
+  border: none;
+  padding: 6px 10px; /* Reduced padding for a more compact look */
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px; /* Smaller font size */
+  font-weight: 500;
+  transition: background-color 0.2s ease-in-out;
+  display: flex; /* Aligns icon and text */
+  align-items: center; /* Centers icon and text */
+  gap: 6px; /* Adds space between icon and text */
+  min-width: auto; /* Adjusts button size dynamically */
+}
+
+/* Button hover effect */
+:host ::ng-deep .bio-properties-panel-btn:hover,
+:host ::ng-deep button:hover,
+:host ::ng-deep [type="button"]:hover {
+  background-color: #0056b3;
+}
+
+/* Secondary buttons */
+:host ::ng-deep .bio-properties-panel-btn.secondary {
+  background-color: #6c757d;
+}
+
+:host ::ng-deep .bio-properties-panel-btn.secondary:hover {
+  background-color: #545b62;
+}
+
+/* Icon inside buttons */
+:host ::ng-deep .bio-properties-panel-btn i,
+:host ::ng-deep button i {
+  font-size: 14px; /* Adjust icon size */
+  display: flex;
+  align-items: center;
+}
+
+/* Fix icon alignment in properties panel */
+:host ::ng-deep .properties-panel button i {
+  vertical-align: middle;
+}
+
+
+/* Minimap */
+:host ::ng-deep .djs-minimap {
+  position: absolute;
+  bottom: 80px;
+  right: 10px;
+  width: 150px;
+  height: 100px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #d1d1d1;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}

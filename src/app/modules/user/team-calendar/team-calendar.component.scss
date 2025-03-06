@@ -1,0 +1,88 @@
+/* Customize the calendar toolbar button spacing */
+::ng-deep .fc-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px; /* Adds space between the calendar buttons */
+  }
+  
+  /* Add space between the left/right navigation buttons and the view type buttons (Month, Week) */
+  ::ng-deep .fc-toolbar > div.fc-left {
+    display: flex;
+    gap: 12px; /* Space between the left buttons (prev, today, next) */
+  }
+  
+  ::ng-deep .fc-toolbar > div.fc-center {
+    display: flex;
+    gap: 12px; /* Space between the Month and Week buttons */
+  }
+  
+  /* Customize the individual calendar buttons */
+  ::ng-deep .fc-button {
+    margin: 0 5px; /* Adds space between buttons */
+    padding: 8px 16px; /* Adjusts button padding */
+  }
+  
+  /* Customize the left and right navigation buttons */
+  ::ng-deep .fc-button.fc-prev-button,
+  ::ng-deep .fc-button.fc-next-button {
+    margin: 0 4px; /* Adds space between the left/right buttons */
+  }
+  
+  /* Optional: Customize the event's title text and background color */
+  .fc-event {
+    padding: 8px;
+    border-radius: 6px;
+  }
+  
+  .fc-event.fc-daygrid-event {
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  /* Styling for the event content */
+  .fc-event .event-content img.event-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    margin-right: 8px;
+  }
+  
+  .fc-daygrid-day {
+    background: #f9fbfc;
+    border: 1px solid #e8ecef;
+    transition: background 0.2s;
+  }
+  
+  /* Space for event title */
+  .fc-event .event-title {
+    font-size: 14px;
+    color: #ffffff;
+    font-weight: 500;
+  }
+  
+  /* Hover effect for day grid */
+  .fc-daygrid-day:hover {
+    background: #eef2f5;
+  }
+  
+  /* Styling for the day today */
+  .fc-day-today {
+    background: #fef7e6 !important;
+    border: 1px solid #ffeaa7 !important;
+  }
+  /* Hover effect on the title inside the event */
+/* Apply hover effect on all events in the calendar */
+/* Hover effect on all events in the calendar */
+.fc-event:hover .event-content {
+    background-color: #f1f1f1; /* Light background color on hover */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add a shadow effect */
+    cursor: pointer; /* Change the cursor to indicate it's clickable */
+  }
+  
+  /* Optional: If you want to apply a more specific color when hovering */
+  .fc-event.fc-daygrid-event:hover .event-content {
+    background-color: #f7b733; /* Change the background color on hover */
+    color: white; /* Change text color to white */
+  }
+  

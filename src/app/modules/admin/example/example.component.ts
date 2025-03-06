@@ -11,6 +11,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { User } from 'app/core/user/user.types';
 import { UserService } from 'app/core/user/user.service';
 import { Router } from '@angular/router';
+import { environment } from 'environments/environment';
 
 @Component({
     selector     : 'example',
@@ -21,12 +22,13 @@ import { Router } from '@angular/router';
 })
 export class ExampleComponent implements OnInit
 {
-    completedTasks: number = 0;
-    waitingTasks: number = 0;
-    allTasks: number = 0;
-    errorMessage: string = '';
-    team: any[] = [];
-    user:User ;
+  apiUrl = environment.apiUrl;
+  completedTasks: number = 0;
+  waitingTasks: number = 0;
+  allTasks: number = 0;
+  errorMessage: string = '';
+  team: any[] = [];
+  user:User ;
   authCredit: any;
   authOcc: any;
     /**
@@ -35,7 +37,6 @@ export class ExampleComponent implements OnInit
     constructor(
         private _userService: UserService,
         private _router: Router
-
     )
     {
     }
@@ -72,7 +73,7 @@ export class ExampleComponent implements OnInit
         }
 
         getAvatarUrl(avatarPath: string): string {
-            const baseUrl = 'http://localhost:8080/images/';
+            const baseUrl =  `${this.apiUrl}/images/`;
             const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');
             return baseUrl + cleanedPath;
           }

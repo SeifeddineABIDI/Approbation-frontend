@@ -8,7 +8,14 @@ export const defaultNavigation: FuseNavigationItem[] = [
         title: 'Home',
         type : 'basic',
         icon : 'heroicons_outline:home',
-        link : '/example',
+        link : '/example/home',
+    },
+    {
+        id   : 'team-calendar',
+        title: 'Team Calendar',
+        type : 'basic',
+        icon : 'heroicons_outline:user-group',
+        link : '/example/team-calendar',
     },
     {
         id   : 'requests',
@@ -17,6 +24,16 @@ export const defaultNavigation: FuseNavigationItem[] = [
         icon : 'heroicons_outline:calendar-days',
         link : '/request/list',
         roles: ['ADMIN'],
+
+    },
+    {
+        id   : 'modeler',
+        title: 'Process Modeller',
+        type : 'collapsable',
+        icon : 'heroicons_outline:wrench-screwdriver',
+        link : '/users/modeler',
+        roles: ['ADMIN'],
+        children: []
 
     },
     {
@@ -76,7 +93,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
             icon : 'heroicons_outline:document-text',
             link : '/requests/all',
             type : 'basic',
-            roles: ['MANAGER','RH','USER'],
+            roles: ['ADMIN','MANAGER','RH','USER'],
         },
         {
             id   : 'allRequestsConfirmedUser',
@@ -84,7 +101,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
             icon : 'heroicons_outline:map',
             link : '/requests/allConfirmed',
             type : 'basic',
-            roles: ['MANAGER','RH','USER'],
+            roles: ['ADMIN','MANAGER','RH','USER'],
         },
    
 ];
