@@ -37,13 +37,6 @@ export const defaultNavigation: FuseNavigationItem[] = [
 
     },
     {
-        id   : 'requestAdd',
-        title: 'Request congé',
-        type : 'basic',
-        icon : 'heroicons_outline:calendar',
-        link : '/requests/add'
-    },
-    {
         id   : 'users',
         title: 'Users',
         type : 'collapsable',
@@ -66,6 +59,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 link : '/users/add'
             }
         ]
+    },
+    {
+        id   : 'requestAdd',
+        title: 'Request congé',
+        type : 'basic',
+        icon : 'heroicons_outline:calendar',
+        link : '/requests/add'
     },
     {
         id   : 'navigation-features.badge-style-oval',
