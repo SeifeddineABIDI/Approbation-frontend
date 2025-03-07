@@ -54,8 +54,7 @@ export class NavigationService {
             filteredNavigation.default.push(defaultModeler);
           }
         }
-        this.updateBpmnChildren(filteredNavigation);
-      })
+        this.updateBpmnChildren(filteredNavigation);})
     );
   }
 
@@ -66,6 +65,8 @@ export class NavigationService {
 
   private filterNavigationByRoles(navigation: Navigation): Navigation {
     const userRoles = this.userService.getCurrentUserRole();
+    console.log(userRoles);
+    
     return {
       compact: this.filterItemsByRoles(navigation.compact || [], userRoles),
       default: this.filterItemsByRoles(navigation.default || [], userRoles),
@@ -80,10 +81,11 @@ export class NavigationService {
         if (!item.roles || item.roles.length === 0) {
           return true;
         }
-        return item.roles.some((role) => userRoles.includes(role));
+        return item.roles.some((role) => userRoles.includes(role)); 
       })
-      .map((item) => this.translateItem(item));
+      .map((item) => this.translateItem(item)); 
   }
+  
 
   private updateNavigationCount(count: number): void {
     setTimeout(() => {

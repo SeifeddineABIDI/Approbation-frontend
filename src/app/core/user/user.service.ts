@@ -34,6 +34,20 @@ getCurrentUserRole(): string[] {
         return []; // Return an empty array if parsing fails
     }
 }
+getCurrentUserId(): number {
+    const userData = localStorage.getItem('user');
+    if (!userData) {
+        return 0;  }
+    try {
+        const user = JSON.parse(userData);
+        if (user?.matricule) {
+            return user.matricule;
+        }
+        return 0;
+    } catch {
+        return 0;
+    }
+}
 getUserRole(): string {
     const roles = this.getCurrentUserRole();
     return roles.length > 0 ? roles[0] : '';

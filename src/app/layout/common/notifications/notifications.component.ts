@@ -127,13 +127,15 @@ export class NotificationsComponent implements OnInit, OnDestroy
     /**
      * Toggle read status of the given notification
      */
-    toggleRead(notification: Notification): void
-    {
-        // Toggle the read status
-        notification.read = !notification.read;
-
-        // Update the notification
-        this._notificationsService.update(notification.id, notification).subscribe();
+  toggleRead(notification: Notification): void {
+        if (notification.isRead) {
+            // If already read, mark as unread
+            notification.isRead = false;
+            this._notificationsService.update(notification.id, notification).subscribe();
+        } else {
+            // If unread, mark as read using the new endpoint
+            this._notificationsService.markAsRead(notification.id).subscribe();
+        }
     }
 
     /**
@@ -220,7 +222,7 @@ export class NotificationsComponent implements OnInit, OnDestroy
 
         if ( this.notifications && this.notifications.length )
         {
-            count = this.notifications.filter(notification => !notification.read).length;
+            count = this.notifications.filter(notification => !notification.isRead).length;
         }
 
         this.unreadCount = count;

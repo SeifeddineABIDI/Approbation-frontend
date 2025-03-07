@@ -32,7 +32,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type : 'collapsable',
         icon : 'heroicons_outline:wrench-screwdriver',
         link : '/users/modeler',
-        roles: ['ADMIN'],
+        roles: ['ADMIN'],   
         children: []
 
     },
