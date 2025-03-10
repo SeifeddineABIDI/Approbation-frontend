@@ -60,7 +60,6 @@ export class NotificationsComponent implements OnInit, OnDestroy
 
                 // Calculate the unread count
                 this._calculateUnreadCount();
-
                 // Mark for check
                 this._changeDetectorRef.markForCheck();
             });
@@ -71,10 +70,8 @@ export class NotificationsComponent implements OnInit, OnDestroy
      */
     ngOnDestroy(): void
     {
-        // Unsubscribe from all subscriptions
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
-
         // Dispose the overlay
         if ( this._overlayRef )
         {
@@ -91,18 +88,14 @@ export class NotificationsComponent implements OnInit, OnDestroy
      */
     openPanel(): void
     {
-        // Return if the notifications panel or its origin is not defined
         if ( !this._notificationsPanel || !this._notificationsOrigin )
         {
             return;
         }
-
-        // Create the overlay if it doesn't exist
         if ( !this._overlayRef )
         {
             this._createOverlay();
         }
-
         // Attach the portal to the overlay
         this._overlayRef.attach(new TemplatePortal(this._notificationsPanel, this._viewContainerRef));
     }
