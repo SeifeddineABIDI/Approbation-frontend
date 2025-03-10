@@ -5,7 +5,6 @@ import { TasksListComponent } from 'app/modules/user/requests/tasks/list/list.co
 import { TasksComponent } from 'app/modules/user/requests/tasks/tasks.component';
 import { TasksService } from 'app/modules/user/requests/tasks/tasks.service';
 import { catchError, throwError } from 'rxjs';
-import { TasksListUserComponent } from '../listUser/listUser.component';
 
 /**
  * Task resolver
@@ -17,22 +16,13 @@ const taskResolver = (route: ActivatedRouteSnapshot, state: RouterStateSnapshot)
 {
     const tasksService = inject(TasksService);
     const router = inject(Router);
-
     return tasksService.getTaskById(route.paramMap.get('id'))
         .pipe(
-            // Error here means the requested task is not available
             catchError((error) =>
             {
-                // Log the error
                 console.error(error);
-
-                // Get the parent url
                 const parentUrl = state.url.split('/').slice(0, -1).join('/');
-
-                // Navigate to there
                 router.navigateByUrl(parentUrl);
-
-                // Throw an error
                 return throwError(error);
             }),
         );
@@ -64,11 +54,9 @@ const canDeactivateTasksDetails = (
     // tasks app
     if ( !nextState.url.includes('/tasks') )
     {
-        // Let it navigate
         return true;
     }
 
-    // If we are navigating to another task...
     if ( nextRoute.paramMap.get('id') )
     {
         // Just navigate

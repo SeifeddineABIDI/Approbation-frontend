@@ -29,14 +29,11 @@ export class NotificationsService {
         this.stompClient = new Client({
             webSocketFactory: () => socket,
             reconnectDelay: 5000,
-            debug: (str) => console.log('[WebSocket Debug]: ' + str), // Enhanced debugging
         });
 
         this.stompClient.onConnect = () => {
             const userId = this._userService.getCurrentUserId();
-            console.log(`[WebSocket] Connected, subscribing to /topic/notifications/${userId}`);
             this.stompClient.subscribe(`/topic/notifications/${userId}`, (message) => {
-                console.log('[WebSocket] Received message:', message.body); // Log incoming messages
                 const data = JSON.parse(message.body);
                 this._updateNotifications(data);
             }, { id: 'notification-subscription' }); // Add subscription ID for management
@@ -44,20 +41,15 @@ export class NotificationsService {
         };
 
         this.stompClient.onStompError = (frame) => {
-            console.error('[WebSocket Error]: Broker reported error: ' + frame.headers['message']);
-            console.error('Additional details: ' + frame.body);
         };
 
         this.stompClient.onWebSocketClose = (event) => {
-            console.log('[WebSocket] Connection closed:', event);
         };
 
-        console.log('[WebSocket] Activating connection...');
         this.stompClient.activate();
     }
 
     private _updateNotifications(data: any): void {
-        console.log('[Update Notifications] Processing data:', data);
         this.notifications$.pipe(take(1)).subscribe(notifications => {
             let updatedNotifications = [...notifications];
             if (typeof data === 'string' && data.startsWith('deleted:')) {
@@ -73,7 +65,6 @@ export class NotificationsService {
                     updatedNotifications.push(data);
                 }
             }
-            console.log('[Update Notifications] New notifications list:', updatedNotifications);
             this._notifications.next(updatedNotifications);
         });
     }
@@ -82,7 +73,6 @@ export class NotificationsService {
         const userId = this._userService.getCurrentUserId();
         return this._httpClient.get<Notification[]>(`${this.apiUrl}/api/common/notifications/user/${userId}`).pipe(
             tap((notifications) => {
-                console.log('[Get All] Fetched notifications:', notifications);
                 this._notifications.next(notifications);
             })
         );

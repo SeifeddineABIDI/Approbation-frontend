@@ -137,12 +137,12 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
         console.log("Payload being sent:", payload);
 
         const accessToken = localStorage.getItem('accessToken'); // Get access token
-    
+        const currentUser =JSON.parse(localStorage.getItem('user') || '{}');
         if (!accessToken) {
             this.successMessage = "Authentication error: Please log in again.";
             return;
         }
-    
+        if(currentUser.role==='MANAGER'){
         this._tasksService.confirmTask(taskId, payload, accessToken).subscribe({
             next: (response: string) => {  // API returns plain text
                 this.successMessage = response; // Set response text as success message
@@ -159,7 +159,25 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
                 this.successMessage = "Failed to confirm task. Try again.";
                 this._changeDetectorRef.detectChanges(); // Ensure UI updates
             }
-        });
+        });}
+        if(currentUser.role==='RH'){
+            this._tasksService.confirmRhTask(taskId, currentUser?.matricule,payload, accessToken).subscribe({
+                next: (response: string) => {  // API returns plain text
+                    this.successMessage = response; // Set response text as success message
+                    this._changeDetectorRef.detectChanges(); // Trigger UI update
+                    this.closeDrawer(); // Close drawer
+                    this.reloadTasks(); // Refresh task list
+                    this._tasksService.deleteTask(this.task.taskId).subscribe(isDeleted => {
+                        if (!isDeleted) return;
+                        this._router.navigate(['../'], { relativeTo: this._activatedRoute });
+                    });
+                    this._changeDetectorRef.markForCheck();},
+                error: (error) => {
+                    console.error("Error confirming task:", error);
+                    this.successMessage = "Failed to confirm task. Try again.";
+                    this._changeDetectorRef.detectChanges(); // Ensure UI updates
+                }
+            });}
     }
     
     

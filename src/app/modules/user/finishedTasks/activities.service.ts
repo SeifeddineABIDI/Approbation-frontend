@@ -42,7 +42,7 @@ export class ActivitiesService
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
         return this._httpClient.get<Task[]>(`${this.apiUrl}/tasks/get/assignee/${assignee}`, { headers }).pipe(
             tap((response: Task[]) => {
-                console.log('API Response:', response); // Log the response to the console
+                console.log('API Response:', response);
                 this._activities.next(response);
             }),
         );

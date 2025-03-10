@@ -22,6 +22,8 @@ import { Task } from '../inventory.types';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@ngneat/transloco';
 import { HttpClient } from '@angular/common/http';
+import { en } from '@fullcalendar/core/internal-common';
+import { environment } from 'environments/environment';
 
 @Component({
     selector       : 'inventory-list',
@@ -56,6 +58,7 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
     private _productsSubject = new BehaviorSubject<any[]>([]);
     products$ = this._productsSubject.asObservable();
     pageSizes: number[] = [10, 25, 50, 100];
+    apiUrl = environment.apiUrl;
 
     /**
      * Constructor
@@ -282,7 +285,7 @@ onRequestTypeChange(): void {
         }
     
     getAvatarUrl(avatarPath: string): string {
-        const baseUrl = 'http://localhost:8080/images/';
+        const baseUrl = `${this.apiUrl}/images/`;
         const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');
         return baseUrl + cleanedPath;
       }
@@ -344,7 +347,7 @@ onRequestTypeChange(): void {
 
     openAvisCongeReport(instanceId) {
         console.log(instanceId);
-        this._httpClient.get(`http://localhost:8080/tasks/generateAvisCongeReport?instanceId=${instanceId}`, { responseType: 'blob' })
+        this._httpClient.get(`${this.apiUrl}/tasks/generateAvisCongeReport?instanceId=${instanceId}`, { responseType: 'blob' })
           .subscribe((response: Blob) => {
             const fileURL = URL.createObjectURL(response);
             window.open(fileURL, '_blank');

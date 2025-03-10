@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { defaultNavigation } from 'app/mock-api/common/navigation/data';
 import { NavigationService } from 'app/core/navigation/navigation.service';
 import { ActivatedRoute } from '@angular/router';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-bpmn-editor',
@@ -21,7 +22,8 @@ import { ActivatedRoute } from '@angular/router';
 export class BpmnModelerComponent implements AfterViewInit {
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef;
   @ViewChild('properties', { static: false }) propertiesRef!: ElementRef;
-
+  
+  private apiUrl = environment.apiUrl;
   private modeler!: BpmnModeler;
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
@@ -64,7 +66,7 @@ export class BpmnModelerComponent implements AfterViewInit {
   }
 
   fetchFileList(): void {
-    this.http.get<string[]>('http://localhost:8080/api/bpmn/files')
+    this.http.get<string[]>(`${this.apiUrl}/api/bpmn/files`)
       .subscribe({
         next: (files) => {
           this.filenames = files;
@@ -87,7 +89,7 @@ export class BpmnModelerComponent implements AfterViewInit {
   }
 
   loadBpmnFromBackend(fileName: string): void {
-    this.http.get(`http://localhost:8080/api/bpmn/${fileName}`, { responseType: 'text' })
+    this.http.get(`${this.apiUrl}/api/bpmn/${fileName}`, { responseType: 'text' })
       .subscribe({
         next: (xml: string) => {
           this.loadDiagram(xml);
@@ -137,7 +139,7 @@ export class BpmnModelerComponent implements AfterViewInit {
     const blob = new Blob([xml], { type: 'application/xml' });
     formData.append('file', blob, this.selectedFile);
 
-    this.http.put('http://localhost:8080/api/bpmn/deploy', formData, { responseType: 'text' })
+    this.http.put(`${this.apiUrl}/api/bpmn/deploy`, formData, { responseType: 'text' })
       .subscribe({
         next: (response) => console.log('Redeployment successful:', response),
         error: (err) => console.error('Error redeploying BPMN diagram:', err)

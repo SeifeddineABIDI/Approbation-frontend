@@ -19,6 +19,7 @@ import { UserService } from 'app/core/user/user.service';
 import { User } from 'app/core/user/user.types';
 import { InventoryService } from 'app/modules/admin/inventory/inventory.service';
 import { InventoryBrand, InventoryCategory, InventoryPagination, InventoryProduct, InventoryTag, InventoryVendor } from 'app/modules/admin/inventory/inventory.types';
+import { environment } from 'environments/environment';
 import { debounceTime, map, merge, Observable, of, Subject, switchMap, take, takeUntil } from 'rxjs';
 
 @Component({
@@ -54,6 +55,7 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     user: User;
     previewUrl: string | null = null;
+    apiUrl = environment.apiUrl;
 
     /**
      * Constructor
@@ -155,7 +157,7 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
     }
         
     getAvatarUrl(avatarPath: string): string {
-        const baseUrl = 'http://localhost:8080/images/';
+        const baseUrl = `${this.apiUrl}/images/`;
         const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');
         return baseUrl + cleanedPath;
       }

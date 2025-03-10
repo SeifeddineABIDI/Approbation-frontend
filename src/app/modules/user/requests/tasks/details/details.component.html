@@ -1,11 +1,8 @@
 <div class="flex flex-auto" *ngIf="task">
-
     <form
     *ngIf="task"
     class="flex flex-col flex-auto p-6 pt-10 sm:p-8 sm:pt-10 overflow-y-auto"
     [formGroup]="requestForm">
-
-    <!-- ✅ Header -->
     <div class="flex items-center justify-between -mt-3 -ml-4">
         <div class="flex items-center justify-center">
             <mat-icon [svgIcon]="'heroicons_outline:ellipsis-horizontal'"></mat-icon>
@@ -17,62 +14,43 @@
     </div>
 
     <mat-divider class="mt-6 mb-8"></mat-divider>
-
-
-    <!-- ✅ Task Information Section -->
     <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Task Name -->
         <div>
             <div class="font-medium">Task Name</div>
             <span class="text-gray-700">{{ task.taskName || 'Not Set' }}</span>
         </div>
-
-        <!-- Assignee -->
         <div>
             <div class="font-medium">Assignee</div>
             <span class="text-gray-700">{{ task.assignee || 'Not Assigned' }}</span>
         </div>
-
-        <!-- Requester -->
         <div>
             <div class="font-medium">Requester</div>
             <span class="text-gray-700">{{ task.requesterFullName || task.requester || 'Unknown' }}</span>
         </div>
     </div>
-
-    <!-- ✅ Dates Section -->
     <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Start Date -->
         <div>
             <div class="font-medium">Start Date</div>
             <span class="text-gray-700">{{ task.startDate | date:'longDate' || 'Not Set' }}</span>
         </div>
-
-        <!-- End Date -->
         <div>
             <div class="font-medium">End Date</div>
             <span class="text-gray-700">{{ task.endDate ? (task.endDate | date:'longDate') : 'Not Set' }}</span>
         </div>
-
-        <!-- Create Date -->
         <div>
             <div class="font-medium">Created On</div>
             <span class="text-gray-700">{{ task.createDate | date:'longDate' || 'Not Set' }}</span>
         </div>
     </div>
-
     <div class="mt-8">
         <div class="font-medium mb-2">Approval Status</div>
         <mat-radio-group [formControlName]="'approvalStatus'" class="flex flex-col space-y-2">
-            <!-- Accepted -->
             <mat-radio-button value="approved" class="flex items-center">
                 <span class="flex items-center">
                     <mat-icon class="text-green-600 mr-2">check_circle</mat-icon>
                     Accepted
                 </span>
             </mat-radio-button>
-    
-            <!-- Rejected -->
             <mat-radio-button value="rejected" class="flex items-center">
                 <span class="flex items-center">
                     <mat-icon class="text-red-600 mr-2">cancel</mat-icon>
@@ -82,28 +60,18 @@
         </mat-radio-group>
     </div>
     
-    
-
-    <!-- ✅ Notes Section -->
-    <div class="mt-8">
+        <div class="mt-8">
         <mat-form-field class="w-full" [subscriptSizing]="'dynamic'">
             <mat-label>Notes</mat-label>
             <textarea matInput [formControlName]="'comments'" [spellcheck]="false" cdkTextareaAutosize></textarea>
         </mat-form-field>
     </div>
-<!-- Submit & Cancel Buttons -->
 <div class="mt-8 flex space-x-4">
     <button mat-raised-button color="primary" (click)="confirmTask()">Submit</button>
     <button mat-button color="warn" (click)="resetForm()">Cancel</button>
 </div>
-
-<!-- Success Message -->
 <div *ngIf="successMessage" class="mt-4 text-green-600 font-medium">
     {{ successMessage }}
 </div>
-
 </form>
-
-
-
 </div>

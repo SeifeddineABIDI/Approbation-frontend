@@ -165,6 +165,14 @@ fetchTasks(userMatricule: string): void {
             })
         );
     }
+    getRhTasksByUser(accessToken: string): Observable<Task[]> {
+        const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
+        return this._httpClient.get<Task[]>(`${this.apiUrl}/tasks/user/rh`, { headers }).pipe(
+            tap((tasks: Task[]) => {
+                this._tasks.next(tasks);
+            })
+        );
+    }
     getUsersByMatricule(matricule: string, accessToken: string): Observable<User> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
         
@@ -254,6 +262,15 @@ fetchTasks(userMatricule: string): void {
     }
     confirmTask(taskId: string, payload: any, accessToken: string): Observable<string> {
         const url = `${this.apiUrl}/tasks/confirm/manager/${taskId}`;
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        });
+    
+        return this._httpClient.post(url, payload, { headers, responseType: 'text' }); // Expect plain text
+    }
+    confirmRhTask(taskId: string,matricule: string, payload: any, accessToken: string): Observable<string> {
+        const url = `${this.apiUrl}/tasks/confirm/rh/${taskId}/${matricule}`;
         const headers = new HttpHeaders({
             Authorization: `Bearer ${accessToken}`,
             'Content-Type': 'application/json'

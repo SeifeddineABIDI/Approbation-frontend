@@ -20,6 +20,7 @@ import { BehaviorSubject, debounceTime, merge, Subject, switchMap, takeUntil, ta
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Task } from '../tasks/tasks.types';
+import { environment } from 'environments/environment';
 
 @Component({
     selector       : 'inventory-list',
@@ -52,7 +53,7 @@ export class RequestsListUserComponent implements OnInit, OnDestroy
     private _productsSubject = new BehaviorSubject<any[]>([]);
     products$ = this._productsSubject.asObservable();
     pageSizes: number[] = [10, 25, 50, 100]; // Page size options (you can change these values)
-
+    private apiUrl = environment.apiUrl;
     /**
      * Constructor
      */
@@ -205,7 +206,7 @@ getFormattedDate(date: string | Date): string | null {
 
     
     getAvatarUrl(avatarPath: string): string {
-        const baseUrl = 'http://localhost:8080/images/';
+        const baseUrl = `${this.apiUrl}/images/`;
         const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');
         return baseUrl + cleanedPath;
       }
