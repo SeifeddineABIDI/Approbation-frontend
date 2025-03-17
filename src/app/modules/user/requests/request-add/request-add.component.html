@@ -4,19 +4,19 @@
             <!-- Breadcrumbs -->
             <div class="flex flex-wrap items-center font-medium">
                 <div>
-                    <a class="whitespace-nowrap text-primary-500">Request</a>
+                    <a class="whitespace-nowrap text-primary-500">{{ 'Request'|transloco }}</a>
                 </div>
                 <div class="flex items-center ml-1 whitespace-nowrap">
                     <mat-icon
                         class="icon-size-5 text-secondary"
                         [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
-                    <a class="ml-1 text-primary-500">Add</a>
+                    <a class="ml-1 text-primary-500">{{ 'Add'|transloco }}</a>
                 </div>
             </div>
             <!-- Title -->
             <div class="mt-2">
                 <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-                    Add Request
+                    {{ 'Add'|transloco }} {{ 'Request'|transloco }}
                 </h2>
             </div>
         </div>
@@ -27,9 +27,9 @@
     class="flex-auto gt-xs:pr-3">
     <mat-select
         [(ngModel)]="selectedType"
-        placeholder="Select request type">
-        <mat-option value="Congé">Demande de congé</mat-option>
-        <mat-option value="Autorisation">Demande d'autorisation</mat-option>
+        placeholder="{{ 'Select request type' | transloco }}">
+        <mat-option value="Congé">{{ 'Leave request'|transloco }}</mat-option>
+        <mat-option value="Autorisation">{{"Demande d'autorisation"| transloco}}</mat-option>
     </mat-select>
     <mat-icon
         class="icon-size-5"

@@ -7,13 +7,13 @@
             <!-- Breadcrumbs -->
             <div class="flex flex-wrap items-center font-medium">
                 <div>
-                    <a class="whitespace-nowrap text-primary-500">Users</a>
+                    <a class="whitespace-nowrap text-primary-500">{{ 'Users'|transloco }}</a>
                 </div>
                 <div class="flex items-center ml-1 whitespace-nowrap">
                     <mat-icon
                         class="icon-size-5 text-secondary"
                         [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
-                    <a class="ml-1 text-primary-500">List</a>
+                    <a class="ml-1 text-primary-500">{{ 'List'|transloco }}</a>
                     
                 </div>
             </div>
@@ -21,7 +21,7 @@
             <!-- Title -->
             <div class="mt-2">
                 <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
-                    Users list
+                   {{ 'Users list'| transloco }}
                 </h2>
             </div>
             
@@ -80,11 +80,11 @@
                             <div></div>
 
                             <div class="column-matricule hidden lg:block" [mat-sort-header]="'matricule'">Matricule</div>
-                            <div class="column-firstname hidden lg:block" [mat-sort-header]="'firstName'">Firstname</div>
-                            <div class="column-lastname hidden sm:block" [mat-sort-header]="'lastName'">Lastname</div>
+                            <div class="column-firstname hidden lg:block" [mat-sort-header]="'firstName'">{{ 'Firstname'|transloco }}</div>
+                            <div class="column-lastname hidden sm:block" [mat-sort-header]="'lastName'">{{ 'Lastname'|transloco }}</div>
                             <div class="column-email hidden lg:block" [mat-sort-header]="'email'">Email</div>
                             <div class="column-role hidden sm:block" [mat-sort-header]="'role'">Role</div>
-                            <div class="column-soldeconge hidden lg:block" [mat-sort-header]="'soldeConge'">Solde Conge</div>
+                            <div class="column-soldeconge hidden lg:block" [mat-sort-header]="'soldeConge'">{{ 'Leave balance'|transloco }}</div>
                             <div class="column-managermatricule hidden lg:block" [mat-sort-header]="'managerMatricule'">Manager Matricule</div>
                             <div class="hidden sm:block">Details</div>
                         </div>

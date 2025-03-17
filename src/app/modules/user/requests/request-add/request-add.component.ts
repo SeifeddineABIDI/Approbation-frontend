@@ -1,3 +1,4 @@
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { ChangeDetectorRef, Component, ViewChild, ViewEncapsulation } from '@angular/core';
 import { CommonModule, NgIf } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,7 +28,7 @@ import { NgxMatDatetimePickerModule } from '@angular-material-components/datetim
   standalone: true,
   animations   : fuseAnimations,
 
-  imports      : [NgxMatDatetimePickerModule,MatNativeDateModule, MatDatepickerModule,MatIconModule,MatDialogModule,CommonModule ,NgIf, FuseAlertComponent,MatDividerModule, FormsModule,MatRadioModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule,MatSelectModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule],
+  imports      : [TranslocoModule,NgxMatDatetimePickerModule,MatNativeDateModule, MatDatepickerModule,MatIconModule,MatDialogModule,CommonModule ,NgIf, FuseAlertComponent,MatDividerModule, FormsModule,MatRadioModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule,MatSelectModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule],
 
   templateUrl: './request-add.component.html',
   styleUrl: './request-add.component.scss'
@@ -59,6 +60,7 @@ export class RequestAddComponent {
     private _dialog: MatDialog,
     private _fuseConfirmationService: FuseConfirmationService,
     private _changeDetectorRef: ChangeDetectorRef,
+    private TranslocoService: TranslocoService,
 
   ) {}
 
@@ -276,4 +278,5 @@ fetchManagers(): void {
       
       this.showAlert = false;
     }
+
 }
