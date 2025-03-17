@@ -56,14 +56,11 @@ const canDeactivateTasksDetails = (
     {
         return true;
     }
-
     if ( nextRoute.paramMap.get('id') )
     {
         // Just navigate
         return true;
     }
-
-    // Otherwise, close the drawer first, and then navigate
     return component.closeDrawer().then(() => true);
 };
 
