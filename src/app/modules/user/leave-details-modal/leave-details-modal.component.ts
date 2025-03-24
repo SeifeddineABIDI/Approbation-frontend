@@ -9,7 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
   templateUrl: './leave-details-modal.component.html',
   styleUrls: ['./leave-details-modal.component.scss'],
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule,DatePipe,NgIf] 
+  imports: [MatDialogModule, MatButtonModule,DatePipe,NgIf,TranslocoModule] 
 })
 export class LeaveDetailsModalComponent{
   constructor(

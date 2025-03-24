@@ -58,7 +58,7 @@ export class TeamCalendarComponent implements OnInit {
             title: `${isAuthenticatedUser ? 'Me' : `${leave.user.firstName} ${leave.user.lastName}`} - ${leave.type.name}`,
             start: leave.startDate,
             end: leave.endDate,
-            color: leave.type.name === 'Congé' ? '#e67e22' : '#27ae60', // Orange for 'Congé' and Green for others
+            color: leave.type.name === 'Congé' ? '#e67e22' : '#27ae60', 
             extendedProps: {
               avatarUrl: this.getAvatarUrl(leave.user.avatar),
               fullName: isAuthenticatedUser ? 'Me' : `${leave.user.firstName} ${leave.user.lastName}`,
