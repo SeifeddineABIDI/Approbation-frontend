@@ -1,9 +1,8 @@
-import { user } from './../../../../mock-api/common/user/data';
-import { AsyncPipe, CurrencyPipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
+import { AsyncPipe, NgClass, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
 import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatOptionModule, MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
@@ -19,7 +18,7 @@ import { TranslocoModule } from '@ngneat/transloco';
 import { UserService } from 'app/core/user/user.service';
 import { User } from 'app/core/user/user.types';
 import { InventoryService } from 'app/modules/admin/inventory/inventory.service';
-import { InventoryBrand, InventoryCategory, InventoryPagination, InventoryProduct, InventoryTag, InventoryVendor } from 'app/modules/admin/inventory/inventory.types';
+import { InventoryBrand, InventoryCategory, InventoryPagination, InventoryTag, InventoryVendor } from 'app/modules/admin/inventory/inventory.types';
 import { environment } from 'environments/environment';
 import { debounceTime, map, merge, Observable, of, Subject, switchMap, take, takeUntil } from 'rxjs';
 
@@ -31,7 +30,7 @@ import { debounceTime, map, merge, Observable, of, Subject, switchMap, take, tak
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations     : fuseAnimations,
     standalone     : true,
-    imports        : [NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, NgClass, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, TranslocoModule],
+    imports        : [NgIf, MatProgressBarModule, MatFormFieldModule, MatIconModule, MatInputModule, FormsModule, ReactiveFormsModule, MatButtonModule, MatSortModule, NgFor, NgTemplateOutlet, MatPaginatorModule, MatSlideToggleModule, MatSelectModule, MatOptionModule, MatCheckboxModule, MatRippleModule, AsyncPipe, TranslocoModule],
 })
 export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
 {

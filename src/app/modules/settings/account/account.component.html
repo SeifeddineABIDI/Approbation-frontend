@@ -22,6 +22,7 @@
             <mat-icon [svgIcon]="'heroicons_solid:camera'"></mat-icon>
         </label>
     </div>
+    
 </div>
 
         <div class="grid sm:grid-cols-4 gap-6 w-full mt-8">
@@ -126,13 +127,25 @@
                 Cancel
             </button>
             <button
+            (click)="onSave()"
                 class="ml-4"
                 mat-flat-button
                 type="button"
                 [color]="'primary'">Save
             </button>
         </div>
+        <!-- Flash Message -->
+        <div class="mt-4 flex items-center" *ngIf="flashMessage">
+            <ng-container *ngIf="flashMessage === 'success'">
+                <mat-icon class="text-green-500" [svgIcon]="'heroicons_outline:check'"></mat-icon>
+                <span class="ml-2">Name updated successfully</span>
+            </ng-container>
+            <ng-container *ngIf="flashMessage === 'error'">
+                <mat-icon class="text-red-500" [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
+                <span class="ml-2">An error occurred, try again!</span>
+            </ng-container>
+        </div>
     </form>
-
+  
 </div>
 </div>

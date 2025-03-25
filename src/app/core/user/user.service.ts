@@ -180,6 +180,25 @@ getUserRole(): string {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);        
         return this._httpClient.put<any>(`${this.apiUrl}/api/v1/admin/update/${userId}`, formData, { headers });
     }
+    updateUserFullname(userMat: string, data: any, accessToken: string): Observable<any> {
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json' // Ensure JSON since payload is an object
+        });
+        return this._httpClient.put<any>(`${this.apiUrl}/api/v1/management/updateName/${userMat}`, data, { headers }).pipe(
+            tap((response) => {
+                // Assuming response is the updated User object
+                const currentUser = JSON.parse(localStorage.getItem('user')); // Get current user
+                const updatedUser = { ...currentUser, ...data }; // Merge with new data
+                this._user.next(updatedUser); // Emit updated user
+                localStorage.setItem('user', JSON.stringify(updatedUser)); // Sync local storage
+            }),
+            catchError((error) => {
+                console.error('Error updating user full name:', error);
+                return throwError(() => new Error('Failed to update user name.'));
+            })
+        );
+    }
     deleteUser(userId: number, accessToken: string): Observable<any> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);        
         return this._httpClient.delete<any>(`${this.apiUrl}/api/v1/admin/delete/${userId}`, { headers });

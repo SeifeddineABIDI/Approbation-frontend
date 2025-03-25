@@ -23,13 +23,15 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from 'app/core/auth/auth.service';
 import { TasksService } from 'app/modules/user/requests/tasks/tasks.service';
 import { RoleNavigationService } from 'app/core/navigation/roleNavigation.service';
+import { FuseConfig, FuseConfigService } from '@fuse/services/config';
+import { MatMenuModule } from '@angular/material/menu';
 
 @Component({
     selector     : 'classy-layout',
     templateUrl  : './classy.component.html',
     encapsulation: ViewEncapsulation.None,
     standalone   : true,
-    imports      : [FuseLoadingBarComponent, FuseVerticalNavigationComponent, NotificationsComponent, UserComponent, NgIf, MatIconModule, MatButtonModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, RouterOutlet, QuickChatComponent],
+    imports      : [FuseLoadingBarComponent, FuseVerticalNavigationComponent, NotificationsComponent, UserComponent, NgIf, MatIconModule, MatButtonModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, RouterOutlet, MatMenuModule],
 })
 export class ClassyLayoutComponent implements OnInit, OnDestroy
 {
@@ -39,8 +41,8 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     avatar: string;
     avatarUrl: any;
-
-    /**
+    config: FuseConfig;
+        /**
      * Constructor
      */
     constructor(
@@ -52,7 +54,10 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         private _authService: AuthService,
         private _tasksService: TasksService,
         private _cdr: ChangeDetectorRef,
-        private _roleNavigationService: RoleNavigationService
+        private _roleNavigationService: RoleNavigationService,
+        private _fuseConfigService: FuseConfigService,
+        
+
     )
     {
     }
@@ -78,9 +83,17 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
      */
     ngOnInit(): void
     {   
+        this._fuseConfigService.config$
+            .pipe(takeUntil(this._unsubscribeAll))
+            .subscribe((config: FuseConfig) => {
+                this.config = config;
+                this._cdr.markForCheck();
+            });
+
         this._initializeUser();
         this._authService.avatarUrl$.subscribe(url => {
             this.avatarUrl = url;
+            this._cdr.markForCheck();
         });
     
         if (!this.avatarUrl) {
@@ -109,13 +122,14 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe(count => {
                 this._updateTaskCountBadge(count);
-                this._cdr.detectChanges(); // Force UI update
-            });
+                this._cdr.markForCheck(); 
+               });
         this._userService.user$
             .pipe((takeUntil(this._unsubscribeAll)))
             .subscribe((user: User) =>
             {
                     this.user = user;
+                    this._cdr.markForCheck();
             });
          
             
@@ -155,7 +169,9 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
             this._cdr.markForCheck(); // Ensure Angular detects the change
         }
     }
-    
+    setScheme(scheme: 'auto' | 'dark' | 'light'): void {
+        this._fuseConfigService.config = { scheme };
+    }
     /**
      * On destroy
      */

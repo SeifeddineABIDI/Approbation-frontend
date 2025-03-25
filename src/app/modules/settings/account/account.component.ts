@@ -1,3 +1,4 @@
+import { NgIf } from '@angular/common';
 import { TextFieldModule } from '@angular/cdk/text-field';
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
@@ -18,7 +19,7 @@ import { Subject, takeUntil } from 'rxjs';
     encapsulation  : ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone     : true,
-    imports        : [FormsModule, ReactiveFormsModule, MatFormFieldModule, MatIconModule, MatInputModule, TextFieldModule, MatSelectModule, MatOptionModule, MatButtonModule],
+    imports        : [NgIf,FormsModule, ReactiveFormsModule, MatFormFieldModule, MatIconModule, MatInputModule, TextFieldModule, MatSelectModule, MatOptionModule, MatButtonModule],
 })
 export class SettingsAccountComponent implements OnInit
 {
@@ -26,7 +27,7 @@ export class SettingsAccountComponent implements OnInit
     user: User;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
     avatarUrl: any;
-
+    flashMessage: 'success' | 'error' | null = null;
     /**
      * Constructor
      */
@@ -34,7 +35,7 @@ export class SettingsAccountComponent implements OnInit
         private _formBuilder: UntypedFormBuilder,
         private _userService: UserService,
         private _cdr: ChangeDetectorRef,
-        private _authService : AuthService
+        private _authService : AuthService,
     )
     {
     }
@@ -52,7 +53,7 @@ export class SettingsAccountComponent implements OnInit
         this.accountForm = this._formBuilder.group({
             firstName    : [''],
             lastName: [''],
-            matricule: [{ value: '', disabled: true }], // Correct way to disable
+            matricule: [{ value: '', disabled: true }], 
             managerMatricule :  [{ value: '', disabled: true }],
             email   :[{ value: '', disabled: true }],
             soldeConge :  [{ value: '', disabled: true }]
@@ -91,7 +92,7 @@ export class SettingsAccountComponent implements OnInit
                     },
                     (error) => {
                         console.error('Error fetching avatar:', error);
-                        this.avatarUrl = null; // Set fallback (e.g., default avatar image)
+                        this.avatarUrl = null; 
                     }
                 );
         }
@@ -104,8 +105,9 @@ export class SettingsAccountComponent implements OnInit
         this._userService.user$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((user: User) => {
-                this.user = user; // Update user on data change
+                this.user = user; 
             });
+            this._cdr.markForCheck();
     }
     private _initializeAvatar(): void {
         // Check for cached avatar in local storage
@@ -156,6 +158,39 @@ export class SettingsAccountComponent implements OnInit
     ngOnDestroy(): void {
         this._unsubscribeAll.next(null);
         this._unsubscribeAll.complete();
+    }
+    onSave(): void {
+        const user = this.accountForm.getRawValue() as User;
+        const payload = {
+            firstName: user.firstName,
+            lastName: user.lastName
+        };
+        const accessToken = localStorage.getItem('accessToken');
+        if (this.user && accessToken) {
+            this._userService.updateUserFullname(this.user.matricule, payload, accessToken).subscribe({
+                next: (response) => {
+                    this.flashMessage = 'success';
+                    this._cdr.markForCheck();
+                    setTimeout(() => {
+                        this.flashMessage = null;
+                        this._cdr.markForCheck();
+                    }, 3000);
+                },
+                error: (err) => {
+                    this.flashMessage = 'error'; 
+                    this._cdr.markForCheck();
+                    setTimeout(() => {
+                        this.flashMessage = null;
+                        this._cdr.markForCheck();
+                    }, 3000);
+                }
+            });
+        }
+        const userloc = JSON.parse(localStorage.getItem('user'));
+        
+        userloc.firstName = user.firstName;
+        userloc.lastName = user.lastName;
+        localStorage.setItem('user', JSON.stringify(userloc));
     }
     
 }

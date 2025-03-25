@@ -1,29 +1,21 @@
-<!-- Loading bar -->
 <fuse-loading-bar></fuse-loading-bar>
 
-<!-- Navigation -->
 <fuse-vertical-navigation
     class="dark bg-gray-900 print:hidden"
     [mode]="isScreenSmall ? 'over' : 'side'"
     [name]="'mainNavigation'"
     [navigation]="navigation.default"
     [opened]="!isScreenSmall">
-    <!-- Navigation header hook -->
     <ng-container fuseVerticalNavigationContentHeader>
         <div class="flex items-center w-full p-4 pl-6">
-            <!-- Logo -->
             <div class="flex items-center justify-center">
-                <img
-                    class="w-20"
-                    src="assets/images/logo/siga.png">
+                <img class="w-20" src="assets/images/logo/siga.png">
             </div>
-            <!-- Components -->
             <div class="flex items-center ml-auto">
                 <notifications></notifications>
                 <user [showAvatar]="false"></user>
             </div>
         </div>
-        <!-- User -->
         <div class="flex flex-col items-center w-full p-4">
             <div class="relative w-24 h-24">
                 <img
@@ -46,54 +38,61 @@
             </div>
         </div>
     </ng-container>
-    <!-- Navigation footer hook -->
     <ng-container fuseVerticalNavigationContentFooter>
-        <div class="flex flex-0 items-center justify-center h-16 pr-6 pl-2 mt-2 mb-4 opacity-12">
-            
-        </div>
+        <div class="flex flex-0 items-center justify-center h-16 pr-6 pl-2 mt-2 mb-4 opacity-12"></div>
     </ng-container>
 </fuse-vertical-navigation>
 
-<!-- Wrapper -->
 <div class="flex flex-col flex-auto w-full min-w-0">
-
-    <!-- Header -->
     <div class="relative flex flex-0 items-center w-full h-16 px-4 md:px-6 z-49 shadow dark:shadow-none dark:border-b bg-card dark:bg-transparent print:hidden">
-        <!-- Navigation toggle button -->
-        <button
-            mat-icon-button
-            (click)="toggleNavigation('mainNavigation')">
+        <button mat-icon-button (click)="toggleNavigation('mainNavigation')">
             <mat-icon [svgIcon]="'heroicons_outline:bars-3'"></mat-icon>
         </button>
-        <!-- Components -->
         <div class="flex items-center pl-2 ml-auto space-x-0.5 sm:space-x-2">
             <languages></languages>
             <fuse-fullscreen class="hidden md:block"></fuse-fullscreen>
             <search [appearance]="'bar'"></search>
             <shortcuts></shortcuts>
-            <messages></messages>
-            <!-- <button
-                class="lg:hidden"
-                mat-icon-button
-                (click)="quickChat.toggle()">
-                <mat-icon [svgIcon]="'heroicons_outline:chat-bubble-left-right'"></mat-icon>
-            </button> -->
+            <button mat-icon-button [matMenuTriggerFor]="themeMenu">
+                <mat-icon [svgIcon]="'heroicons_outline:adjustments-horizontal'"></mat-icon>
+            </button>
+            <mat-menu #themeMenu="matMenu">
+                <div class="grid grid-cols-3 gap-3 p-4" (click)="$event.stopPropagation()">
+                    <!-- Auto -->
+                    <div
+                        class="flex items-center justify-center py-3 px-5 rounded-full cursor-pointer ring-inset ring-primary bg-hover"
+                        [class.ring-2]="config?.scheme === 'auto'"
+                        matTooltip="Auto-detect based on OS preference"
+                        (click)="setScheme('auto')">
+                        <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:bolt'"></mat-icon>
+                        <span class="ml-2 font-medium leading-5" [class.text-secondary]="config?.scheme !== 'auto'">Auto</span>
+                    </div>
+                    <!-- Dark -->
+                    <div
+                        class="flex items-center justify-center py-3 px-5 rounded-full cursor-pointer ring-inset ring-primary bg-hover"
+                        [class.ring-2]="config?.scheme === 'dark'"
+                        (click)="setScheme('dark')">
+                        <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:moon'"></mat-icon>
+                        <span class="ml-2 font-medium leading-5" [class.text-secondary]="config?.scheme !== 'dark'">Dark</span>
+                    </div>
+                    <!-- Light -->
+                    <div
+                        class="flex items-center justify-center py-3 px-5 rounded-full cursor-pointer ring-inset ring-primary bg-hover"
+                        [class.ring-2]="config?.scheme === 'light'"
+                        (click)="setScheme('light')">
+                        <mat-icon class="icon-size-5" [svgIcon]="'heroicons_solid:sun'"></mat-icon>
+                        <span class="ml-2 font-medium leading-5" [class.text-secondary]="config?.scheme !== 'light'">Light</span>
+                    </div>
+                </div>
+            </mat-menu>
         </div>
     </div>
 
-    <!-- Content -->
     <div class="flex flex-col flex-auto">
-        <!-- *ngIf="true" hack is required here for router-outlet to work correctly.
-             Otherwise, layout changes won't be registered and the view won't be updated! -->
         <router-outlet *ngIf="true"></router-outlet>
     </div>
 
-    <!-- Footer -->
     <div class="relative flex flex-0 items-center justify-start w-full h-10 px-4 md:px-6 z-49 border-t bg-card dark:bg-transparent print:hidden">
-            <span class="font-medium text-secondary">Siga &copy; {{currentYear}}. All rights reserved.</span>
+        <span class="font-medium text-secondary">Siga © {{currentYear}}. All rights reserved.</span>
     </div>
-
 </div>
-
-<!-- Quick chat -->
-<!-- <quick-chat #quickChat="quickChat"></quick-chat> -->

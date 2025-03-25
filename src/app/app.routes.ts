@@ -68,7 +68,6 @@ export const appRoutes: Route[] = [
         ]
     },
 
-    // Admin routes
     {
         path: '',
         canActivate: [AuthGuard],
