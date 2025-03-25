@@ -38,7 +38,6 @@ export class AppComponent implements OnInit
     this._changeDetectorRef.markForCheck();
   }
   private updateNavigationBadge() {
-    console.log("Updated task count:", this.taskCount);
     // If needed, trigger any UI updates here, e.g., update a badge or some other element
   }
 }

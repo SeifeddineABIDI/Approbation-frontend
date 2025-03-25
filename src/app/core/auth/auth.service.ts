@@ -174,10 +174,6 @@ export class AuthService
         if (managerMatricule) {
             formData.append('managerMatricule', managerMatricule); 
         }
-        // Log the formData content to ensure it's being populated
-        formData.forEach((value, key) => {
-            console.log(key, value);
-        });
     
         return this._httpClient.post(`${environment.apiUrl}/api/v1/auth/register`, formData)
             .pipe(
@@ -230,10 +226,6 @@ export class AuthService
         const tokenAgent = decodedToken.agent || '';
 
         const actualAgent = navigator.userAgent;
-        /*console.log('Decoded Token (Interceptor):', decodedToken);
-        console.log('Token IP (Interceptor):', tokenIp);
-        console.log('Token Agent (Interceptor):', tokenAgent);
-        console.log('Actual Agent (Interceptor):', actualAgent);*/
         /*if (tokenIp !== '127.0.0.1' && tokenAgent !== actualAgent) {
             console.warn('IP or User-Agent mismatch!');
             this.signOut(); // Log out the user
@@ -242,10 +234,9 @@ export class AuthService
         return this.signInUsingToken();
     }
    validateResetToken(token: string) {
-    console.log('Calling API with token:', token);
     return this._httpClient.get(`${this.apiUrl}/api/v1/auth/validate-reset-token?token=${token}`, { responseType: 'text' })
         .pipe(
-            tap(response => console.log('API Response:', response)),
+            tap(response => "Token is valid"),
             catchError(error => {
                 console.error('API Error:', error);
                 return throwError(error);

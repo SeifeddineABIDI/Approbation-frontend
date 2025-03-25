@@ -193,10 +193,7 @@ authorize(): void {
           if (userData) {
               this.user = JSON.parse(userData);
           }
-          const accessToken = localStorage.getItem('accessToken');
-          
-          console.log(startDateTime," ",endDateTime);
-          
+          const accessToken = localStorage.getItem('accessToken');          
           this._userService.addAuthorizationRequest(this.user.matricule,startDateTime,endDateTime, accessToken).subscribe(
               (response) => {
                   this.isSubmitting = false;

@@ -141,7 +141,7 @@ export class BpmnModelerComponent implements AfterViewInit {
 
     this.http.put(`${this.apiUrl}/api/bpmn/deploy`, formData, { responseType: 'text' })
       .subscribe({
-        next: (response) => console.log('Redeployment successful:', response),
+        next: (response) => {},
         error: (err) => console.error('Error redeploying BPMN diagram:', err)
       });
   }

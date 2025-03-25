@@ -103,7 +103,6 @@ export class RequestsListUserComponent implements OnInit, OnDestroy
                 return this.userService.getRequestsByUser(user.matricule, accessToken);
             }),
             tap((data) => {
-                console.log('Data received from API:', data); // Log the data to inspect
                 this.isLoading = false;
             })
         ).subscribe((data) => {
@@ -143,20 +142,10 @@ isTaskSelected(procInstId: string): boolean {
 }
 
 toggleDetails(procInstId: string): void {
-    console.log('Toggle Details Called:', {
-        procInstId,
-        currentSelected: this.selectedProcInstId,
-        selectedProduct: this.selectedProduct
-    });
-    
     if (this.selectedProcInstId === procInstId) {
-        // If clicking on the same request, close it
-        console.log('Closing details');
         this.selectedProcInstId = '';
         this.selectedProduct = [];
     } else {
-        // If clicking on a different request, fetch its tasks
-        console.log('Opening details');
         this.isLoading = true;
         this.selectedProcInstId = procInstId;
         
@@ -164,7 +153,6 @@ toggleDetails(procInstId: string): void {
         if (accessToken) {
             this.userService.getTaskByProcessId(procInstId, accessToken).subscribe({
                 next: (tasks: any[]) => {
-                    console.log('Tasks received:', tasks);
                     this.selectedProduct = tasks;
                     this.isLoading = false;
                     this._changeDetectorRef.markForCheck();
@@ -180,12 +168,12 @@ toggleDetails(procInstId: string): void {
 }
     
 getFormattedDate(date: string | Date): string | null {
-    return this.datepipe.transform(date, 'yyyy-MM-dd HH:mm:ss'); // Format the date as you want
+    return this.datepipe.transform(date, 'yyyy-MM-dd HH:mm:ss');
   }
     getLeaveRequests(matricule : string, accessToken:string): void {
         
         this.userService.getRequestsByUser(matricule, accessToken).pipe(
-            tap((data) => console.log('Data received:', data)),
+            tap((data) => {}),
             takeUntil(this._unsubscribeAll)
         )
         .subscribe(
@@ -221,7 +209,6 @@ getFormattedDate(date: string | Date): string | null {
 
     closeDetails(): void
     {
-        console.log('Closing details section...'); 
         this.selectedProduct = [];
         this.selectedProductForm.reset(); 
         this._changeDetectorRef.markForCheck();

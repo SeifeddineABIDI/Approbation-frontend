@@ -66,7 +66,6 @@ export class TasksListComponent implements OnInit, OnDestroy {
                 taskObservable
                 .pipe(takeUntil(this._unsubscribeAll))
                 .subscribe((tasks: Task[]) => {
-                    console.log('Tasks received:', tasks);
                     this.tasks = tasks || [];
                     this.updateTaskCounts();
                     this._changeDetectorRef.markForCheck();
@@ -82,7 +81,6 @@ export class TasksListComponent implements OnInit, OnDestroy {
         this._tasksService.tasks$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((tasks: Task[]) => {
-                console.log('Tasks from tasks$:', tasks);
                 this.tasks = tasks || [];
                 this.tasks.forEach(task => {
                     this.getUserByMatricule(task.requester).subscribe(user => {
@@ -155,7 +153,6 @@ export class TasksListComponent implements OnInit, OnDestroy {
                 return of([]); // Return empty array on error
             })
         ).subscribe((tasks: Task[]) => {
-            console.log('✅ Tasks received:', tasks);
             this.tasks = tasks ?? []; // Ensure tasks is always an array
             this.updateTaskCounts();
             this._changeDetectorRef.detectChanges(); // Ensure UI updates
@@ -172,7 +169,6 @@ export class TasksListComponent implements OnInit, OnDestroy {
         this.selectedTask = task;
         this._tasksService.setTask(task); // Ensure the service knows the selected task
         this._router.navigate([task.taskId], { relativeTo: this._activatedRoute });
-        console.log('MatDrawer:', this.matDrawer);
         this.matDrawer?.open();
         this._changeDetectorRef.markForCheck();
     }

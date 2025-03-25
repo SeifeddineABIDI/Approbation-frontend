@@ -266,7 +266,7 @@ onRequestTypeChange(): void {
         this.userService.getLeaveRequests(
         page, size, query, sortField, sortDirection, accessToken, this.requestTypeControl.value
         ).pipe(
-        tap((data) => console.log('Data received:', data)),
+        tap((data) => {}),
         takeUntil(this._unsubscribeAll)
         ).subscribe(
         (data) => {
@@ -346,7 +346,6 @@ onRequestTypeChange(): void {
     }
 
     openAvisCongeReport(instanceId) {
-        console.log(instanceId);
         this._httpClient.get(`${this.apiUrl}/tasks/generateAvisCongeReport?instanceId=${instanceId}`, { responseType: 'blob' })
           .subscribe((response: Blob) => {
             const fileURL = URL.createObjectURL(response);

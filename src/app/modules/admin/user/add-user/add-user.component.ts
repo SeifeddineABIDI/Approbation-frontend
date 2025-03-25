@@ -167,7 +167,6 @@ export class AddUserComponent {
 
   onRoleChange(event: any): void {
     const selectedRole = event.value;
-    console.log('Selected role:', selectedRole); // Debug log
     if (selectedRole === 'MANAGER' || selectedRole === 'USER') {
         this.showManagerSelect = true;
         this.fetchManagers();
@@ -186,7 +185,6 @@ fetchManagers(): void {
       this._userService.getManagers(token).subscribe(
           (managers) => {
               this.managers = managers; // Populate dropdown options
-              console.log('Fetched managers:', this.managers); // Debug log
           },
           (error) => {
               console.error('Error fetching managers:', error); // Handle errors

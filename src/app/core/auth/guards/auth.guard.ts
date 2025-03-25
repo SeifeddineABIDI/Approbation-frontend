@@ -22,7 +22,6 @@ export const AuthGuard: CanActivateFn | CanActivateChildFn = (route, state) =>
                 const userRole = userService.getUserRole();
                 
                 if (!userRole || !requiredRoles.includes(userRole)) {
-                    console.log('Unauthorized access attempt. User role:', userRole, 'Required roles:', requiredRoles);
                     return of(router.parseUrl('/unauthorized'));
                 }
             }

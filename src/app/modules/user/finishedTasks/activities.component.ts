@@ -40,7 +40,6 @@ export class ActivitiesComponent implements OnInit
         const accessToken = localStorage.getItem('accessToken');
         const user = JSON.parse(localStorage.getItem('user'));
         this.tasks$ = this._activityService.getActivities(user.matricule, accessToken);  // Fetch tasks
-        console.log(this.tasks$);
         
     }
 

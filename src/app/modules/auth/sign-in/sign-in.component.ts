@@ -97,7 +97,6 @@ export class AuthSignInComponent implements OnInit
                 {
                     if (this.signInForm.value.rememberMe) {
                         this._authService.signInUsingToken().subscribe(() => {
-                            console.log('Token stored as refresh token');
                         });
                     }
                     // Set the redirect url.

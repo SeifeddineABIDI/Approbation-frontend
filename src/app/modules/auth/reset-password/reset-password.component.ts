@@ -64,7 +64,6 @@ export class AuthResetPasswordComponent implements OnInit
         this.isValidToken = false;
         this._authService.validateResetToken(this.token).subscribe(
             () => {
-                console.log('Token is valid');
                 this.isValidToken = true;
                 this.isLoading = false;
             },
@@ -111,9 +110,7 @@ export class AuthResetPasswordComponent implements OnInit
             })
         )
         .subscribe(
-            (response) => {
-                console.log("Reset password success:", response);
-    
+            (response) => {    
                 if (response && response.message) {
                     this._router.navigate(['/sign-in'], { 
                         queryParams: { message: response.message } 

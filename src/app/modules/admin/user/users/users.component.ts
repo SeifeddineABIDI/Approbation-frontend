@@ -251,9 +251,7 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
             if (this.selectedProductForm.value.avatar) {
                 formData.append('avatar', this.selectedProductForm.value.avatar);
             }
-                formData.forEach((value, key) => {
-                console.log(`${key}: ${value}`);
-              });
+
               formData.append('formData', new Blob([JSON.stringify(formData)], { type: 'application/json' }));
 
           this.userService.updateUser(this.selectedProduct.id,formData,accessToken).subscribe({
@@ -287,7 +285,6 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
 
     closeDetails(): void
     {
-        console.log('Closing details section...'); 
         this.selectedProduct = null;
         this.selectedProductForm.reset(); 
         this._changeDetectorRef.markForCheck();
@@ -361,7 +358,6 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
                 
                 this.userService.deleteUser(product.id,accessToken).subscribe({
                    next: (response) => {
-                        console.log('User deleted successfully', response);
                         this.showFlashMessageDelete('success');
                         this.closeDetails();
                         this.removeUserFromTable(product.id);
@@ -377,9 +373,7 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy
 
     removeUserFromTable(userId: string): void {   
         this.products$.pipe(take(1)).subscribe((users) => {  
-            console.log('Before filtering:', users);
             const updatedUsers = users.filter(user => user.id !== Number.parseInt(userId) );
-            console.log('After filtering:', updatedUsers);  
             this.products$ = of(updatedUsers); 
             this._changeDetectorRef.markForCheck();
         });

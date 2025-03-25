@@ -134,7 +134,6 @@ export class TasksDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
             approvalStatus: this.requestForm.value.approvalStatus,
             comments: this.requestForm.value.comments
         };
-        console.log("Payload being sent:", payload);
 
         const accessToken = localStorage.getItem('accessToken'); // Get access token
         const currentUser =JSON.parse(localStorage.getItem('user') || '{}');
