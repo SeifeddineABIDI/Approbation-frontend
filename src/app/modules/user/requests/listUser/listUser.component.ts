@@ -48,7 +48,7 @@ export class RequestsListUserComponent implements OnInit, OnDestroy
     selectedTaskForm: UntypedFormGroup;
     tagsEditMode: boolean = false;
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-        displayedColumns: string[] = ['requestDate', 'startDate', 'endDate', 'approved', 'goAfterMidday','backAfterMidday'];
+    displayedColumns: string[] = ['requestDate', 'startDate', 'endDate', 'approved', 'goAfterMidday','backAfterMidday'];
     dataSource = new MatTableDataSource([]);
     private _productsSubject = new BehaviorSubject<any[]>([]);
     products$ = this._productsSubject.asObservable();
@@ -77,16 +77,13 @@ export class RequestsListUserComponent implements OnInit, OnDestroy
      */
     ngOnInit(): void
     {
-        // Create the selected product form
         this.selectedProductForm = this._formBuilder.group({
             id               : [''],
-            requester: [''],
+            requester        : [''],
             requestDate      : [''],
             startDate        : [''],
             endDate          : [''],
-            approved            : [''],
-   
-
+            approved         : [''],
         });
         var accessToken = localStorage.getItem('accessToken');
         var user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -96,7 +93,7 @@ export class RequestsListUserComponent implements OnInit, OnDestroy
           }
         this.searchInputControl.valueChanges.pipe(
             takeUntil(this._unsubscribeAll),
-            debounceTime(300), // Wait 300ms after the user stops typing
+            debounceTime(300), 
             switchMap((query) => {
                 this.isLoading = true;
                 this.pagination.page = 0;
@@ -107,89 +104,80 @@ export class RequestsListUserComponent implements OnInit, OnDestroy
             })
         ).subscribe((data) => {
             this.dataSource.data=data;
-            this._changeDetectorRef.markForCheck(); // Ensure changes are detected
+            this._changeDetectorRef.markForCheck(); 
             this._productsSubject.next(data);
-            this._changeDetectorRef.markForCheck(); // Ensure changes are detected
+            this._changeDetectorRef.markForCheck(); 
         });
-
-
-
     }   
-    // Inside your component
+
     calculateDaysDifference(startDate: string, endDate: string): string {
-        if (!startDate || !endDate) return "0 days";  // return a default string if dates are not valid
-        
+        if (!startDate || !endDate) return "0 days";  
         const start = new Date(startDate);
         const end = new Date(endDate);
-        
-        const timeDiff = Math.abs(end.getTime() - start.getTime()) + 1; // Add 1 to include both start and end day
-        const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));  // Convert milliseconds to days
-        
+        const timeDiff = Math.abs(end.getTime() - start.getTime()) + 1; 
+        const diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         let res = "";
         if (diffDays === 1) {
-          res = `${diffDays} day`;  // Singular form
+          res = `${diffDays} day`;  
         } else {
-          res = `${diffDays} days`; // Plural form
+          res = `${diffDays} days`;
         }
-      
         return res;
       }
       
-  
-   // In your component class
-isTaskSelected(procInstId: string): boolean {
-    return this.selectedProcInstId === procInstId;
-}
+    isTaskSelected(procInstId: string): boolean {
+        return this.selectedProcInstId === procInstId;
+    }
 
-toggleDetails(procInstId: string): void {
-    if (this.selectedProcInstId === procInstId) {
-        this.selectedProcInstId = '';
-        this.selectedProduct = [];
-    } else {
-        this.isLoading = true;
-        this.selectedProcInstId = procInstId;
-        
-        const accessToken = localStorage.getItem('accessToken');
-        if (accessToken) {
-            this.userService.getTaskByProcessId(procInstId, accessToken).subscribe({
-                next: (tasks: any[]) => {
-                    this.selectedProduct = tasks;
+    toggleDetails(procInstId: string): void {
+        if (this.selectedProcInstId === procInstId) {
+            this.selectedProcInstId = '';
+            this.selectedProduct = [];
+        } else {
+            this.isLoading = true;
+            this.selectedProcInstId = procInstId;
+            
+            const accessToken = localStorage.getItem('accessToken');
+            if (accessToken) {
+                this.userService.getTaskByProcessId(procInstId, accessToken).subscribe({
+                    next: (tasks: any[]) => {
+                        this.selectedProduct = tasks;
+                        this.isLoading = false;
+                        this._changeDetectorRef.markForCheck();
+                    },
+                    error: (error) => {
+                        console.error('Error fetching task details:', error);
+                        this.isLoading = false;
+                        this._changeDetectorRef.markForCheck();
+                    }
+                });
+            }
+        }
+    }
+    
+    getFormattedDate(date: string | Date): string | null {
+        return this.datepipe.transform(date, 'yyyy-MM-dd HH:mm:ss');
+    }
+        getLeaveRequests(matricule : string, accessToken:string): void {
+            
+            this.userService.getRequestsByUser(matricule, accessToken).pipe(
+                tap((data) => {}),
+                takeUntil(this._unsubscribeAll)
+            )
+            .subscribe(
+                (data) => {
+                    this._productsSubject.next(data);
+                    this.dataSource.data = data;
                     this.isLoading = false;
                     this._changeDetectorRef.markForCheck();
                 },
-                error: (error) => {
-                    console.error('Error fetching task details:', error);
+                (error) => {
+                    console.error('Error fetching leave requests', error);
                     this.isLoading = false;
                     this._changeDetectorRef.markForCheck();
                 }
-            });
+            );
         }
-    }
-}
-    
-getFormattedDate(date: string | Date): string | null {
-    return this.datepipe.transform(date, 'yyyy-MM-dd HH:mm:ss');
-  }
-    getLeaveRequests(matricule : string, accessToken:string): void {
-        
-        this.userService.getRequestsByUser(matricule, accessToken).pipe(
-            tap((data) => {}),
-            takeUntil(this._unsubscribeAll)
-        )
-        .subscribe(
-            (data) => {
-                this._productsSubject.next(data);
-                this.dataSource.data = data;
-                this.isLoading = false;
-                this._changeDetectorRef.markForCheck();
-            },
-            (error) => {
-                console.error('Error fetching leave requests', error);
-                this.isLoading = false;
-                this._changeDetectorRef.markForCheck();
-            }
-        );
-    }
     
 
     
@@ -198,14 +186,6 @@ getFormattedDate(date: string | Date): string | null {
         const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');
         return baseUrl + cleanedPath;
       }
-    /**
-     * After view init
-     */
-
-   
-   
-    
-    
 
     closeDetails(): void
     {
@@ -214,7 +194,6 @@ getFormattedDate(date: string | Date): string | null {
         this._changeDetectorRef.markForCheck();
     }
    
-    
     /**
      * On destroy
      */

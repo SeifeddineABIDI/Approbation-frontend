@@ -18,6 +18,8 @@ import { CompactLayoutComponent } from './layouts/vertical/compact/compact.compo
 import { DenseLayoutComponent } from './layouts/vertical/dense/dense.component';
 import { FuturisticLayoutComponent } from './layouts/vertical/futuristic/futuristic.component';
 import { ThinLayoutComponent } from './layouts/vertical/thin/thin.component';
+import { User } from 'app/core/user/user.types';
+import { J } from '@fullcalendar/core/internal-common';
 
 @Component({
     selector     : 'layout',
@@ -29,6 +31,7 @@ import { ThinLayoutComponent } from './layouts/vertical/thin/thin.component';
 })
 export class LayoutComponent implements OnInit, OnDestroy
 {
+    user: User;
     config: FuseConfig;
     layout: string;
     scheme: 'dark' | 'light';
@@ -59,6 +62,7 @@ export class LayoutComponent implements OnInit, OnDestroy
      */
     ngOnInit(): void
     {
+        this.user = JSON.parse(localStorage.getItem('user'));
         // Set the theme and scheme based on the configuration
         combineLatest([
             this._fuseConfigService.config$,
