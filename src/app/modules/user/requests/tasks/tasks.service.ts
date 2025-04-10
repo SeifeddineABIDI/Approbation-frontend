@@ -160,8 +160,13 @@ fetchTasks(userMatricule: string): void {
     getTasksByUser(userId: string, accessToken: string): Observable<Task[]> {
         const headers = new HttpHeaders().set('Authorization', `Bearer ${accessToken}`);
         return this._httpClient.get<Task[]>(`${this.apiUrl}/tasks/user/${userId}`, { headers }).pipe(
-            tap((tasks: Task[]) => {
-                this._tasks.next(tasks);
+            tap({
+                next: (tasks: Task[]) => {
+                    this._tasks.next(tasks);
+                },
+                error: (error) => {
+                    console.error('Error fetching tasks:', error);
+                }
             })
         );
     }

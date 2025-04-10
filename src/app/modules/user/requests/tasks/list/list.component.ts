@@ -52,9 +52,7 @@ export class TasksListComponent implements OnInit, OnDestroy {
         
         const user = JSON.parse(localStorage.getItem('user'));
         const accessToken = localStorage.getItem('accessToken');
-        document.addEventListener('click', () => {
-            this.fetchTasks(); 
-        });
+
         if (user && user.matricule && accessToken) {
             // Fetch tasks based on role
             const taskObservable = user.role === 'MANAGER'
@@ -67,7 +65,6 @@ export class TasksListComponent implements OnInit, OnDestroy {
                 .pipe(takeUntil(this._unsubscribeAll))
                 .subscribe((tasks: Task[]) => {
                     this.tasks = tasks || [];
-                    this.updateTaskCounts();
                     this._changeDetectorRef.markForCheck();
                     this.updateNavigationCount(this.tasksCount.total);
                 });

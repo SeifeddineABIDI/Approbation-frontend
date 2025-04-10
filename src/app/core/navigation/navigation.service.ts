@@ -106,11 +106,9 @@ get(): Observable<Navigation> {
   }
 
   fetchAndUpdateTaskCount() {
-    const accessToken = localStorage.getItem('accessToken');
     const user = JSON.parse(localStorage.getItem('user'));
-
-    if (user && user.matricule && accessToken) {
-      this._tasksService.getTasksByUser(user.matricule, accessToken).subscribe((tasks: Task[]) => {
+    if (user && user.matricule && localStorage.getItem('accessToken')) {
+      this._tasksService.getTasksByUser(user.matricule, localStorage.getItem('accessToken')).subscribe((tasks: Task[]) => {
         this.tasksCount = tasks.length;
         this.tasksCountSubject.next(this.tasksCount);
         this.updateNavigationCount(this.tasksCount);

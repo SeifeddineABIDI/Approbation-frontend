@@ -11,6 +11,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
+import { environment } from 'environments/environment';
+import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha';
 
 @Component({
     selector     : 'auth-sign-in',
@@ -18,7 +20,17 @@ import { AuthService } from 'app/core/auth/auth.service';
     encapsulation: ViewEncapsulation.None,
     animations   : fuseAnimations,
     standalone   : true,
-    imports      : [RouterLink, FuseAlertComponent, NgIf, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule],
+    imports      : [RouterLink, FuseAlertComponent, NgIf, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule,
+                    RecaptchaV3Module
+    ],
+    providers: [
+        ReCaptchaV3Service,
+        {
+            provide: RECAPTCHA_V3_SITE_KEY,
+            useValue: environment.recaptcha.siteKey,
+        },
+    ]
+
 })
 export class AuthSignInComponent implements OnInit
 {
@@ -30,7 +42,7 @@ export class AuthSignInComponent implements OnInit
     };
     signInForm: UntypedFormGroup;
     showAlert: boolean = false;
-
+    
     /**
      * Constructor
      */
@@ -39,6 +51,7 @@ export class AuthSignInComponent implements OnInit
         private _authService: AuthService,
         private _formBuilder: UntypedFormBuilder,
         private _router: Router,
+        private recaptchaV3Service: ReCaptchaV3Service
     )
     {
     }
@@ -65,7 +78,7 @@ export class AuthSignInComponent implements OnInit
         this.signInForm = this._formBuilder.group({
             email     : ['hughes.brian@company.com', [Validators.required, Validators.email]],
             password  : ['admin', Validators.required],
-            rememberMe: [false],
+            rememberMe: [],
         });
     }
 
@@ -76,56 +89,53 @@ export class AuthSignInComponent implements OnInit
     /**
      * Sign in
      */
-    signIn(): void
-    {
-        // Return if the form is invalid
-        if ( this.signInForm.invalid )
-        {
-            return;
-        }
-
-        // Disable the form
-        this.signInForm.disable();
-
-        // Hide the alert
-        this.showAlert = false;
-
-        // Sign in
-        this._authService.signIn(this.signInForm.value)
-            .subscribe(
-                () =>
-                {
-                    if (this.signInForm.value.rememberMe) {
-                        this._authService.signInUsingToken().subscribe(() => {
-                        });
-                    }
-                    // Set the redirect url.
-                    // The '/signed-in-redirect' is a dummy url to catch the request and redirect the user
-                    // to the correct page after a successful sign in. This way, that url can be set via
-                    // routing file and we don't have to touch here.
-                    const redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/signed-in-redirect';
-
-                    // Navigate to the redirect url
-                    this._router.navigateByUrl(redirectURL);
-
-                },
-                (response) =>
-                {
-                    // Re-enable the form
-                    this.signInForm.enable();
-
-                    // Reset the form
-                    this.signInNgForm.resetForm();
-
-                    // Set the alert
-                    this.alert = {
-                        type   : 'error',
-                        message: 'Wrong email or password',
-                    };
-
-                    // Show the alert
-                    this.showAlert = true;
-                },
-            );
+   signIn(): void {
+    if (this.signInForm.invalid) {
+        return;
     }
+    this.signInForm.disable();
+    this.showAlert = false;
+
+    console.log('Executing reCAPTCHA v3...');
+    this.recaptchaV3Service.execute('login').subscribe(
+        (token: string) => {
+            console.log('reCAPTCHA Token:', token);
+            const payload = { ...this.signInForm.value, recaptchaToken: token };
+            console.log('Request Payload:', payload);
+            this._authService
+                .signIn(payload)
+                .subscribe(
+                    () => {
+                        if (this.signInForm.value.rememberMe) {
+                            this._authService.signInUsingToken().subscribe(() => {});
+                        }
+                        const redirectURL =
+                            this._activatedRoute.snapshot.queryParamMap.get('redirectURL') ||
+                            '/signed-in-redirect';
+                        this._router.navigateByUrl(redirectURL);
+                    },
+                    (response) => {
+                        this.signInForm.enable();
+                        this.signInNgForm.resetForm();
+                        this.alert = {
+                            type: 'error',
+                            message: response.error?.message || 'Authentication failed',
+                        };
+                        this.showAlert = true;
+                        console.error('Auth Error:', response);
+                    }
+                );
+        },
+        (error) => {
+            this.signInForm.enable();
+            this.alert = {
+                type: 'error',
+                message: 'reCAPTCHA verification failed. Please try again.',
+            };
+            this.showAlert = true;
+            console.error('reCAPTCHA Execution Error:', error);
+        }
+    );
+}
+    
 }

@@ -23,20 +23,18 @@ export class AppComponent implements OnInit
     }
 
     ngOnInit(): void {
-        this.navigationService.fetchAndUpdateTaskCount();
 
     // Subscribe to task count updates
-    this.navigationService.taskCount$.subscribe((count) => {
-      this.taskCount = count;
-      this._changeDetectorRef.markForCheck();
-    });
+    // this.navigationService.taskCount$.subscribe((count) => {
+    //   this.taskCount = count;
+    //   this._changeDetectorRef.markForCheck();
+    // });
     }
 
-    @HostListener('document:click', ['$event'])
-  onClick(event: MouseEvent): void {
-    this.navigationService.fetchAndUpdateTaskCount();
-    this._changeDetectorRef.markForCheck();
-  }
+  //   @HostListener('document:click', ['$event'])
+  // onClick(event: MouseEvent): void {
+  //   this._changeDetectorRef.markForCheck();
+  // }
   private updateNavigationBadge() {
     // If needed, trigger any UI updates here, e.g., update a badge or some other element
   }
