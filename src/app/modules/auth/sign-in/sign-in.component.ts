@@ -26,10 +26,10 @@ import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module, ReCaptchaV3Service } from 'ng
     providers: [
         ReCaptchaV3Service,
         {
-            provide: RECAPTCHA_V3_SITE_KEY,
-            useValue: environment.recaptcha.siteKey,
+          provide: RECAPTCHA_V3_SITE_KEY,
+          useValue: environment.recaptcha.siteKey,
         },
-    ]
+      ],
 
 })
 export class AuthSignInComponent implements OnInit
@@ -78,7 +78,7 @@ export class AuthSignInComponent implements OnInit
         this.signInForm = this._formBuilder.group({
             email     : ['hughes.brian@company.com', [Validators.required, Validators.email]],
             password  : ['admin', Validators.required],
-            rememberMe: [],
+            rememberMe: [false],
         });
     }
 
@@ -100,10 +100,8 @@ export class AuthSignInComponent implements OnInit
     this.recaptchaV3Service.execute('login').subscribe(
         (token: string) => {
             console.log('reCAPTCHA Token:', token);
-            const payload = { ...this.signInForm.value, recaptchaToken: token };
-            console.log('Request Payload:', payload);
             this._authService
-                .signIn(payload)
+                .signIn({ ...this.signInForm.value, recaptchaToken: token })
                 .subscribe(
                     () => {
                         if (this.signInForm.value.rememberMe) {
