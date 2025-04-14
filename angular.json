@@ -36,19 +36,19 @@
                             "quill"
                         ],
                         "assets": [
-                            "src/favicon-16x16.png",
-                            "src/favicon-32x32.png",
-                            "src/assets",
-                            {
-                                "glob": "_redirects",
-                                "input": "src",
-                                "output": "/"
-                            },
-  {
-    "glob": "**/*",
-    "input": "node_modules/bpmn-js/dist/assets",
-    "output": "assets/bpmn-js"
-  }
+                          "src/favicon-16x16.png",
+                          "src/favicon-32x32.png",
+                          "src/assets",
+                          {
+                            "glob": "_redirects",
+                            "input": "src",
+                            "output": "/"
+                          },
+                          {
+                            "glob": "**/*",
+                            "input": "node_modules/bpmn-js/dist/assets",
+                            "output": "assets/bpmn-js"
+                          }
                         ],
                         "stylePreprocessorOptions": {
                             "includePaths": [
@@ -63,7 +63,7 @@
                             "src/styles/styles.scss",
                             "src/styles/tailwind.scss",
                             "node_modules/bpmn-js/dist/assets/diagram-js.css",
-  "node_modules/bpmn-js/dist/assets/bpmn-font/css/bpmn.css"
+                            "node_modules/bpmn-js/dist/assets/bpmn-font/css/bpmn.css"
                         ],
                         "scripts": []
                     },
@@ -128,9 +128,10 @@
                         "tsConfig": "tsconfig.spec.json",
                         "inlineStyleLanguage": "scss",
                         "assets": [
-                            "src/favicon-16x16.png",
-                            "src/favicon-32x32.png",
-                            "src/assets"
+                          "src/favicon-16x16.png",
+                          "src/favicon-32x32.png",
+                          "src/assets",
+                          "src/manifest.webmanifest"
                         ],
                         "styles": [
                             "src/styles/styles.scss"

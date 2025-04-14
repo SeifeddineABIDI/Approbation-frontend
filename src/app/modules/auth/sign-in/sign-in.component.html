@@ -70,7 +70,15 @@
                         Password is required
                     </mat-error>
                 </mat-form-field>
-
+                <div class="recaptcha-container">
+                    <re-captcha
+                        class="mt-4"
+                        (resolved)="resolved($event)"
+                        (error)="onError($event)"
+                        [siteKey]="siteKey"
+                        errorMode="handled"
+                    ></re-captcha>
+                </div>
                 <!-- Actions -->
                 <div class="inline-flex items-center justify-between w-full mt-1.5">
                     <mat-checkbox

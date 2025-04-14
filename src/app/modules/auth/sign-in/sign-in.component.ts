@@ -12,24 +12,18 @@ import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
 import { environment } from 'environments/environment';
-import { RECAPTCHA_V3_SITE_KEY, RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha';
+import { RECAPTCHA_V3_SITE_KEY, RecaptchaModule, RecaptchaV3Module, ReCaptchaV3Service } from 'ng-recaptcha';
 
 @Component({
     selector     : 'auth-sign-in',
     templateUrl  : './sign-in.component.html',
+    styleUrls     : ['./sign-in.component.scss'],
     encapsulation: ViewEncapsulation.None,
     animations   : fuseAnimations,
     standalone   : true,
     imports      : [RouterLink, FuseAlertComponent, NgIf, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule,
-                    RecaptchaV3Module
+        RecaptchaModule
     ],
-    providers: [
-        ReCaptchaV3Service,
-        {
-          provide: RECAPTCHA_V3_SITE_KEY,
-          useValue: environment.recaptcha.siteKey,
-        },
-      ],
 
 })
 export class AuthSignInComponent implements OnInit
@@ -42,7 +36,8 @@ export class AuthSignInComponent implements OnInit
     };
     signInForm: UntypedFormGroup;
     showAlert: boolean = false;
-    
+    siteKey: string = environment.recaptcha.siteKey;
+    recaptchaToken: string | null = null;
     /**
      * Constructor
      */
@@ -51,7 +46,6 @@ export class AuthSignInComponent implements OnInit
         private _authService: AuthService,
         private _formBuilder: UntypedFormBuilder,
         private _router: Router,
-        private recaptchaV3Service: ReCaptchaV3Service
     )
     {
     }
@@ -71,7 +65,7 @@ export class AuthSignInComponent implements OnInit
                 type: 'success',
                 message: params['message']
             };
-            this.showAlert = true; // Show the alert
+            this.showAlert = true;
         }
     });
         // Create the form
@@ -85,55 +79,67 @@ export class AuthSignInComponent implements OnInit
     // -----------------------------------------------------------------------------------------------------
     // @ Public methods
     // -----------------------------------------------------------------------------------------------------
+    /**
+     * Handle reCAPTCHA resolved
+     */
+    resolved(token: string): void {
+        this.recaptchaToken = token;
+        console.log('reCAPTCHA v2 Token:', token);
+    }
 
+    /**
+     * Handle reCAPTCHA error
+     */
+    onError(error: any): void {
+        console.error('reCAPTCHA v2 Error:', error);
+        this.alert = {
+            type: 'error',
+            message: 'reCAPTCHA verification failed. Please try again.',
+        };
+        this.showAlert = true;
+    }
     /**
      * Sign in
      */
-   signIn(): void {
-    if (this.signInForm.invalid) {
-        return;
-    }
-    this.signInForm.disable();
-    this.showAlert = false;
-
-    console.log('Executing reCAPTCHA v3...');
-    this.recaptchaV3Service.execute('login').subscribe(
-        (token: string) => {
-            console.log('reCAPTCHA Token:', token);
-            this._authService
-                .signIn({ ...this.signInForm.value, recaptchaToken: token })
-                .subscribe(
-                    () => {
-                        if (this.signInForm.value.rememberMe) {
-                            this._authService.signInUsingToken().subscribe(() => {});
-                        }
-                        const redirectURL =
-                            this._activatedRoute.snapshot.queryParamMap.get('redirectURL') ||
-                            '/signed-in-redirect';
-                        this._router.navigateByUrl(redirectURL);
-                    },
-                    (response) => {
-                        this.signInForm.enable();
-                        this.signInNgForm.resetForm();
-                        this.alert = {
-                            type: 'error',
-                            message: response.error?.message || 'Authentication failed',
-                        };
-                        this.showAlert = true;
-                        console.error('Auth Error:', response);
-                    }
-                );
-        },
-        (error) => {
-            this.signInForm.enable();
-            this.alert = {
-                type: 'error',
-                message: 'reCAPTCHA verification failed. Please try again.',
-            };
-            this.showAlert = true;
-            console.error('reCAPTCHA Execution Error:', error);
+    signIn(): void {
+        if (this.signInForm.invalid || !this.recaptchaToken) {
+            if (!this.recaptchaToken) {
+                this.alert = {
+                    type: 'error',
+                    message: 'Please verify that reCAPTCHA.',
+                };
+                this.showAlert = true;
+            }
+            return;
         }
-    );
-}
+
+        this.signInForm.disable();
+        this.showAlert = false;
+
+        this._authService
+            .signIn({ ...this.signInForm.value, recaptchaToken: this.recaptchaToken })
+            .subscribe({
+                next: () => {
+                    if (this.signInForm.value.rememberMe) {
+                        this._authService.signInUsingToken().subscribe(() => {});
+                    }
+                    const redirectURL =
+                        this._activatedRoute.snapshot.queryParamMap.get('redirectURL') ||
+                        '/signed-in-redirect';
+                    this._router.navigateByUrl(redirectURL);
+                },
+                error: (response) => {
+                    this.signInForm.enable();
+                    this.signInNgForm.resetForm();
+                    this.recaptchaToken = null; // Reset token
+                    this.alert = {
+                        type: 'error',
+                        message: response.error?.message || 'Authentication failed',
+                    };
+                    this.showAlert = true;
+                    console.error('Auth Error:', response);
+                },
+            });
+    }
     
 }

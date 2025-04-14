@@ -1,0 +1,18 @@
+.recaptcha-container {
+    display: flex;
+    justify-content: center; /* Center the reCAPTCHA horizontally */
+    align-items: center;
+    margin-bottom: 1rem;
+    width: 100%; /* Ensure it fits the form width */
+    max-width: 304px; /* reCAPTCHA v2 checkbox width is ~304px */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Ensure responsiveness */
+@media (max-width: 600px) {
+    .recaptcha-container {
+        transform: scale(0.9); /* Slightly scale down on small screens */
+        max-width: 100%;
+    }
+}

@@ -1,3 +1,4 @@
+import { provideServiceWorker } from '@angular/service-worker';
 import { provideHttpClient } from '@angular/common/http';
 import { APP_INITIALIZER, ApplicationConfig, inject } from '@angular/core';
 import { LuxonDateAdapter } from '@angular/material-luxon-adapter';
@@ -23,7 +24,6 @@ export const appConfig: ApplicationConfig = {
             withPreloading(PreloadAllModules),
             withInMemoryScrolling({scrollPositionRestoration: 'enabled'}),
         ),
-        // Material Date Adapter
         {
             provide : DateAdapter,
             useClass: LuxonDateAdapter,
@@ -67,7 +67,7 @@ export const appConfig: ApplicationConfig = {
     provide: APP_INITIALIZER,
     useFactory: () => {
         const translocoService = inject(TranslocoService);
-        const savedLang = sessionStorage.getItem('activeLang');
+        const savedLang = sessionStorage.getItem('activeLang') ?? 'en';
         if (!savedLang) {
             sessionStorage.setItem('activeLang', translocoService.getActiveLang());
         }
