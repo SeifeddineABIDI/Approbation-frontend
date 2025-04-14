@@ -130,8 +130,7 @@
                         "assets": [
                           "src/favicon-16x16.png",
                           "src/favicon-32x32.png",
-                          "src/assets",
-                          "src/manifest.webmanifest"
+                          "src/assets"
                         ],
                         "styles": [
                             "src/styles/styles.scss"
