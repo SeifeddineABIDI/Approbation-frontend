@@ -29,9 +29,10 @@ import { MatMenuModule } from '@angular/material/menu';
 @Component({
     selector     : 'classy-layout',
     templateUrl  : './classy.component.html',
+    styleUrl   : './classy.component.scss',
     encapsulation: ViewEncapsulation.None,
     standalone   : true,
-    imports      : [FuseLoadingBarComponent, FuseVerticalNavigationComponent, NotificationsComponent, UserComponent, NgIf, MatIconModule, MatButtonModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, RouterOutlet, MatMenuModule],
+    imports: [FuseLoadingBarComponent, FuseVerticalNavigationComponent, NotificationsComponent, UserComponent, NgIf, MatIconModule, MatButtonModule, LanguagesComponent, FuseFullscreenComponent, SearchComponent, ShortcutsComponent, MessagesComponent, RouterOutlet, MatMenuModule, QuickChatComponent],
 })
 export class ClassyLayoutComponent implements OnInit, OnDestroy
 {

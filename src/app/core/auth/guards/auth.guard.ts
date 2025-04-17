@@ -17,6 +17,7 @@ export const AuthGuard: CanActivateFn | CanActivateChildFn = (route, state) =>
                 const redirectURL = state.url === '/sign-out' ? '' : `redirectURL=${state.url}`;
                 return of(router.parseUrl(`sign-in?${redirectURL}`));
             }
+            
             const requiredRoles = route.data['roles'] as string[];
             if (requiredRoles?.length > 0) {
                 const userRole = userService.getUserRole();

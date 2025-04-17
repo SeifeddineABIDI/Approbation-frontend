@@ -37,20 +37,14 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
         return from(fetchClientIpFromBackend()).pipe(
             switchMap((clientIp) => {
                 const decodedToken = AuthUtils['_decodeToken'](authService.accessToken);
-
                 if (decodedToken) {
                     const tokenIp = decodedToken.ip || '';
                     const tokenAgent = decodedToken.agent || '';
                     const actualAgent = navigator.userAgent;
-
-
                     if (tokenIp !== clientIp || tokenAgent !== actualAgent) {
                         authService.signOut(); // Sign the user out
-
                         return throwError(() => new Error('Invalid token: IP or User-Agent mismatch.'));
-                    }
-                }
-
+                    }}
                 let newReq = req.clone();
                 if (authService.accessToken && !AuthUtils.isTokenExpired(authService.accessToken)) {
                     newReq = req.clone({
@@ -61,7 +55,6 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
             })
         );
     }
-
     return next(req).pipe(
         catchError((error) => {
             if (error instanceof HttpErrorResponse && error.status === 401) {

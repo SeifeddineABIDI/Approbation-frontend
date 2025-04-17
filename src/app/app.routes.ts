@@ -3,6 +3,7 @@ import { initialDataResolver } from 'app/app.resolvers';
 import { AuthGuard } from 'app/core/auth/guards/auth.guard';
 import { NoAuthGuard } from 'app/core/auth/guards/noAuth.guard';
 import { LayoutComponent } from 'app/layout/layout.component';
+import { AnalyticsAssistantComponent } from './modules/admin/chat/analytics-assistant.component';
 
 // @formatter:off
 /* eslint-disable max-len */
@@ -85,7 +86,7 @@ export const appRoutes: Route[] = [
             {path: 'settings', loadChildren: () => import('app/modules/settings/settings.routes')},
             {path: 'rh', loadChildren: () =>import('app/modules/rh/rh.routes')},
             {path: 'requests', loadChildren: () =>import('app/modules/user/requests/request.routes')},
-                       
+            { path: 'analytics', component: AnalyticsAssistantComponent }, 
             {path: '**', loadChildren: () => import('app/modules/error/error-404/error-404.routes')}
             
 

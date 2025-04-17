@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { FuseScrollbarDirective } from '@fuse/directives/scrollbar';
 import { QuickChatService } from 'app/layout/common/quick-chat/quick-chat.service';
 import { Chat } from 'app/layout/common/quick-chat/quick-chat.types';
+import { OllamaService } from 'app/modules/admin/Chat/ollama.service';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -42,7 +43,7 @@ export class QuickChatComponent implements OnInit, AfterViewInit, OnDestroy
         private _ngZone: NgZone,
         private _quickChatService: QuickChatService,
         private _scrollStrategyOptions: ScrollStrategyOptions,
-    )
+        private _ollamaService: OllamaService  )
     {
     }
 
@@ -93,27 +94,22 @@ export class QuickChatComponent implements OnInit, AfterViewInit, OnDestroy
     ngOnInit(): void
     {
         // Chat
-        this._quickChatService.chat$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((chat: Chat) =>
-            {
-                this.chat = chat;
-            });
-
-        // Chats
-        this._quickChatService.chats$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((chats: Chat[]) =>
-            {
-                this.chats = chats;
-            });
-
+   this.chat = {
+      id: 'bird-chat',
+      contact: { name: 'Bird' },
+      messages: []
+    };
+    this.chat = {
+        id: 'bird-chat',
+        contact: { name: 'Bird' },
+        messages: []
+      };
         // Selected chat
         this._quickChatService.chat$
             .pipe(takeUntil(this._unsubscribeAll))
             .subscribe((chat: Chat) =>
             {
-                this.selectedChat = chat;
+                this.selectedChat = this.chat;
             });
     }
 
@@ -325,4 +321,58 @@ export class QuickChatComponent implements OnInit, AfterViewInit, OnDestroy
             this._hideOverlay();
         }
     }
+    sendMessage(): void {
+        const input = this.messageInput.nativeElement.value.trim();
+        if (!input) {
+          return;
+        }
+    
+        // Add user message
+        const userMessage = {
+          id: `msg-${Date.now()}`,
+          chatId: this.chat.id,
+          contactId: 'user',
+          isMine: true,
+          value: input,
+          createdAt: new Date().toISOString()
+        };
+        this.chat.messages!.push(userMessage);
+        this.chat.lastMessage = input;
+        this.chat.lastMessageAt = userMessage.createdAt;
+    
+        // Clear input
+        this.messageInput.nativeElement.value = '';
+    
+        // Call Ollama
+        this._ollamaService.askOllamaNatural(input)
+          .pipe(takeUntil(this._unsubscribeAll))
+          .subscribe({
+            next: (response) => {
+              const botMessage = {
+                id: `msg-${Date.now() + 1}`,
+                chatId: this.chat.id,
+                contactId: 'bird',
+                isMine: false,
+                value: response,
+                createdAt: new Date().toISOString()
+              };
+              this.chat.messages!.push(botMessage);
+              this.chat.lastMessage = response;
+              this.chat.lastMessageAt = botMessage.createdAt;
+            },
+            error: (err) => {
+              const errorMessage = {
+                id: `msg-${Date.now() + 1}`,
+                chatId: this.chat.id,
+                contactId: 'bird',
+                isMine: false,
+                value: `Oof, Bird’s stuck: ${err.message}`,
+                createdAt: new Date().toISOString()
+              };
+              this.chat.messages!.push(errorMessage);
+              this.chat.lastMessage = errorMessage.value;
+              this.chat.lastMessageAt = errorMessage.createdAt;
+            }
+          });
+      }
 }

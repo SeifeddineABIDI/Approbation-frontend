@@ -1,7 +1,20 @@
-<div class="fixed lg:sticky top-0 bottom-0 lg:left-full w-full sm:w-96 lg:w-16 lg:h-screen lg:shadow">
+<!-- Icon (always visible when closed) -->
+<div
+    class="fixed bottom-4 right-4 z-[401]"
+    *ngIf="!opened"
+    (click)="toggle()">
+    <button class="bg-card p-3 rounded-full shadow">
+        <mat-icon
+            class="icon-size-6"
+            [svgIcon]="'heroicons_outline:chat-bubble-left-right'"></mat-icon>
+    </button>
+</div>
+
+<!-- Chat panel -->
+<div class="fixed lg:sticky top-0 bottom-0 lg:left-full w-full sm:w-96 lg:w-0 lg:h-screen">
     <div
         class="flex flex-col w-full sm:w-96 h-full transition-transform duration-400 ease-drawer bg-card"
-        [ngClass]="{'-translate-x-full sm:-translate-x-96 lg:-translate-x-80 shadow': opened, 'translate-x-0': !opened}">
+        [ngClass]="{'-translate-x-full sm:-translate-x-96 lg:-translate-x-96 shadow': opened, 'hidden lg:hidden': !opened}">
 
         <!-- Header -->
         <div
@@ -26,22 +39,16 @@
             </ng-container>
 
             <!-- Contact info -->
-            <ng-container *ngIf="opened && selectedChat">
+            <ng-container *ngIf="opened">
                 <div class="flex flex-auto items-center ml-3">
                     <div class="relative flex flex-0 items-center justify-center w-10 h-10">
-                        <ng-container *ngIf="chat.contact.avatar">
-                            <img
-                                class="w-full h-full rounded-full object-cover"
-                                [src]="chat.contact.avatar"
-                                alt="Contact avatar"/>
-                        </ng-container>
                         <ng-container *ngIf="!chat.contact.avatar">
                             <div class="flex items-center justify-center w-full h-full rounded-full text-lg uppercase bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-200">
                                 {{chat.contact.name.charAt(0)}}
                             </div>
                         </ng-container>
                     </div>
-                    <div class="ml-4 text-lg font-medium leading-5 truncate">{{chat.contact.name}}</div>
+                    <div class="ml-4 text-lg font-medium leading-5 truncate">Bird</div>
                     <button
                         class="ml-auto mr-4"
                         mat-icon-button>
@@ -53,46 +60,10 @@
 
         <!-- Content -->
         <div class="flex flex-auto border-t overflow-hidden">
-
-            <!-- Chat list -->
-            <div
-                class="flex-0 w-16 h-full overflow-y-auto overscroll-y-contain sm:overflow-hidden sm:overscroll-auto"
-                fuseScrollbar
-                [fuseScrollbarOptions]="{wheelPropagation: false}">
-                <div class="flex-auto">
-                    <ng-container *ngFor="let chat of chats; trackBy: trackByFn">
-                        <div
-                            class="flex items-center py-3 px-4 cursor-pointer"
-                            [ngClass]="{'hover:bg-gray-100 dark:hover:bg-hover': !selectedChat || selectedChat.id !== chat.id,
-                                        'bg-primary-50 dark:bg-hover': selectedChat && selectedChat.id === chat.id}"
-                            (click)="selectChat(chat.id)">
-                            <div class="relative flex flex-0 items-center justify-center w-8 h-8">
-                                <ng-container *ngIf="chat.unreadCount > 0">
-                                    <div
-                                        class="absolute bottom-0 right-0 flex-0 w-2 h-2 -ml-0.5 rounded-full ring-2 ring-bg-card dark:ring-gray-900 bg-primary dark:bg-primary-500 text-on-primary"
-                                        [class.ring-primary-50]="selectedChat && selectedChat.id === chat.id"></div>
-                                </ng-container>
-                                <ng-container *ngIf="chat.contact.avatar">
-                                    <img
-                                        class="w-full h-full rounded-full object-cover"
-                                        [src]="chat.contact.avatar"
-                                        alt="Contact avatar"/>
-                                </ng-container>
-                                <ng-container *ngIf="!chat.contact.avatar">
-                                    <div class="flex items-center justify-center w-full h-full rounded-full text-lg uppercase bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-200">
-                                        {{chat.contact.name.charAt(0)}}
-                                    </div>
-                                </ng-container>
-                            </div>
-                        </div>
-                    </ng-container>
-                </div>
-            </div>
-
             <!-- Conversation -->
-            <div class="flex flex-col flex-auto border-l overflow-hidden bg-gray-50 dark:bg-transparent">
+            <div class="flex flex-col flex-auto bg-gray-50 dark:bg-transparent h-full">
                 <ng-container *ngIf="chat; else selectChatOrStartNew">
-                    <div class="flex flex-col-reverse overflow-y-auto overscroll-y-contain">
+                    <div class="flex-auto overflow-y-auto">
                         <div class="flex flex-col flex-auto shrink p-6">
                             <ng-container *ngFor="let message of chat.messages; let i = index; let first = first; let last = last; trackBy: trackByFn">
                                 <!-- Start of the day -->
@@ -150,20 +121,25 @@
                     </div>
 
                     <!-- Message field -->
-                    <div class="flex items-end p-4 border-t bg-gray-50 dark:bg-transparent">
-                        <mat-form-field
-                            class="fuse-mat-dense fuse-mat-rounded fuse-mat-bold w-full"
-                            [subscriptSizing]="'dynamic'">
-                            <textarea
-                                matInput
-                                cdkTextareaAutosize
-                                #messageInput></textarea>
-                        </mat-form-field>
-                        <div class="flex items-center h-11 my-px ml-4">
-                            <button
-                                mat-icon-button>
-                                <mat-icon [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
-                            </button>
+                    <div class="flex-none min-h-16 p-4 border-t bg-gray-50 dark:bg-transparent">
+                        <div class="flex items-center">
+                            <mat-form-field
+                                class="fuse-mat-dense fuse-mat-rounded fuse-mat-bold w-full"
+                                [subscriptSizing]="'dynamic'">
+                                <textarea
+                                    matInput
+                                    cdkTextareaAutosize
+                                    #messageInput
+                                    placeholder="Type your message..."
+                                    (keyup.enter)="sendMessage()"></textarea>
+                            </mat-form-field>
+                            <div class="flex items-center h-11 my-px ml-4">
+                                <button
+                                    mat-icon-button
+                                    (click)="sendMessage()">
+                                    <mat-icon [svgIcon]="'heroicons_outline:paper-airplane'"></mat-icon>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </ng-container>
@@ -178,7 +154,7 @@
         <mat-icon
             class="icon-size-24"
             [svgIcon]="'heroicons_outline:chat-bubble-bottom-center-text'"></mat-icon>
-        <div class="mt-4 text-xl text-center font-medium tracking-tight text-secondary">Select a conversation</div>
+        <div class="mt-4 text-xl text-center font-medium tracking-tight text-secondary">Say hi to Bird!</div>
     </div>
 </ng-template>
 
