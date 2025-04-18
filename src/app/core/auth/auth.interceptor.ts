@@ -42,7 +42,7 @@ export const authInterceptor = (req: HttpRequest<unknown>, next: HttpHandlerFn):
                     const tokenAgent = decodedToken.agent || '';
                     const actualAgent = navigator.userAgent;
                     if (tokenIp !== clientIp || tokenAgent !== actualAgent) {
-                        authService.signOut(); // Sign the user out
+                        authService.signOut();
                         return throwError(() => new Error('Invalid token: IP or User-Agent mismatch.'));
                     }}
                 let newReq = req.clone();
