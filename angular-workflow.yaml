@@ -1,0 +1,102 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: angular-ci
+  namespace: argo
+spec:
+  entrypoint: main
+  arguments:
+    parameters:
+    - name: gitlab-token
+      value: "glpat-N_iDFuHFxKLmSGKCbcyD"
+    - name: registry-user
+      value: "seifeddineAbidi"
+    - name: registry-password
+      value: "Sayf23700436**"
+    - name: tag
+      value: "{{workflow.parameters.tag}}"
+
+  templates:
+  - name: main
+    steps:
+    - - name: checkout
+        template: checkout
+      - name: build
+        template: build
+      - name: test
+        template: test
+      - name: build-image
+        template: build-image
+      - name: push-image
+        template: push-image
+      - name: update-manifest
+        template: update-manifest
+
+  - name: checkout
+    script:
+      image: alpine/git
+      command: [sh]
+      source: |
+        git clone https://oauth2:{{workflow.parameters.gitlab-token}}@gitlab.com/seifeddineabidi1/Approbation/frontend.git /src
+        cd /src
+        git checkout main
+
+  - name: build
+    script:
+      image: node:18
+      command: [sh]
+      source: |
+        cd /src
+        npm install
+        npm run build --prod
+
+  - name: test
+    script:
+      image: node:18
+      command: [sh]
+      source: |
+        cd /src
+        npm install
+        npm run test -- --watch=false
+
+  - name: build-image
+    script:
+      image: docker
+      command: [sh]
+      source: |
+        cd /src
+        docker build -t registry.gitlab.com/seifeddineabidi1/Approbation/frontend:{{workflow.parameters.tag}} .
+      volumeMounts:
+      - name: docker-sock
+        mountPath: /var/run/docker.sock
+
+  - name: push-image
+    script:
+      image: docker
+      command: [sh]
+      source: |
+        docker login registry.gitlab.com -u {{workflow.parameters.registry-user}} -p {{workflow.parameters.registry-password}}
+        docker push registry.gitlab.com/seifeddineabidi1/Approbation/frontend:{{workflow.parameters.tag}}
+      volumeMounts:
+      - name: docker-sock
+        mountPath: /var/run/docker.sock
+
+  - name: update-manifest
+    script:
+      image: alpine/git
+      command: [sh]
+      source: |
+        git clone https://oauth2:{{workflow.parameters.gitlab-token}}@gitlab.com/seifeddineabidi1/Approbation/k8s-manifests.git /manifests
+        cd /manifests
+        sed -i 's|registry.gitlab.com/seifeddineabidi1/Approbation/frontend:.*|registry.gitlab.com/seifeddineabidi1/Approbation/frontend:{{workflow.parameters.tag}}|' angular/deployment.yaml
+        git config user.email "seifeddine.abidi@esprit.tn"
+        git config user.name "SeifeddineABIDI"
+        git add .
+        git commit -m "Update Angular image to {{workflow.parameters.tag}}"
+        git push origin main
+
+  volumes:
+  - name: docker-sock
+    hostPath:
+      path: /var/run/docker.sock
+  

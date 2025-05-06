@@ -93,7 +93,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
             icon : 'heroicons_outline:document-text',
             link : '/requests/all',
             type : 'basic',
-            roles: ['MANAGER','RH','USER'],
+            roles: ['ADMIN','MANAGER','RH','USER'],
         },
         {
             id   : 'allRequestsConfirmedUser',
@@ -101,7 +101,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
             icon : 'heroicons_outline:map',
             link : '/requests/allConfirmed',
             type : 'basic',
-            roles: ['MANAGER','RH','USER'],
+            roles: ['ADMIN','MANAGER','RH','USER'],
         },
    
 ];
