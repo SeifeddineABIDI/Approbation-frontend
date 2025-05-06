@@ -3,7 +3,7 @@ import { initialDataResolver } from 'app/app.resolvers';
 import { AuthGuard } from 'app/core/auth/guards/auth.guard';
 import { NoAuthGuard } from 'app/core/auth/guards/noAuth.guard';
 import { LayoutComponent } from 'app/layout/layout.component';
-import { AnalyticsAssistantComponent } from './modules/admin/chat/analytics-assistant.component';
+import { AnalyticsAssistantComponent } from './modules/admin/Chat/analytics-assistant.component';
 
 // @formatter:off
 /* eslint-disable max-len */
