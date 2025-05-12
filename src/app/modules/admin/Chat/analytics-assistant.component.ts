@@ -46,8 +46,6 @@ export class AnalyticsAssistantComponent {
       return;
     }
 
-    console.log('Sending:', { prompt: this.prompt });
-
     this.ollamaService.askOllamaNatural(this.prompt).subscribe({
       next: (res) => {
         this.response = res;

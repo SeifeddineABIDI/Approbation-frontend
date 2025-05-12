@@ -84,7 +84,6 @@ export class AuthSignInComponent implements OnInit
      */
     resolved(token: string): void {
         this.recaptchaToken = token;
-        console.log('reCAPTCHA v2 Token:', token);
     }
 
     /**
