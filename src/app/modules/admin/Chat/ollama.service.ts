@@ -8,7 +8,7 @@ import { catchError, map, retry } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class OllamaService {
-  private apiUrl = 'http://localhost:8080/chat';
+  private apiUrl = 'http://frontend.192.168.2.189.nip.io:8080/chat';
 
   constructor(private http: HttpClient) {}
 
