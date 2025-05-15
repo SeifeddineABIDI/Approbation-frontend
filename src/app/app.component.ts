@@ -31,6 +31,7 @@ export class AppComponent implements OnInit
     // });
     }
 
+    
   //   @HostListener('document:click', ['$event'])
   // onClick(event: MouseEvent): void {
   //   this._changeDetectorRef.markForCheck();
