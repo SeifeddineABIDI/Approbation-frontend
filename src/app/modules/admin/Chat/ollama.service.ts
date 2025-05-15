@@ -1,14 +1,14 @@
-// src/app/services/ollama.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
+import { environment } from 'environments/environment.prod';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OllamaService {
-  private apiUrl = 'http://backend.192.168.2.189.nip.io:8080/chat';
+  private apiUrl = `${environment.apiUrl}/chat`;
 
   constructor(private http: HttpClient) {}
 
