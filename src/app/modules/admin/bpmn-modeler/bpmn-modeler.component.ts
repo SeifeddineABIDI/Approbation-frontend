@@ -26,6 +26,7 @@ interface ProcessInfo {
 
 @Component({
   selector: 'app-bpmn-editor',
+  styleUrl: 'bpmn-modeler.Component.css',
   template: `
     <div class="flex flex-auto min-w-0 h-screen">
       <div class="w-64 p-4 bg-gray-100 border-r overflow-auto">
