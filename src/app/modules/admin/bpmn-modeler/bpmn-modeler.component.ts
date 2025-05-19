@@ -8,11 +8,13 @@ import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 import { environment } from 'environments/environment';
 import { combineLatest } from 'rxjs';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { DeleteConfirmationDialogComponent, RedeployConfirmationDialogComponent } from './deleteConfirmationDialog.component';
 
 interface ProcessVersion {
   id: string;
@@ -56,9 +58,15 @@ interface ProcessInfo {
         </button>
         <button 
           class="mt-2 w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
-          (click)="redeployDiagram()"
+          (click)="confirmRedeploy()"
           [disabled]="!selectedProcessKey">
           Redeploy Process
+        </button>
+        <button 
+          class="mt-2 w-full bg-red-500 text-white p-2 rounded hover:bg-red-600"
+          (click)="deleteVersion()"
+          [disabled]="!selectedVersionId || selectedProcess?.versions.length <= 1">
+          Delete Version
         </button>
       </div>
       <div id="canvas" #canvas class="flex-grow"></div>
@@ -67,7 +75,7 @@ interface ProcessInfo {
   `,
   styleUrls: ['./bpmn-modeler.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule,BrowserModule,BrowserAnimationsModule,MatSnackBarModule]
+  imports: [CommonModule, FormsModule, MatDialogModule, MatButtonModule]
 })
 export class BpmnModelerComponent implements AfterViewInit {
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef;
@@ -79,6 +87,7 @@ export class BpmnModelerComponent implements AfterViewInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   processes: ProcessInfo[] = [];
   selectedProcessKey: string | null = null;
@@ -191,6 +200,19 @@ export class BpmnModelerComponent implements AfterViewInit {
     window.URL.revokeObjectURL(url);
   }
 
+  confirmRedeploy(): void {
+    const dialogRef = this.dialog.open(RedeployConfirmationDialogComponent, {
+      width: '400px',
+      data: { processName: this.selectedProcess?.name || this.selectedProcessKey }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.redeployDiagram();
+      }
+    });
+  }
+
   async redeployDiagram(): Promise<void> {
     if (!this.selectedProcessKey) {
       this.snackBar.open('No process selected for redeployment.', 'Close', { duration: 5000 });
@@ -211,12 +233,60 @@ export class BpmnModelerComponent implements AfterViewInit {
       params: { fileName: this.selectedProcessKey || 'process' }
     }).subscribe({
       next: () => {
-        this.snackBar.open('Process redeployed successfully.', 'Close', { duration: 5000 });
+        this.snackBar.open('Process redeployed successfully.', 'Close', {
+          duration: 5000,
+          panelClass: ['success-snackbar']
+        });
         this.fetchProcesses(); // Refresh process list
       },
       error: (err) => {
         console.error('Error redeploying BPMN diagram:', err);
         this.snackBar.open('Failed to redeploy process.', 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+  deleteVersion(): void {
+    if (!this.selectedVersionId || !this.selectedProcessKey) {
+      this.snackBar.open('No version selected for deletion.', 'Close', { duration: 5000 });
+      return;
+    }
+    if (this.selectedProcess?.versions.length <= 1) {
+      this.snackBar.open('Cannot delete the only version of a process.', 'Close', { duration: 5000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+      width: '400px',
+      data: { versionId: this.selectedVersionId, processName: this.selectedProcess?.name || this.selectedProcessKey }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.http.delete(`${this.apiUrl}/api/bpmn/process/${this.selectedVersionId}`).subscribe({
+          next: () => {
+            this.snackBar.open('Version deleted successfully.', 'Close', {
+              duration: 5000,
+              panelClass: ['success-snackbar']
+            });
+            this.fetchProcesses(); // Refresh process list
+            // Select the latest remaining version
+            if (this.selectedProcess) {
+              const nextVersion = this.selectedProcess.versions.find(v => v.id !== this.selectedVersionId);
+              if (nextVersion) {
+                this.selectVersion(this.selectedProcessKey!, nextVersion.id);
+              } else {
+                this.selectedProcessKey = null;
+                this.selectedProcess = null;
+                this.selectedVersionId = null;
+              }
+            }
+          },
+          error: (err) => {
+            console.error('Error deleting version:', err);
+            this.snackBar.open('Failed to delete version.', 'Close', { duration: 5000 });
+          }
+        });
       }
     });
   }
@@ -233,6 +303,9 @@ export class BpmnModelerComponent implements AfterViewInit {
             this.selectedVersionId = this.selectedVersionId && process.versions.some(v => v.id === this.selectedVersionId)
               ? this.selectedVersionId
               : process.versions[0]?.id || null;
+            if (this.selectedVersionId) {
+              this.loadBpmnFromBackend(this.selectedVersionId);
+            }
           } else {
             this.selectedProcessKey = null;
             this.selectedProcess = null;
@@ -247,3 +320,4 @@ export class BpmnModelerComponent implements AfterViewInit {
     });
   }
 }
+
