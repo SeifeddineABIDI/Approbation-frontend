@@ -125,7 +125,9 @@
                             
                                     <!-- Tasks List -->
                                     <div *ngIf="!isLoading && selectedProduct && selectedProduct.length > 0">
-                                        <button *ngIf="product.approved===true" mat-raised-button (click)="openAvisCongeReport(selectedProcInstId)">Open Avis Conge Report</button>
+                                        <div class="p-4 text-center">
+                                            <button *ngIf="product.approved===true" mat-raised-button (click)="openAvisCongeReport(selectedProcInstId)">Open Avis Conge Report</button>
+                                        </div>
                                         <div *ngFor="let task of selectedProduct" class="mb-6">
                                             <h3>{{ task?.name }}</h3>
                                             <mat-card class="task-card">                                       
