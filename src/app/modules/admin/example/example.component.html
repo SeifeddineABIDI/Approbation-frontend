@@ -32,7 +32,7 @@
                             [svgIcon]="'heroicons_solid:cog-8-tooth'"></mat-icon>
                         <span  class="ml-2">{{ 'Settings' | transloco }}</span>
                     </button>
-                    <div *ngIf="errorMessage">
+                    <div *ngIf="errorMessage || user.role!='ADMIN'">
                         <p style="color: red;">{{ errorMessage }}</p>
                       </div>
                 </div>
@@ -115,7 +115,7 @@
                         </div>            
                     </ng-template>
                 </mat-tab>
-                <mat-tab>
+                <mat-tab *ngIf="user.role!='ADMIN'">
                     <ng-template mat-tab-label>
                         <span class="inline-flex items-center space-x-2">
                             <span class="">{{ 'Team' | transloco }}</span>

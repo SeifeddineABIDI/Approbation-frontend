@@ -1,9 +1,21 @@
 /* Container for the entire component */
 :host {
   display: flex;
+  flex-direction: column;
   height: 100vh; /* Full viewport height */
   width: 100%;
   font-family: 'Arial', sans-serif;
+}
+
+/* Alert styling */
+fuse-alert {
+  margin: 1rem;
+}
+
+/* Main content container */
+.flex.flex-auto {
+  flex: 1;
+  min-height: 0;
 }
 
 /* Sidebar styling */
@@ -87,6 +99,14 @@
   background-color: #16a34a;
 }
 
+.bg-red-500 {
+  background-color: #ef4444;
+}
+
+.hover\:bg-red-600:hover {
+  background-color: #dc2626;
+}
+
 [disabled] {
   opacity: 0.5;
   cursor: not-allowed;
@@ -108,7 +128,7 @@
   overflow-y: auto;
   padding: 12px;
   box-sizing: border-box;
-  height: 100vh;
+  height: 100%;
 }
 
 /* Styling for properties panel sections */

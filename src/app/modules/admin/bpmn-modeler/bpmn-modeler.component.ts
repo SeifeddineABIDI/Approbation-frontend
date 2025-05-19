@@ -8,14 +8,15 @@ import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { environment } from 'environments/environment';
 import { combineLatest } from 'rxjs';
-import { DeleteConfirmationDialogComponent, RedeployConfirmationDialogComponent } from './deleteConfirmationDialog.component';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { fuseAnimations } from '@fuse/animations';
+import { DeleteConfirmationDialogComponent } from './deleteConfirmationDialog.component';
+import { RedeployConfirmationDialogComponent } from './redeployConfirmationDialog.component';
 
 interface ProcessVersion {
   id: string;
@@ -34,49 +35,59 @@ interface ProcessInfo {
 @Component({
   selector: 'app-bpmn-editor',
   template: `
-    <div class="flex flex-auto min-w-0 h-screen">
-      <div class="w-64 p-4 bg-gray-100 border-r overflow-auto">
-        <h2 class="text-lg font-semibold mb-4">Process Versions</h2>
-        <div *ngIf="!selectedProcessKey" class="text-gray-500">
-          No process selected.
+    <div class="flex flex-col h-screen">
+      <fuse-alert
+        *ngIf="showAlert"
+        [type]="alert.type"
+        [message]="alert.message"
+        (dismissed)="showAlert = false"
+        class="mb-4">
+      </fuse-alert>
+      <div class="flex flex-auto min-w-0">
+        <div class="w-64 p-4 bg-gray-100 border-r overflow-auto">
+          <h2 class="text-lg font-semibold mb-4">Process Versions</h2>
+          <div *ngIf="!selectedProcessKey" class="text-gray-500">
+            No process selected.
+          </div>
+          <div *ngIf="selectedProcessKey" class="mb-2">
+            <div class="font-medium">{{ selectedProcess?.name || selectedProcess?.key }}</div>
+            <select 
+              class="w-full p-1 border rounded"
+              [(ngModel)]="selectedVersionId"
+              (change)="selectVersion(selectedProcessKey, selectedVersionId)">
+              <option *ngFor="let version of selectedProcess?.versions" [value]="version.id">
+                Version {{ version.version }}: {{ version.name || selectedProcess?.key }}
+              </option>
+            </select>
+          </div>
+          <button 
+            class="mt-4 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+            (click)="saveDiagram()"
+            [disabled]="!selectedProcessKey">
+            Save Diagram
+          </button>
+          <button 
+            class="mt-2 w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
+            (click)="confirmRedeploy()"
+            [disabled]="!selectedProcessKey">
+            Redeploy Process
+          </button>
+          <button 
+            class="mt-2 w-full bg-red-500 text-white p-2 rounded hover:bg-red-600"
+            (click)="deleteVersion()"
+            [disabled]="!selectedVersionId || selectedProcess?.versions.length <= 1">
+            Delete Version
+          </button>
         </div>
-        <div *ngIf="selectedProcessKey" class="mb-2">
-          <div class="font-medium">{{ selectedProcess?.name || selectedProcess?.key }}</div>
-          <select 
-            class="w-full p-1 border rounded"
-            [(ngModel)]="selectedVersionId"
-            (change)="selectVersion(selectedProcessKey, selectedVersionId)">
-            <option *ngFor="let version of selectedProcess?.versions" [value]="version.id">
-              Version {{ version.version }}: {{ version.name || selectedProcess?.key }}
-            </option>
-          </select>
-        </div>
-        <button 
-          class="mt-4 w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          (click)="saveDiagram()"
-          [disabled]="!selectedProcessKey">
-          Save Diagram
-        </button>
-        <button 
-          class="mt-2 w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
-          (click)="confirmRedeploy()"
-          [disabled]="!selectedProcessKey">
-          Redeploy Process
-        </button>
-        <button 
-          class="mt-2 w-full bg-red-500 text-white p-2 rounded hover:bg-red-600"
-          (click)="deleteVersion()"
-          [disabled]="!selectedVersionId || selectedProcess?.versions.length <= 1">
-          Delete Version
-        </button>
+        <div id="canvas" #canvas class="flex-grow"></div>
+        <div id="properties" #properties class="w-96"></div>
       </div>
-      <div id="canvas" #canvas class="flex-grow"></div>
-      <div id="properties" #properties class="w-96"></div>
     </div>
   `,
   styleUrls: ['./bpmn-modeler.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, MatDialogModule, MatButtonModule,MatSnackBarModule,BrowserAnimationsModule]
+  animations: fuseAnimations,
+  imports: [CommonModule, FormsModule, MatDialogModule, MatButtonModule, FuseAlertComponent]
 })
 export class BpmnModelerComponent implements AfterViewInit {
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef;
@@ -87,13 +98,18 @@ export class BpmnModelerComponent implements AfterViewInit {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
 
   processes: ProcessInfo[] = [];
   selectedProcessKey: string | null = null;
   selectedVersionId: string | null = null;
   selectedProcess: ProcessInfo | null = null;
+
+  alert: { type: FuseAlertType; message: string } = {
+    type: 'success',
+    message: ''
+  };
+  showAlert: boolean = false;
 
   ngAfterViewInit(): void {
     this.modeler = new BpmnModeler({
@@ -132,7 +148,7 @@ export class BpmnModelerComponent implements AfterViewInit {
             this.selectedVersionId = versionId;
             this.loadBpmnFromBackend(versionId);
           } else {
-            this.snackBar.open('Process not found.', 'Close', { duration: 5000 });
+            this.showAlertMessage('error', 'Process not found.');
           }
         } else if (this.processes.length > 0) {
           // Load first process if no route params
@@ -142,9 +158,18 @@ export class BpmnModelerComponent implements AfterViewInit {
       },
       error: (err) => {
         console.error('Error fetching processes:', err);
-        this.snackBar.open('Failed to load processes.', 'Close', { duration: 5000 });
+        this.showAlertMessage('error', 'Failed to load processes.');
       }
     });
+  }
+
+  private showAlertMessage(type: FuseAlertType, message: string): void {
+    this.alert = { type, message };
+    this.showAlert = true;
+    // Auto-dismiss after 5000ms
+    setTimeout(() => {
+      this.showAlert = false;
+    }, 5000);
   }
 
   selectVersion(processKey: string, definitionId: string): void {
@@ -163,7 +188,7 @@ export class BpmnModelerComponent implements AfterViewInit {
         },
         error: (err) => {
           console.error('Error fetching BPMN file:', definitionId, err);
-          this.snackBar.open('Failed to load process diagram.', 'Close', { duration: 5000 });
+          this.showAlertMessage('error', 'Failed to load process diagram.');
         }
       });
   }
@@ -171,21 +196,22 @@ export class BpmnModelerComponent implements AfterViewInit {
   loadDiagram(xml: string): void {
     this.modeler.importXML(xml).catch(err => {
       console.error('Error importing XML:', err);
-      this.snackBar.open('Failed to import diagram.', 'Close', { duration: 5000 });
+      this.showAlertMessage('error', 'Failed to import diagram.');
     });
   }
 
   async saveDiagram(): Promise<void> {
     if (!this.selectedProcessKey) {
-      this.snackBar.open('No process selected.', 'Close', { duration: 5000 });
+      this.showAlertMessage('error', 'No process selected.');
       return;
     }
     try {
       const { xml } = await this.modeler.saveXML({ format: true });
       this.downloadXML(xml, this.selectedProcessKey);
+      this.showAlertMessage('success', 'Diagram saved successfully.');
     } catch (err) {
       console.error('Error saving diagram:', err);
-      this.snackBar.open('Failed to save diagram.', 'Close', { duration: 5000 });
+      this.showAlertMessage('error', 'Failed to save diagram.');
     }
   }
 
@@ -216,7 +242,7 @@ export class BpmnModelerComponent implements AfterViewInit {
 
   async redeployDiagram(): Promise<void> {
     if (!this.selectedProcessKey) {
-      this.snackBar.open('No process selected for redeployment.', 'Close', { duration: 5000 });
+      this.showAlertMessage('error', 'No process selected for redeployment.');
       return;
     }
     try {
@@ -224,7 +250,7 @@ export class BpmnModelerComponent implements AfterViewInit {
       this.deployToCamunda(xml);
     } catch (err) {
       console.error('Error saving diagram for redeployment:', err);
-      this.snackBar.open('Failed to redeploy process.', 'Close', { duration: 5000 });
+      this.showAlertMessage('error', 'Failed to redeploy process.');
     }
   }
 
@@ -234,26 +260,23 @@ export class BpmnModelerComponent implements AfterViewInit {
       params: { fileName: this.selectedProcessKey || 'process' }
     }).subscribe({
       next: () => {
-        this.snackBar.open('Process redeployed successfully.', 'Close', {
-          duration: 5000,
-          panelClass: ['success-snackbar']
-        });
+        this.showAlertMessage('success', 'Process redeployed successfully.');
         this.fetchProcesses(); // Refresh process list
       },
       error: (err) => {
         console.error('Error redeploying BPMN diagram:', err);
-        this.snackBar.open('Failed to redeploy process.', 'Close', { duration: 5000 });
+        this.showAlertMessage('error', 'Failed to redeploy process.');
       }
     });
   }
 
   deleteVersion(): void {
     if (!this.selectedVersionId || !this.selectedProcessKey) {
-      this.snackBar.open('No version selected for deletion.', 'Close', { duration: 5000 });
+      this.showAlertMessage('error', 'No version selected for deletion.');
       return;
     }
     if (this.selectedProcess?.versions.length <= 1) {
-      this.snackBar.open('Cannot delete the only version of a process.', 'Close', { duration: 5000 });
+      this.showAlertMessage('error', 'Cannot delete the only version of a process.');
       return;
     }
 
@@ -264,30 +287,31 @@ export class BpmnModelerComponent implements AfterViewInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.http.delete(`${this.apiUrl}/api/bpmn/process/${this.selectedVersionId}`).subscribe({
-          next: () => {
-            this.snackBar.open('Version deleted successfully.', 'Close', {
-              duration: 5000,
-              panelClass: ['success-snackbar']
-            });
-            this.fetchProcesses(); // Refresh process list
-            // Select the latest remaining version
-            if (this.selectedProcess) {
-              const nextVersion = this.selectedProcess.versions.find(v => v.id !== this.selectedVersionId);
-              if (nextVersion) {
-                this.selectVersion(this.selectedProcessKey!, nextVersion.id);
-              } else {
-                this.selectedProcessKey = null;
-                this.selectedProcess = null;
-                this.selectedVersionId = null;
+        console.log('Attempting to delete version:', this.selectedVersionId);
+        this.http.delete(`${this.apiUrl}/api/bpmn/process/${this.selectedVersionId}`, { observe: 'response' })
+          .subscribe({
+            next: (response) => {
+              console.log('Delete response:', response.status, response.body);
+              this.showAlertMessage('success', 'Version deleted successfully.');
+              this.fetchProcesses(); // Refresh process list
+              // Select the latest remaining version
+              if (this.selectedProcess) {
+                const nextVersion = this.selectedProcess.versions.find(v => v.id !== this.selectedVersionId);
+                if (nextVersion) {
+                  this.selectVersion(this.selectedProcessKey!, nextVersion.id);
+                } else {
+                  this.selectedProcessKey = null;
+                  this.selectedProcess = null;
+                  this.selectedVersionId = null;
+                }
               }
+            },
+            error: (err) => {
+              console.error('Error deleting version:', err);
+              console.log('Error details:', err.status, err.error);
+              this.showAlertMessage('error', `Failed to delete version: ${err.error || err.message}`);
             }
-          },
-          error: (err) => {
-            console.error('Error deleting version:', err);
-            this.snackBar.open('Failed to delete version.', 'Close', { duration: 5000 });
-          }
-        });
+          });
       }
     });
   }
@@ -316,9 +340,10 @@ export class BpmnModelerComponent implements AfterViewInit {
       },
       error: (err) => {
         console.error('Error fetching processes:', err);
-        this.snackBar.open('Failed to load processes.', 'Close', { duration: 5000 });
+        this.showAlertMessage('error', 'Failed to load processes.');
       }
     });
   }
 }
+
 
