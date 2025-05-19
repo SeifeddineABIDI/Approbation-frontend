@@ -61,7 +61,7 @@ interface ProcessInfo {
       <div id="properties" #properties class="w-96"></div>
     </div>
   `,
-  styleUrl: './bpmn-modeler.component.css',
+  styleUrls: ['./bpmn-modeler.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule]
 })
