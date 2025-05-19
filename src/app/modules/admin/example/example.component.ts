@@ -75,11 +75,13 @@ export class ExampleComponent implements OnInit
         }
       }
 
-        getAvatarUrl(avatarPath: string): string {
-            const baseUrl =  `${this.apiUrl}/images/`;
-            const cleanedPath = avatarPath.replace('src\\main\\resources\\static\\images\\', '');
-            return baseUrl + cleanedPath;
-          }
+      getAvatarUrl(userId: any): string {
+        if (!userId)  {
+          console.warn('Invalid user or user ID for avatar:', userId);
+          return 'https://via.placeholder.com/40';
+        }
+        return `${this.apiUrl}/api/v1/management/${userId}/image`;
+      }
 
           goToSettings(): void {
             this._router.navigate(['/settings']);

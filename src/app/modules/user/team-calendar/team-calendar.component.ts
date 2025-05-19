@@ -63,7 +63,7 @@ export class TeamCalendarComponent implements OnInit {
             end: leave.endDate,
             color: leave.type?.name === 'Congé' ? '#e67e22' : leave.type?.name ? '#27ae60' : '#f44336',
             extendedProps: {
-              avatarUrl: this.getAvatarUrl(leave.user?.avatar),
+              avatarUrl: this.getAvatarUrl(leave.user),
               fullName: isAuthenticatedUser ? 'Me' : userName,
               leaveEvents: leave,
             },
@@ -84,10 +84,12 @@ export class TeamCalendarComponent implements OnInit {
     });
   }
 
-  getAvatarUrl(avatarPath: string): string {
-    const baseUrl = `${this.apiUrl}/images/`;
-    const cleanedPath = avatarPath ? avatarPath.replace('src\\main\\resources\\static\\images\\', '') : '';
-    return avatarPath ? baseUrl + cleanedPath : 'https://via.placeholder.com/40';
+  getAvatarUrl(user: any): string {
+    if (!user || !user.id) {
+      console.warn('Invalid user or user ID for avatar:', user);
+      return 'https://via.placeholder.com/40';
+    }
+    return `${this.apiUrl}/api/v1/management/${user.id}/image`;
   }
 
   renderEventContent(eventInfo: any) {
