@@ -85,4 +85,18 @@
     background-color: #f7b733; /* Change the background color on hover */
     color: white; /* Change text color to white */
   }
+  :host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+  }
   
+  fuse-alert {
+    margin: 1rem;
+  }
+  
+  full-calendar {
+    flex: 1;
+    min-height: 0;
+  }
