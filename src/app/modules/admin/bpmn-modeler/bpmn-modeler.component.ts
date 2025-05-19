@@ -8,9 +8,11 @@ import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { environment } from 'environments/environment';
 import { combineLatest } from 'rxjs';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 interface ProcessVersion {
   id: string;
@@ -65,7 +67,7 @@ interface ProcessInfo {
   `,
   styleUrls: ['./bpmn-modeler.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule,BrowserModule,BrowserAnimationsModule,MatSnackBarModule]
 })
 export class BpmnModelerComponent implements AfterViewInit {
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef;
