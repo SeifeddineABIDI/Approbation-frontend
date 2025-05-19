@@ -117,17 +117,6 @@ export class NavigationService {
     });
   }
 
-  fetchAndUpdateTaskCount() {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user && user.matricule && localStorage.getItem('accessToken')) {
-      this._tasksService.getTasksByUser(user.matricule, localStorage.getItem('accessToken')).subscribe((tasks: Task[]) => {
-        this.tasksCount = tasks.length;
-        this.tasksCountSubject.next(this.tasksCount);
-        this.updateNavigationCount(this.tasksCount);
-      });
-    }
-  }
-
   private translateItem(item: FuseNavigationItem): FuseNavigationItem {
     item.title = this.translocoService.translate(item.title);
     if (item.children) {
@@ -157,15 +146,9 @@ export class NavigationService {
           modelerItem.children = processes.map((process, index) => ({
             id: `modeler.process-${index}`,
             title: process.name || process.key,
-            type: 'collapsable',
+            type: 'basic',
             icon: 'heroicons_outline:document-text',
-            children: process.versions.map((version, vIndex) => ({
-              id: `modeler.process-${index}.version-${vIndex}`,
-              title: `Version ${version.version}${version.name ? `: ${version.name}` : ''}`,
-              type: 'basic',
-              icon: 'heroicons_outline:document',
-              link: `/users/modeler/${encodeURIComponent(process.key)}/${encodeURIComponent(version.id)}`
-            }))
+            link: `/users/modeler/${encodeURIComponent(process.key)}/${encodeURIComponent(process.versions[0]?.id || '')}`
           }));
           this._navigation.next(navigation);
           setTimeout(() => {

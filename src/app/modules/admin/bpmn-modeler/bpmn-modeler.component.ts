@@ -8,7 +8,9 @@ import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from 'environments/environment';
+import { combineLatest } from 'rxjs';
 
 interface ProcessVersion {
   id: string;
@@ -29,18 +31,18 @@ interface ProcessInfo {
   template: `
     <div class="flex flex-auto min-w-0 h-screen">
       <div class="w-64 p-4 bg-gray-100 border-r overflow-auto">
-        <h2 class="text-lg font-semibold mb-4">Processes</h2>
-        <div *ngIf="processes.length === 0" class="text-gray-500">
-          No processes found.
+        <h2 class="text-lg font-semibold mb-4">Process Versions</h2>
+        <div *ngIf="!selectedProcessKey" class="text-gray-500">
+          No process selected.
         </div>
-        <div *ngFor="let process of processes" class="mb-2">
-          <div class="font-medium">{{ process.name || process.key }}</div>
+        <div *ngIf="selectedProcessKey" class="mb-2">
+          <div class="font-medium">{{ selectedProcess?.name || selectedProcess?.key }}</div>
           <select 
             class="w-full p-1 border rounded"
-            [(ngModel)]="selectedVersions[process.key]"
-            (change)="selectVersion(process.key, selectedVersions[process.key])">
-            <option *ngFor="let version of process.versions" [value]="version.id">
-              Version {{ version.version }}: {{ version.name || process.key }}
+            [(ngModel)]="selectedVersionId"
+            (change)="selectVersion(selectedProcessKey, selectedVersionId)">
+            <option *ngFor="let version of selectedProcess?.versions" [value]="version.id">
+              Version {{ version.version }}: {{ version.name || selectedProcess?.key }}
             </option>
           </select>
         </div>
@@ -74,10 +76,12 @@ export class BpmnModelerComponent implements AfterViewInit {
   private http = inject(HttpClient);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
 
   processes: ProcessInfo[] = [];
-  selectedVersions: { [key: string]: string } = {};
   selectedProcessKey: string | null = null;
+  selectedVersionId: string | null = null;
+  selectedProcess: ProcessInfo | null = null;
 
   ngAfterViewInit(): void {
     this.modeler = new BpmnModeler({
@@ -95,50 +99,46 @@ export class BpmnModelerComponent implements AfterViewInit {
       }
     });
 
-    this.fetchProcesses();
+    // Combine processes fetch and route params
+    combineLatest([
+      this.http.get<ProcessInfo[]>(`${this.apiUrl}/api/bpmn/processes`),
+      this.route.paramMap
+    ]).subscribe({
+      next: ([processes, params]) => {
+        this.processes = processes;
+        const fileName = params.get('fileName');
+        const definitionId = params.get('definitionId');
 
-    // Handle route param changes
-    this.route.paramMap.subscribe(params => {
-      const fileName = params.get('fileName');
-      const definitionId = params.get('definitionId');
-      if (fileName) {
-        const process = this.processes.find(p => p.key === fileName || p.name === fileName);
-        if (process && process.versions.length > 0) {
-          this.selectedProcessKey = process.key;
-          const versionId = definitionId && process.versions.some(v => v.id === definitionId)
-            ? definitionId
-            : process.versions[0].id; // Fallback to latest version
-          this.selectedVersions[process.key] = versionId;
-          this.loadBpmnFromBackend(versionId);
+        if (fileName) {
+          const process = this.processes.find(p => p.key === fileName || p.name === fileName);
+          if (process && process.versions.length > 0) {
+            this.selectedProcessKey = process.key;
+            this.selectedProcess = process;
+            const versionId = definitionId && process.versions.some(v => v.id === definitionId)
+              ? definitionId
+              : process.versions[0].id; // Fallback to latest version
+            this.selectedVersionId = versionId;
+            this.loadBpmnFromBackend(versionId);
+          } else {
+            this.snackBar.open('Process not found.', 'Close', { duration: 5000 });
+          }
+        } else if (this.processes.length > 0) {
+          // Load first process if no route params
+          const firstProcess = this.processes[0];
+          this.selectVersion(firstProcess.key, firstProcess.versions[0].id);
         }
+      },
+      error: (err) => {
+        console.error('Error fetching processes:', err);
+        this.snackBar.open('Failed to load processes.', 'Close', { duration: 5000 });
       }
     });
   }
 
-  fetchProcesses(): void {
-    this.http.get<ProcessInfo[]>(`${this.apiUrl}/api/bpmn/processes`)
-      .subscribe({
-        next: (processes) => {
-          this.processes = processes;
-          // Initialize selected versions (default to latest version)
-          this.processes.forEach(process => {
-            if (process.versions.length > 0) {
-              this.selectedVersions[process.key] = process.versions[0].id;
-            }
-          });
-          // Load the first process if no route params
-          if (this.processes.length > 0 && !this.route.snapshot.paramMap.get('fileName')) {
-            const firstProcess = this.processes[0];
-            this.selectVersion(firstProcess.key, firstProcess.versions[0].id);
-          }
-        },
-        error: (err) => console.error('Error fetching processes:', err)
-      });
-  }
-
   selectVersion(processKey: string, definitionId: string): void {
     this.selectedProcessKey = processKey;
-    this.selectedVersions[processKey] = definitionId;
+    this.selectedVersionId = definitionId;
+    this.selectedProcess = this.processes.find(p => p.key === processKey) || null;
     this.router.navigate(['/users/modeler', processKey, definitionId]);
     this.loadBpmnFromBackend(definitionId);
   }
@@ -149,19 +149,23 @@ export class BpmnModelerComponent implements AfterViewInit {
         next: (xml: string) => {
           this.loadDiagram(xml);
         },
-        error: (err) => console.error('Error fetching BPMN file:', definitionId, err)
+        error: (err) => {
+          console.error('Error fetching BPMN file:', definitionId, err);
+          this.snackBar.open('Failed to load process diagram.', 'Close', { duration: 5000 });
+        }
       });
   }
 
   loadDiagram(xml: string): void {
     this.modeler.importXML(xml).catch(err => {
       console.error('Error importing XML:', err);
+      this.snackBar.open('Failed to import diagram.', 'Close', { duration: 5000 });
     });
   }
 
   async saveDiagram(): Promise<void> {
     if (!this.selectedProcessKey) {
-      console.error('No process selected');
+      this.snackBar.open('No process selected.', 'Close', { duration: 5000 });
       return;
     }
     try {
@@ -169,6 +173,7 @@ export class BpmnModelerComponent implements AfterViewInit {
       this.downloadXML(xml, this.selectedProcessKey);
     } catch (err) {
       console.error('Error saving diagram:', err);
+      this.snackBar.open('Failed to save diagram.', 'Close', { duration: 5000 });
     }
   }
 
@@ -186,7 +191,7 @@ export class BpmnModelerComponent implements AfterViewInit {
 
   async redeployDiagram(): Promise<void> {
     if (!this.selectedProcessKey) {
-      console.error('No process selected for redeployment');
+      this.snackBar.open('No process selected for redeployment.', 'Close', { duration: 5000 });
       return;
     }
     try {
@@ -194,6 +199,7 @@ export class BpmnModelerComponent implements AfterViewInit {
       this.deployToCamunda(xml);
     } catch (err) {
       console.error('Error saving diagram for redeployment:', err);
+      this.snackBar.open('Failed to redeploy process.', 'Close', { duration: 5000 });
     }
   }
 
@@ -203,11 +209,13 @@ export class BpmnModelerComponent implements AfterViewInit {
       params: { fileName: this.selectedProcessKey || 'process' }
     }).subscribe({
       next: () => {
-        console.log('Process redeployed successfully');
-        // Refresh process list
-        this.fetchProcesses();
+        this.snackBar.open('Process redeployed successfully.', 'Close', { duration: 5000 });
+        this.ngAfterViewInit();
       },
-      error: (err) => console.error('Error redeploying BPMN diagram:', err)
+      error: (err) => {
+        console.error('Error redeploying BPMN diagram:', err);
+        this.snackBar.open('Failed to redeploy process.', 'Close', { duration: 5000 });
+      }
     });
   }
-} 
+}
