@@ -98,7 +98,7 @@ export class TeamCalendarComponent implements OnInit {
     const leaveEvent = eventInfo.event.extendedProps.leaveEvents;
   
     // Set the text color based on the leave type
-    const leaveTypeColor = leaveEvent.type?.name === 'Congé' ? 'orange' : leaveEvent.type?.name ? 'green' : 'black';
+    const leaveTypeColor = leaveEvent?.type?.name === 'Congé' ? 'orange' : leaveEvent?.type?.name ? 'green' : 'black';
   
     return {
       html: `
