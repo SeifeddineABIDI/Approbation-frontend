@@ -26,7 +26,6 @@ interface ProcessInfo {
 
 @Component({
   selector: 'app-bpmn-editor',
-  styleUrl: 'bpmn-modeler.Component.css',
   template: `
     <div class="flex flex-auto min-w-0 h-screen">
       <div class="w-64 p-4 bg-gray-100 border-r overflow-auto">
@@ -62,19 +61,7 @@ interface ProcessInfo {
       <div id="properties" #properties class="w-96"></div>
     </div>
   `,
-  styles: [`
-    :host {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    .border-r {
-      border-right: 1px solid #e5e7eb;
-    }
-    select, button {
-      font-size: 0.875rem;
-    }
-  `],
+  styleUrl: './bpmn-modeler.component.css',
   standalone: true,
   imports: [CommonModule, FormsModule]
 })
