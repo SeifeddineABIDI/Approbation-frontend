@@ -61,6 +61,8 @@ export class ExampleComponent implements OnInit
               this.errorMessage = error.message || 'An error occurred while fetching task stats';
             }
           });
+          if (this.user.role != 'ADMIN')
+             {
           this._userService.getTeam(this.user.matricule, accessToken).subscribe({
             next: (data) => {
               this.team = data;
@@ -71,6 +73,7 @@ export class ExampleComponent implements OnInit
             }
           });
         }
+      }
 
         getAvatarUrl(avatarPath: string): string {
             const baseUrl =  `${this.apiUrl}/images/`;
