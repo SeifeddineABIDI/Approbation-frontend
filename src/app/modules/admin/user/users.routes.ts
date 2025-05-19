@@ -13,7 +13,11 @@ export default [
         component: AddUserComponent 
     },
     {
-        path: 'modeler/:fileName', // Changed to dynamic route
+        path: 'modeler/:fileName', // Supports process key/name
         component: BpmnModelerComponent
-      },
+    },
+    {
+        path: 'modeler/:fileName/:definitionId', // Optional: Supports specific version
+        component: BpmnModelerComponent
+    },
 ] as Routes;
