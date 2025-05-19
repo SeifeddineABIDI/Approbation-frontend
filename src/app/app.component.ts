@@ -1,16 +1,15 @@
-import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { NavigationService } from './core/navigation/navigation.service';
 import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+
 
 @Component({
     selector   : 'app-root',
     templateUrl: './app.component.html',
     styleUrls  : ['./app.component.scss'],
     standalone : true,
-    imports    : [RouterOutlet,BrowserModule,BrowserAnimationsModule,MatSnackBarModule,],
+    imports    : [RouterOutlet,],
 })
 export class AppComponent implements OnInit
 {
