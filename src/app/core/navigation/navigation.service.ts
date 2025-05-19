@@ -10,6 +10,20 @@ import { TasksService } from 'app/modules/user/requests/tasks/tasks.service';
 import { Task } from 'app/modules/user/requests/tasks/tasks.types';
 import { defaultNavigation } from 'app/mock-api/common/navigation/data';
 
+interface ProcessVersion {
+  id: string;
+  version: number;
+  name: string;
+  resource: string;
+  deploymentId: string;
+}
+
+interface ProcessInfo {
+  key: string;
+  name: string;
+  versions: ProcessVersion[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
   private _navigation: ReplaySubject<Navigation> = new ReplaySubject<Navigation>(1);
@@ -45,23 +59,23 @@ export class NavigationService {
     return this._selectedBpmnFile.asObservable();
   }
 
-get(): Observable<Navigation> {
+  get(): Observable<Navigation> {
     return this._httpClient.get<Navigation>('api/common/navigation').pipe(
-        tap((navigation) => {
-            const filteredNavigation = this.filterNavigationByRoles(navigation);
-            const modelerItem = filteredNavigation.default.find((item) => item.id === 'modeler');
-            const userRoles = this.userService.getCurrentUserRole();
-            if (!modelerItem) {
-                const defaultModeler = defaultNavigation.find((item) => item.id === 'modeler');
-                if (defaultModeler && (!defaultModeler.roles || defaultModeler.roles.some(role => userRoles.includes(role)))) {
-                    filteredNavigation.default.push(defaultModeler); // Only add if roles match
-                }
-            }
-            this._navigation.next(filteredNavigation); // Emit immediately
-            this.updateBpmnChildren(filteredNavigation);
-        })
+      tap((navigation) => {
+        const filteredNavigation = this.filterNavigationByRoles(navigation);
+        const modelerItem = filteredNavigation.default.find((item) => item.id === 'modeler');
+        const userRoles = this.userService.getCurrentUserRole();
+        if (!modelerItem) {
+          const defaultModeler = defaultNavigation.find((item) => item.id === 'modeler');
+          if (defaultModeler && (!defaultModeler.roles || defaultModeler.roles.some(role => userRoles.includes(role)))) {
+            filteredNavigation.default.push(defaultModeler);
+          }
+        }
+        this._navigation.next(filteredNavigation);
+        this.updateBpmnChildren(filteredNavigation);
+      })
     );
-}
+  }
 
   changeLanguage() {
     const lang = this.translocoService.getActiveLang();
@@ -70,7 +84,6 @@ get(): Observable<Navigation> {
 
   private filterNavigationByRoles(navigation: Navigation): Navigation {
     const userRoles = this.userService.getCurrentUserRole();
-    
     return {
       compact: this.filterItemsByRoles(navigation.compact || [], userRoles),
       default: this.filterItemsByRoles(navigation.default || [], userRoles),
@@ -85,11 +98,10 @@ get(): Observable<Navigation> {
         if (!item.roles || item.roles.length === 0) {
           return true;
         }
-        return item.roles.some((role) => userRoles.includes(role)); 
+        return item.roles.some((role) => userRoles.includes(role));
       })
-      .map((item) => this.translateItem(item)); 
+      .map((item) => this.translateItem(item));
   }
-  
 
   private updateNavigationCount(count: number): void {
     setTimeout(() => {
@@ -138,44 +150,50 @@ get(): Observable<Navigation> {
   }
 
   private updateBpmnChildren(navigation: Navigation): void {
-    this._http.get<string[]>(`${this.apiUrl}/api/bpmn/files`).subscribe({
-        next: (files) => {
-            const modelerItem = navigation.default.find((item) => item.id === 'modeler');
-            if (modelerItem) {
-                modelerItem.children = files.map((fileName, index) => ({
-                    id: `modeler.file-${index}`,
-                    title: fileName.replace('.bpmn', ''),
-                    type: 'basic',
-                    icon: 'heroicons_outline:document-text',
-                    link: `/users/modeler/${encodeURIComponent(fileName)}`
-                }));
-                this._navigation.next(navigation);
-                setTimeout(() => {
-                    const navComponent = this._fuseNavigationService.getComponent<FuseVerticalNavigationComponent>('mainNavigation');
-                    if (navComponent) {
-                        navComponent.refresh();
-                    }
-                }, 0);
-                if (files.length > 0 && !this._selectedBpmnFile.value) {
-                    this._selectedBpmnFile.next(files[0]);
-                }
-            } else {
-                console.warn('Modeler item not found in navigation.default; skipping BPMN children update');
+    this._http.get<ProcessInfo[]>(`${this.apiUrl}/api/bpmn/processes`).subscribe({
+      next: (processes) => {
+        const modelerItem = navigation.default.find((item) => item.id === 'modeler');
+        if (modelerItem) {
+          modelerItem.children = processes.map((process, index) => ({
+            id: `modeler.process-${index}`,
+            title: process.name || process.key,
+            type: 'collapsable',
+            icon: 'heroicons_outline:document-text',
+            children: process.versions.map((version, vIndex) => ({
+              id: `modeler.process-${index}.version-${vIndex}`,
+              title: `Version ${version.version}${version.name ? `: ${version.name}` : ''}`,
+              type: 'basic',
+              icon: 'heroicons_outline:document',
+              link: `/users/modeler/${encodeURIComponent(process.key)}/${encodeURIComponent(version.id)}`
+            }))
+          }));
+          this._navigation.next(navigation);
+          setTimeout(() => {
+            const navComponent = this._fuseNavigationService.getComponent<FuseVerticalNavigationComponent>('mainNavigation');
+            if (navComponent) {
+              navComponent.refresh();
             }
-        },
-        error: (err) => {
-            console.error('Error fetching BPMN files:', err);
-            this._navigation.next(navigation); // Emit anyway
+          }, 0);
+          if (processes.length > 0 && !this._selectedBpmnFile.value) {
+            this._selectedBpmnFile.next(processes[0].key);
+          }
+        } else {
+          console.warn('Modeler item not found in navigation.default; skipping BPMN children update');
         }
+      },
+      error: (err) => {
+        console.error('Error fetching processes:', err);
+        this._navigation.next(navigation);
+      }
     });
-}
+  }
 
   private initializeNavigation(): void {
     this.get().subscribe({
-        error: (err) => {
-            console.error('Failed to initialize navigation:', err);
-            this._navigation.next({ default: [], compact: [], futuristic: [], horizontal: [] });
-        }
+      error: (err) => {
+        console.error('Failed to initialize navigation:', err);
+        this._navigation.next({ default: [], compact: [], futuristic: [], horizontal: [] });
+      }
     });
-}
+  }
 }

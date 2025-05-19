@@ -112,13 +112,16 @@ export class BpmnModelerComponent implements AfterViewInit {
     // Handle route param changes
     this.route.paramMap.subscribe(params => {
       const fileName = params.get('fileName');
+      const definitionId = params.get('definitionId');
       if (fileName) {
-        // Find the process and latest version matching the fileName (key or name)
         const process = this.processes.find(p => p.key === fileName || p.name === fileName);
         if (process && process.versions.length > 0) {
           this.selectedProcessKey = process.key;
-          this.selectedVersions[process.key] = process.versions[0].id; // Default to latest version
-          this.loadBpmnFromBackend(process.versions[0].id);
+          const versionId = definitionId && process.versions.some(v => v.id === definitionId)
+            ? definitionId
+            : process.versions[0].id; // Fallback to latest version
+          this.selectedVersions[process.key] = versionId;
+          this.loadBpmnFromBackend(versionId);
         }
       }
     });
@@ -148,8 +151,7 @@ export class BpmnModelerComponent implements AfterViewInit {
   selectVersion(processKey: string, definitionId: string): void {
     this.selectedProcessKey = processKey;
     this.selectedVersions[processKey] = definitionId;
-    // Update route to reflect selected process and version
-    this.router.navigate(['/users/modeler', processKey]);
+    this.router.navigate(['/users/modeler', processKey, definitionId]);
     this.loadBpmnFromBackend(definitionId);
   }
 
@@ -220,4 +222,4 @@ export class BpmnModelerComponent implements AfterViewInit {
       error: (err) => console.error('Error redeploying BPMN diagram:', err)
     });
   }
-}
+} 
