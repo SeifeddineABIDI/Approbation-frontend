@@ -8,11 +8,9 @@ import camundaModdleDescriptor from 'camunda-bpmn-moddle/resources/camunda.json'
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { environment } from 'environments/environment';
 import { combineLatest } from 'rxjs';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 interface ProcessVersion {
   id: string;
@@ -67,7 +65,7 @@ interface ProcessInfo {
   `,
   styleUrls: ['./bpmn-modeler.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule,BrowserModule,BrowserAnimationsModule,MatSnackBarModule]
+  imports: [CommonModule, FormsModule]
 })
 export class BpmnModelerComponent implements AfterViewInit {
   @ViewChild('canvas', { static: false }) canvasRef!: ElementRef;
@@ -212,11 +210,37 @@ export class BpmnModelerComponent implements AfterViewInit {
     }).subscribe({
       next: () => {
         this.snackBar.open('Process redeployed successfully.', 'Close', { duration: 5000 });
-        this.ngAfterViewInit();
+        this.fetchProcesses(); // Refresh process list
       },
       error: (err) => {
         console.error('Error redeploying BPMN diagram:', err);
         this.snackBar.open('Failed to redeploy process.', 'Close', { duration: 5000 });
+      }
+    });
+  }
+
+  private fetchProcesses(): void {
+    this.http.get<ProcessInfo[]>(`${this.apiUrl}/api/bpmn/processes`).subscribe({
+      next: (processes) => {
+        this.processes = processes;
+        // Update selected process if still valid
+        if (this.selectedProcessKey) {
+          const process = this.processes.find(p => p.key === this.selectedProcessKey);
+          if (process) {
+            this.selectedProcess = process;
+            this.selectedVersionId = this.selectedVersionId && process.versions.some(v => v.id === this.selectedVersionId)
+              ? this.selectedVersionId
+              : process.versions[0]?.id || null;
+          } else {
+            this.selectedProcessKey = null;
+            this.selectedProcess = null;
+            this.selectedVersionId = null;
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching processes:', err);
+        this.snackBar.open('Failed to load processes.', 'Close', { duration: 5000 });
       }
     });
   }
