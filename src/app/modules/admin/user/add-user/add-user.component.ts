@@ -123,8 +123,9 @@ export class AddUserComponent {
       formData.append('email', email);
       formData.append('password', password);
       formData.append('role', role);
-      formData.append('managerMatricule', managerMatricule);
-  
+      if (managerMatricule) {
+        formData.append('managerMatricule', managerMatricule);
+      }  
       if (avatar) {
           formData.append('avatar', avatar);
       }
@@ -168,10 +169,8 @@ export class AddUserComponent {
     if (selectedRole === 'MANAGER' || selectedRole === 'USER') {
         this.showManagerSelect = true;
         this.fetchManagers();
-        this.signUpForm.get('managerMatricule').setValidators(Validators.required);
     } else {
         this.showManagerSelect = false;
-        this.signUpForm.get('managerMatricule').clearValidators();
         this.signUpForm.get('managerMatricule').reset();
     }
     this.signUpForm.get('managerMatricule').updateValueAndValidity();
