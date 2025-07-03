@@ -116,8 +116,17 @@ export class RequestAddComponent {
             this.isSubmitting = true;
             this.signUpForm.disable();
             this.showAlert = false;
-            const startDate = this.signUpForm.value.startDate ? new Date(this.signUpForm.value.startDate).toISOString().split('T')[0] : null;
-            const endDate = this.signUpForm.value.endDate ? new Date(this.signUpForm.value.endDate).toISOString().split('T')[0] : null;
+            // Use local date formatting to avoid UTC shift
+            const startDateObj = this.signUpForm.value.startDate;
+            const endDateObj = this.signUpForm.value.endDate;
+
+            const startDate = startDateObj ?
+                (typeof startDateObj === 'string' ? startDateObj :
+                `${startDateObj.getFullYear()}-${String(startDateObj.getMonth() + 1).padStart(2, '0')}-${String(startDateObj.getDate()).padStart(2, '0')}`) : null;
+
+            const endDate = endDateObj ?
+                (typeof endDateObj === 'string' ? endDateObj :
+                `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`) : null;
             const goAfterMidday=this.signUpForm.value.goAfterMidday;
             const backAfterMidday=this.signUpForm.value.backAfterMidday;
             const accessToken = localStorage.getItem('accessToken');
@@ -137,13 +146,15 @@ export class RequestAddComponent {
                     this.signUpNgForm.resetForm();
                 },
                 (error) => {
-                    console.error('API Error:', error);
-
                     this.isSubmitting = false;
                     this.signUpForm.enable();
+                    let errorMsg = 'Something went wrong. Please try again.';
+                    if (typeof error.error === 'string' && error.error.trim() !== '') {
+                        errorMsg = error.error;
+                    }
                     this.alert = {
                         type: 'error',
-                        message: error.error?.message || 'Something went wrong. Please try again.'
+                        message: errorMsg
                     };
                     this.showAlert = true;
                 }

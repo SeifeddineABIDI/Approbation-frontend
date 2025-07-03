@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Notification } from 'app/layout/common/notifications/notifications.types';
-import { map, Observable, ReplaySubject, switchMap, take, tap } from 'rxjs';
+import { map, Observable, ReplaySubject, switchMap, take, tap, Subject } from 'rxjs';
 import { Client } from '@stomp/stompjs';
 import * as SockJS from 'sockjs-client';
 import { environment } from 'environments/environment';
@@ -12,6 +12,7 @@ export class NotificationsService {
     private _notifications: ReplaySubject<Notification[]> = new ReplaySubject<Notification[]>(1);
     private stompClient: Client;
     private apiUrl = environment.apiUrl;
+    public taskUpdate$ = new Subject<void>();
 
     constructor(
         private _httpClient: HttpClient,
@@ -66,6 +67,8 @@ export class NotificationsService {
                 }
             }
             this._notifications.next(updatedNotifications);
+            // Emit event for task/request notifications
+            this.taskUpdate$.next();
         });
     }
 

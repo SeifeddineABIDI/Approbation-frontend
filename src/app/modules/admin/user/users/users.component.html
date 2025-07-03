@@ -14,17 +14,17 @@
                         class="icon-size-5 text-secondary"
                         [svgIcon]="'heroicons_mini:chevron-right'"></mat-icon>
                     <a class="ml-1 text-primary-500">{{ 'List'|transloco }}</a>
-                    
+
                 </div>
             </div>
-            
+
             <!-- Title -->
             <div class="mt-2">
                 <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-7 sm:leading-10 truncate">
                    {{ 'Users list'| transloco }}
                 </h2>
             </div>
-            
+
         </div>
         <ng-container *ngIf="flashMessageDelete === 'success'">
             <mat-icon
@@ -32,17 +32,17 @@
                 [svgIcon]="'heroicons_outline:check'"></mat-icon>
             <span class="ml-2">User deleted successfully</span>
         </ng-container>
-        
+
         <ng-container *ngIf="flashMessageDelete === 'error'">
             <mat-icon
                 class="text-red-500"
                 [svgIcon]="'heroicons_outline:x-mark'"></mat-icon>
             <span class="ml-2">An error occurred, try again!</span>
         </ng-container>
-        
+
         <!-- Title -->
         <!-- Actions -->
-        
+
         <div class="flex shrink-0 items-center mt-6 sm:mt-0 sm:ml-4">
 
             <!-- Search -->
@@ -59,9 +59,9 @@
                     [autocomplete]="'on'"
                     [placeholder]="'Search users'">
             </mat-form-field>
-           
+
         </div>
-        
+
     </div>
 
     <!-- Main -->
@@ -98,7 +98,7 @@
                                             <img
                                                 class="w-8"
                                                 *ngIf="product.avatar"
-                                                [alt]="'Product thumbnail image'"
+                                                [alt]="'User profile image'"
                                                 [src]="getAvatarUrl(product.avatar)">
                                                 <div
                                                 class="flex items-center justify-center w-full h-full text-xs font-semibold leading-none text-center uppercase"
@@ -133,7 +133,7 @@
                             </ng-container>
                         </ng-container>
                     </div>
-<!-- 
+<!--
                     <mat-paginator
                         class="sm:absolute sm:inset-x-0 sm:bottom-0 border-b sm:border-t sm:border-b-0 z-10 bg-gray-50 dark:bg-transparent"
                         [ngClass]="{'pointer-events-none': isLoading}"
@@ -162,7 +162,7 @@
                                 <div class="flex flex-col items-center sm:items-start mb-8 sm:mb-0">
                                     <div class="flex flex-col items-center">
                                         <div class="w-32 h-44 border rounded overflow-hidden">
-                                            
+
                                             <ng-container *ngIf="selectedProductForm.get('avatar')?.value?.length; else noImage">
                                                 <img
                                                     class="w-full h-full object-cover"
@@ -224,9 +224,9 @@
                                             <input
                                                 matInput
                                                 [formControlName]="'lastName'">
-                                        </mat-form-field>     
+                                        </mat-form-field>
                                         </div>                                   <div class="flex">
-                                           
+
                                         </div>
 
                                         <!-- Category, Brand & Vendor -->
@@ -273,7 +273,7 @@
                                     </div>
 
                                 </div>
-                           
+
                             </div>
 
                             <div class="flex items-center justify-between w-full border-t px-8 py-4">

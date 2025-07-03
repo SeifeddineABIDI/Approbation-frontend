@@ -16,6 +16,7 @@ export const defaultNavigation: FuseNavigationItem[] = [
         type : 'basic',
         icon : 'heroicons_outline:user-group',
         link : '/example/team-calendar',
+        roles: ['ADMIN','MANAGER','RH','USER']
     },
     {
         id   : 'requests',

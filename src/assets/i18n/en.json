@@ -1,5 +1,16 @@
 {
     "Home": "Home",
+    "Team Calendar": "Team Calendar",
+    "Requests": "Requests",
+    "Process Modeller": "Process Modeller",
+    "Users": "Users",
+    "List": "List",
+    "Add": "Add",
+    "Request congé": "Request leave",
+    "Demande de congés": "Leave requests",
+    "Completed Tasks": "Completed Tasks",
+    "My requests": "My requests",
+    "My vacations": "My vacations",
     
     "welcome-back": "Welcome back",
     "Project": "Project",
@@ -12,7 +23,6 @@
     "Leave balance": "Leave balance",
     "Days": "Days",
     "Tasks": "Tasks",
-    "Requests": "Requests",
     "Request congé": "Request leave",
     "Users": "Users",
     "List": "List",
@@ -50,5 +60,7 @@
     "december": "December"
   },
   "Users list": "Users list",
-  "Demande d'autorisation": "Authorization request"
+  "Demande d'autorisation": "Authorization request",
+  "Authorization credit": "Authorization credit",
+  "Authorization Occurency": "Authorization Occurency"
 }

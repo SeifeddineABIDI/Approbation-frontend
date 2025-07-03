@@ -42,48 +42,86 @@ export class ExampleComponent implements OnInit
     }
 
     ngOnInit(): void {
-        const accessToken=localStorage.getItem('accessToken');
-        this._userService.user$.subscribe(user=>this.user=user);
+        const accessToken = localStorage.getItem('accessToken');
+        // Get matricule from local storage
         const userData = localStorage.getItem('user');
+        let matricule: string | null = null;
         if (userData) {
-            this.user = JSON.parse(userData);}
-        this._userService.getUsersStats(this.user.matricule,accessToken).subscribe({
+            const parsedUser = JSON.parse(userData);
+            matricule = parsedUser?.matricule;
+        }
+        if (matricule && accessToken) {
+            this._userService.getUsersByMatricule(matricule, accessToken).subscribe({
+                next: (user) => {
+                    this.user = user;
+                    this.fetchUserStatsAndTeam();
+                },
+                error: (err) => {
+                    // Fallback to local storage if backend fails
+                    if (userData) {
+                        this.user = JSON.parse(userData);
+                        this.fetchUserStatsAndTeam();
+                    } else {
+                        this.errorMessage = 'Failed to fetch user data.';
+                    }
+                }
+            });
+        } else if (userData) {
+            this.user = JSON.parse(userData);
+            this.fetchUserStatsAndTeam();
+        } else {
+            this.errorMessage = 'No user information available.';
+        }
+    }
+
+    fetchUserStatsAndTeam(): void {
+        const accessToken = localStorage.getItem('accessToken');
+        if (!this.user) return;
+        this._userService.getUsersStats(this.user.matricule, accessToken).subscribe({
             next: (stats) => {
-              // On success, extract the data and assign it to component variables
-              this.completedTasks = stats.completedTasks;
-              this.waitingTasks = stats.waitingTasks;
-              this.allTasks = stats.completedTasks + stats.waitingTasks;
-              this.authCredit=stats.authCredit;
-              this.authOcc=stats.authOcc;
+                this.completedTasks = stats.completedTasks;
+                this.waitingTasks = stats.waitingTasks;
+                this.allTasks = stats.completedTasks + stats.waitingTasks;
+                this.authCredit = stats.authCredit;
+                this.authOcc = stats.authOcc;
             },
             error: (error) => {
-              // Handle error
-              this.errorMessage = error.message || 'An error occurred while fetching task stats';
+                this.errorMessage = error.message || 'An error occurred while fetching task stats';
             }
-          });
-          if (this.user.role != 'ADMIN')
-             {
-          this._userService.getTeam(this.user.matricule, accessToken).subscribe({
-            next: (data) => {
-              this.team = data;
-              
-            },
-            error: (err) => {
-              this.errorMessage = 'Failed to fetch team data.';
-            }
-          });
+        });
+        if (this.user.role != 'ADMIN') {
+            this._userService.getTeam(this.user.matricule, accessToken).subscribe({
+                next: (data) => {
+                    this.team = data;
+                    // Add manager to the team if user has a manager
+                    const managerMatricule = this.user.managerMatricule || (this.user.manager && this.user.manager.matricule);
+                    if (managerMatricule) {
+                        this._userService.getUsersByMatricule(managerMatricule, accessToken).subscribe({
+                            next: (manager) => {
+                                // Avoid duplicates
+                                if (!this.team.some(member => member.matricule === manager.matricule)) {
+                                    this.team = [manager, ...this.team];
+                                }
+                            }
+                        });
+                    }
+                },
+                error: (err) => {
+                    this.errorMessage = 'Failed to fetch team data.';
+                }
+            });
         }
-      }
+    }
 
-      getAvatarUrl(userId: any): string {
+    getAvatarUrl(userId: any): string {
         if (!userId)  {
-          console.warn('Invalid user or user ID for avatar:', userId);
-          return 'https://via.placeholder.com/40';
+            console.warn('Invalid user or user ID for avatar:', userId);
+            return 'https://via.placeholder.com/40';
         }
         return `${this.apiUrl}/api/v1/management/${userId}/image`;
-      }
+    }
 
-          goToSettings(): void {
-            this._router.navigate(['/settings']);
-        }
+    goToSettings(): void {
+        this._router.navigate(['/settings']);
+    }
 }

@@ -247,11 +247,13 @@ export class InventoryListComponent implements OnInit, AfterViewInit, OnDestroy
             }
         }
     }
-onRequestTypeChange(): void {
+    onRequestTypeChange(): void {
         this.pagination.page = 0;
+        const sortField = this._sort ? this._sort.active : 'requestDate'; // or your default
+        const sortDirection = this._sort ? this._sort.direction : 'asc';  // or your default
         this.getLeaveRequests(
             this.pagination.page, this.pagination.size, localStorage.getItem('accessToken'),
-            this.searchInputControl.value, this._sort.active, this._sort.direction
+            this.searchInputControl.value, sortField, sortDirection
         );
     }
     getFormattedDate(date: string | Date): string | null {

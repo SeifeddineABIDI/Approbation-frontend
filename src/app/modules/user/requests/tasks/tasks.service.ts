@@ -75,6 +75,7 @@ fetchTasks(userMatricule: string): void {
         tap((tasks: Task[]) => {
             this._tasks.next(tasks);
             this._tasksCount.next(tasks.length);
+            console.log('Tasks fetched and count updated:', tasks.length);
         })
     ).subscribe({
         error: (err) => console.error('Error fetching tasks:', err)

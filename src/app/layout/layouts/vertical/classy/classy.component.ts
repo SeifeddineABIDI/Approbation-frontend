@@ -144,30 +144,31 @@ export class ClassyLayoutComponent implements OnInit, OnDestroy
         
     }
     private _updateTaskCountBadge(count?: number): void {  
-        if (!this.navigation) return;
-    
-        let updated = false; // Track if changes happen
-    
-        // Iterate through the navigation structure
-        Object.keys(this.navigation).forEach((key) => {
-            const navGroup = this.navigation[key];
-    
+        // Get the main navigation component
+        const mainNavigationComponent = this._fuseNavigationService.getComponent<FuseVerticalNavigationComponent>('mainNavigation');
+        if (!mainNavigationComponent) return;
+
+        const mainNavigation = mainNavigationComponent.navigation;
+        let updated = false;
+
+        Object.keys(mainNavigation).forEach((key) => {
+            const navGroup = mainNavigation[key];
             if (Array.isArray(navGroup)) {
                 navGroup.forEach((item) => {
                     if (item.id === 'navigation-features.badge-style-oval' && item.badge) {
                         const newCount = count ? count.toString() : '0';
-                        
                         if (item.badge.title !== newCount) {
                             item.badge.title = newCount;
-                            updated = true; // Flag that an update happened
+                            updated = true;
                         }
                     }
                 });
             }
         });
-    
+
         if (updated) {
-            this._cdr.markForCheck(); // Ensure Angular detects the change
+            mainNavigationComponent.refresh(); // Force the navigation to re-render
+            this._cdr.markForCheck();
         }
     }
     setScheme(scheme: 'auto' | 'dark' | 'light'): void {

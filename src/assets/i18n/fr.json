@@ -37,6 +37,10 @@
   "Frensh":"Français",
   "Team Calendar":"Calendrier d'équipe",
   "Process Modeller":"Modélisateur de processus",
+  "Demande de congés": "Demandes de congés",
+  "Completed Tasks": "Tâches terminées",
+  "My requests": "Mes demandes",
+  "My vacations": "Mes congés",
     "calendar": {
       "prev": "Précédent",
       "next": "Suivant",
@@ -75,5 +79,7 @@
     "Request":"Demande",
     "Select request type":"Sélectionner le type de demande",
 
-    "Leave request":"Demande de congé"
+    "Leave request":"Demande de congé",
+  "Authorization credit": "Crédit d'autorisation",
+  "Authorization Occurency": "Occurence d'autorisation"
 }
